@@ -468,6 +468,10 @@ const useRaceEngine = () => {
     }
   }, [state.turnCount, emitEvents]);
 
+  const resetRace = useCallback(() => {
+    setState(createInitialState(deckOverrides));
+  }, [deckOverrides]);
+
   return {
     players: state.players,
     tiles,
@@ -478,6 +482,7 @@ const useRaceEngine = () => {
     turnCount: state.turnCount,
     raceClass: state.raceClass,
     drawNextCard: drawNextCardWithToasts,
+    resetRace,
   };
 };
 

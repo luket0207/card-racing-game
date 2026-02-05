@@ -225,6 +225,23 @@
   line-height: 1.2rem;
 }
 
+.race__winnerModal {
+  display: grid;
+  gap: 1rem;
+}
+
+.race__winnerModalText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $darkText;
+}
+
+.race__winnerModalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .race__players {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 18px;

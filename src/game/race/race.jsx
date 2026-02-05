@@ -4,6 +4,8 @@ import Deck from "./components/deck/deck";
 import Track from "./components/track/track";
 import useRaceEngine from "./components/raceEngine";
 import { useToast } from "../../engine/ui/toast/toast";
+import { useModal, MODAL_BUTTONS } from "../../engine/ui/modal/modalContext";
+import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import Piece from "./components/piece/piece";
 import "./race.scss";
 
@@ -18,8 +20,10 @@ const Race = () => {
     turnCount,
     raceClass,
     drawNextCard,
+    resetRace,
   } = useRaceEngine();
   const { log, clearLog } = useToast();
+  const { openModal, closeModal } = useModal();
   const navigate = useNavigate();
   const [tilePositions, setTilePositions] = useState({});
   const [moveDurationMs, setMoveDurationMs] = useState(500);
@@ -77,8 +81,36 @@ const Race = () => {
 
   useEffect(() => {
     if (!winner) return;
-    navigate("/");
-  }, [winner, navigate]);
+    openModal({
+      modalTitle: "Race Finished",
+      modalContent: (
+        <div className="race__winnerModal">
+          <p className="race__winnerModalText">{winner.name} wins the race!</p>
+          <div className="race__winnerModalActions">
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={() => {
+                closeModal();
+                resetRace();
+              }}
+            >
+              Race Again
+            </Button>
+            <Button
+              variant={BUTTON_VARIANT.TERTIARY}
+              onClick={() => {
+                closeModal();
+                navigate("/");
+              }}
+            >
+              Return Home
+            </Button>
+          </div>
+        </div>
+      ),
+      buttons: MODAL_BUTTONS.NONE,
+    });
+  }, [winner, openModal, closeModal, navigate]);
 
   return (
     <div className="race">

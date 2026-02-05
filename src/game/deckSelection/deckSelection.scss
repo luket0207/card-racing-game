@@ -1,7 +1,7 @@
 @use "../../assets/scss/ui/import" as *;
 
 .deck-selection {
-  min-height: 100vh;
+  height: 100vh;
   padding: 2.5rem clamp(1.5rem, 4vw, 4rem);
   background:
     radial-gradient(circle at top, rgba(46, 125, 100, 0.35), transparent 55%),
@@ -9,6 +9,7 @@
   color: $lightText;
   display: grid;
   gap: 2rem;
+  grid-template-rows: auto 1fr;
 }
 
 .deck-selection__header {
@@ -30,6 +31,7 @@
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   gap: 2rem;
+  min-height: 0;
 }
 
 .deck-selection__players {
@@ -131,6 +133,39 @@
   padding: 1.5rem;
   display: grid;
   gap: 1rem;
+  grid-template-rows: auto auto 1fr;
+  min-height: 0;
+}
+
+.deck-selection__currency {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.6rem 0.9rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.deck-selection__currencyTitle {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 700;
+}
+
+.deck-selection__currencyList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.deck-selection__currencyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .deck-selection__cardsHeader {
@@ -144,6 +179,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
+  overflow: auto;
+  padding-right: 0.5rem;
 }
 
 .deck-selection__card {
@@ -154,6 +191,12 @@
   display: grid;
   gap: 0.5rem;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.deck-selection__cardCost {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .deck-selection__cardTop {
