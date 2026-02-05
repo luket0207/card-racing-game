@@ -6,6 +6,14 @@ import { useToast } from "../../engine/ui/toast/toast";
 import cards from "../../assets/gameContent/cards";
 import "./deckSelection.scss";
 
+const DEFAULT_COLORS = [
+  { label: "Red", value: "#ff6b6b" },
+  { label: "Blue", value: "#4dabf7" },
+  { label: "Green", value: "#63e6be" },
+  { label: "Yellow", value: "#ffd43b" },
+  { label: "Orange", value: "#ffa94d" },
+];
+
 const PLAYER_LIST = [
   { id: "player1", name: "Player 1" },
   { id: "player2", name: "Player 2" },
@@ -15,20 +23,34 @@ const PLAYER_LIST = [
 
 const DeckSelection = () => {
   const navigate = useNavigate();
-  const { setGameState } = useGame();
+  const { gameState, setGameState } = useGame();
   const { clearLog } = useToast();
+  const racers = useMemo(() => {
+    const list =
+      Array.isArray(gameState?.racers) && gameState.racers.length > 0
+        ? gameState.racers
+        : PLAYER_LIST.map((p, idx) => ({
+            id: p.id,
+            name: p.name,
+            type: idx < 2 ? "human" : "ai",
+            color: DEFAULT_COLORS[idx % DEFAULT_COLORS.length]?.value ?? "#ffffff",
+          }));
+    return list;
+  }, [gameState?.racers]);
+
+  const humanRacers = useMemo(() => racers.filter((r) => r.type === "human"), [racers]);
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
-  const activePlayerId = PLAYER_LIST[activePlayerIndex]?.id ?? "player1";
-  const activePlayerName = PLAYER_LIST[activePlayerIndex]?.name ?? "Player 1";
+  const activePlayerId = humanRacers[activePlayerIndex]?.id ?? "player1";
+  const activePlayerName = humanRacers[activePlayerIndex]?.name ?? "Player 1";
   const [decks, setDecks] = useState(() =>
-    PLAYER_LIST.reduce((acc, player) => {
+    racers.reduce((acc, player) => {
       acc[player.id] = [];
       return acc;
     }, {})
   );
   const [confirmed, setConfirmed] = useState(() =>
-    PLAYER_LIST.reduce((acc, player) => {
-      acc[player.id] = false;
+    racers.reduce((acc, player) => {
+      acc[player.id] = player.type !== "human";
       return acc;
     }, {})
   );
@@ -60,6 +82,52 @@ const DeckSelection = () => {
     },
     [getSpendByClass]
   );
+
+  const buildRandomDeck = useCallback(() => {
+    const cost3Cards = cards.filter((card) => card.cost === 3);
+    const buildDeck = (enforceCost3) => {
+      const target = Math.floor(Math.random() * 3) + 2; // 2-4
+      const deck = [];
+      let attempts = 0;
+
+      if (enforceCost3) {
+        while (deck.length < target && attempts < 2000) {
+          attempts += 1;
+          const card = cost3Cards[Math.floor(Math.random() * cost3Cards.length)];
+          if (!card) continue;
+          if (!canAffordCard(deck, card)) continue;
+          deck.push(card.id);
+        }
+        if (deck.filter((id) => cards.find((c) => c.id === id)?.cost === 3).length < 2) {
+          return null;
+        }
+      }
+
+      attempts = 0;
+      while (deck.length < 16 && attempts < 8000) {
+        attempts += 1;
+        const card = cards[Math.floor(Math.random() * cards.length)];
+        if (!card) continue;
+        if (!canAffordCard(deck, card)) continue;
+        deck.push(card.id);
+      }
+
+      return deck.length === 16 ? deck : null;
+    };
+
+    let deck = null;
+    for (let i = 0; i < 200; i += 1) {
+      deck = buildDeck(true);
+      if (deck) break;
+    }
+    if (!deck) {
+      for (let i = 0; i < 200; i += 1) {
+        deck = buildDeck(false);
+        if (deck) break;
+      }
+    }
+    return deck ?? [];
+  }, [canAffordCard]);
 
   const addCard = useCallback(
     (cardId) => {
@@ -95,53 +163,11 @@ const DeckSelection = () => {
     (playerId) => {
       setDecks((prev) => {
         if (confirmed[playerId]) return prev;
-        const cost3Cards = cards.filter((card) => card.cost === 3);
-        const buildDeck = (enforceCost3) => {
-          const target = Math.floor(Math.random() * 3) + 2; // 2-4
-          const deck = [];
-          let attempts = 0;
-
-          if (enforceCost3) {
-            while (deck.length < target && attempts < 2000) {
-              attempts += 1;
-              const card = cost3Cards[Math.floor(Math.random() * cost3Cards.length)];
-              if (!card) continue;
-              if (!canAffordCard(deck, card)) continue;
-              deck.push(card.id);
-            }
-            if (deck.filter((id) => cards.find((c) => c.id === id)?.cost === 3).length < 2) {
-              return null;
-            }
-          }
-
-          attempts = 0;
-          while (deck.length < 16 && attempts < 8000) {
-            attempts += 1;
-            const card = cards[Math.floor(Math.random() * cards.length)];
-            if (!card) continue;
-            if (!canAffordCard(deck, card)) continue;
-            deck.push(card.id);
-          }
-
-          return deck.length === 16 ? deck : null;
-        };
-
-        let deck = null;
-        for (let i = 0; i < 200; i += 1) {
-          deck = buildDeck(true);
-          if (deck) break;
-        }
-        if (!deck) {
-          for (let i = 0; i < 200; i += 1) {
-            deck = buildDeck(false);
-            if (deck) break;
-          }
-        }
-
+        const deck = buildRandomDeck();
         return { ...prev, [playerId]: deck ?? [] };
       });
     },
-    [canAffordCard, confirmed]
+    [buildRandomDeck, confirmed]
   );
 
   const clearDeck = useCallback(
@@ -155,8 +181,8 @@ const DeckSelection = () => {
   );
 
   const isReady = useMemo(
-    () => PLAYER_LIST.every((player) => confirmed[player.id]),
-    [confirmed]
+    () => racers.every((player) => confirmed[player.id]),
+    [confirmed, racers]
   );
 
   const activeDeckFull = activeDeck.length === 16;
@@ -164,22 +190,28 @@ const DeckSelection = () => {
 
   const startRace = useCallback(() => {
     if (!isReady) return;
+    const withAiDecks = { ...decks };
+    racers.forEach((r) => {
+      if (r.type === "ai" && (!withAiDecks[r.id] || withAiDecks[r.id].length !== 16)) {
+        withAiDecks[r.id] = buildRandomDeck();
+      }
+    });
     setGameState((prev) => ({
       ...prev,
-      player1: { ...prev.player1, deck: decks.player1, position: 0 },
-      player2: { ...prev.player2, deck: decks.player2, position: 0 },
-      player3: { ...prev.player3, deck: decks.player3, position: 0 },
-      player4: { ...prev.player4, deck: decks.player4, position: 0 },
+      player1: { ...prev.player1, deck: withAiDecks.player1 ?? [], position: 0 },
+      player2: { ...prev.player2, deck: withAiDecks.player2 ?? [], position: 0 },
+      player3: { ...prev.player3, deck: withAiDecks.player3 ?? [], position: 0 },
+      player4: { ...prev.player4, deck: withAiDecks.player4 ?? [], position: 0 },
     }));
     clearLog();
     navigate("/race");
-  }, [clearLog, decks, isReady, navigate, setGameState]);
+  }, [buildRandomDeck, clearLog, decks, isReady, navigate, racers, setGameState]);
 
   const confirmDeck = useCallback(() => {
     if (!activeDeckFull || activeConfirmed) return;
     setConfirmed((prev) => ({ ...prev, [activePlayerId]: true }));
-    setActivePlayerIndex((prev) => Math.min(prev + 1, PLAYER_LIST.length - 1));
-  }, [activeConfirmed, activeDeckFull, activePlayerId]);
+    setActivePlayerIndex((prev) => Math.min(prev + 1, humanRacers.length - 1));
+  }, [activeConfirmed, activeDeckFull, activePlayerId, humanRacers.length]);
 
   return (
     <div className="deck-selection">
@@ -201,11 +233,11 @@ const DeckSelection = () => {
           </div>
 
           <div className="deck-selection__playerStatus">
-            {PLAYER_LIST.map((player, index) => (
+            {racers.map((player) => (
               <div
                 key={player.id}
                 className={`deck-selection__playerRow${
-                  index === activePlayerIndex ? " deck-selection__playerRow--active" : ""
+                  player.id === activePlayerId ? " deck-selection__playerRow--active" : ""
                 }`}
               >
                 <span>{player.name}</span>

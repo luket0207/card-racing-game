@@ -4,6 +4,7 @@ import Home from "./game/home/home";
 import Info from "./game/info/info";
 import Race from "./game/race/race";
 import DeckSelection from "./game/deckSelection/deckSelection";
+import RaceSetup from "./game/raceSetup/raceSetup";
 
 const NotFound = () => <div>404</div>;
 
@@ -12,6 +13,7 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/info" element={<Info />} />
+      <Route path="/race-setup" element={<RaceSetup />} />
       <Route path="/deck-selection" element={<DeckSelection />} />
       <Route path="/race" element={<Race />} />
 

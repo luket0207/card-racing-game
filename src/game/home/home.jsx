@@ -9,8 +9,8 @@ const Home = () => {
         <Button variant={BUTTON_VARIANT.PRIMARY} to="/info">
           Go to Info
         </Button>
-        <Button variant={BUTTON_VARIANT.SECONDARY} to="/deck-selection">
-          Deck Selection
+        <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
+          Race Setup
         </Button>
       </div>
     </div>

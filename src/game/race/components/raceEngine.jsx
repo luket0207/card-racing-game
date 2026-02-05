@@ -332,9 +332,10 @@ const tickStatuses = (players) =>
       .filter((entry) => entry.duration > 0),
   }));
 
-const createInitialState = (deckOverrides = {}) => {
-  const players = PLAYER_CONFIG.map((player) => ({
+const createInitialState = (deckOverrides = {}, racers = PLAYER_CONFIG) => {
+  const players = racers.map((player, index) => ({
     ...player,
+    short: player.short ?? `P${index + 1}`,
     deck: resolveDeck(deckOverrides[player.id]),
     position: 0,
     status: [],
@@ -371,7 +372,18 @@ const useRaceEngine = () => {
     }),
     [gameState]
   );
-  const [state, setState] = useState(() => createInitialState(deckOverrides));
+  const racers = useMemo(() => {
+    if (Array.isArray(gameState?.racers) && gameState.racers.length > 0) {
+      return gameState.racers.map((r, idx) => ({
+        id: r.id,
+        name: r.name,
+        short: r.short ?? `P${idx + 1}`,
+        color: r.color ?? PLAYER_CONFIG[idx]?.color ?? "#ffffff",
+      }));
+    }
+    return PLAYER_CONFIG;
+  }, [gameState?.racers]);
+  const [state, setState] = useState(() => createInitialState(deckOverrides, racers));
   const pendingEventsRef = useRef([]);
 
   const tiles = useMemo(
@@ -469,8 +481,8 @@ const useRaceEngine = () => {
   }, [state.turnCount, emitEvents]);
 
   const resetRace = useCallback(() => {
-    setState(createInitialState(deckOverrides));
-  }, [deckOverrides]);
+    setState(createInitialState(deckOverrides, racers));
+  }, [deckOverrides, racers]);
 
   return {
     players: state.players,

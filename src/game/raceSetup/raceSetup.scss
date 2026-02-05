@@ -1,0 +1,121 @@
+@use "../../assets/scss/ui/import" as *;
+
+.race-setup {
+  min-height: 100vh;
+  padding: 2.5rem clamp(1.5rem, 4vw, 4rem);
+  background:
+    radial-gradient(circle at top, rgba(46, 125, 100, 0.35), transparent 55%),
+    linear-gradient(135deg, #0f2f2b, #1a4a42);
+  color: $lightText;
+  display: grid;
+  gap: 2rem;
+}
+
+.race-setup__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+
+  p {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.race-setup__controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.race-setup__control {
+  display: grid;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+
+  label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 700;
+  }
+
+  select {
+    border-radius: 10px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.3);
+    color: $lightText;
+  }
+}
+
+.race-setup__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.race-setup__card {
+  background: rgba(255, 255, 255, 0.9);
+  color: $darkText;
+  border-radius: 14px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.race-setup__cardHeader {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.race-setup__cardHeader .is-human {
+  color: #115752;
+}
+
+.race-setup__cardHeader .is-ai {
+  color: #b42318;
+}
+
+.race-setup__field {
+  display: grid;
+  gap: 0.35rem;
+
+  label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: 700;
+  }
+
+  input,
+  select {
+    border-radius: 10px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+  }
+
+  input:disabled {
+    background: rgba(0, 0, 0, 0.08);
+  }
+}
+
+.race-setup__colorSwatch {
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.race-setup__footer {
+  display: flex;
+  justify-content: flex-end;
+}
