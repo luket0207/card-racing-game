@@ -1,0 +1,326 @@
+@use "../../assets/scss/ui/import" as *;
+
+.race {
+  min-height: 100vh;
+  padding: 3rem clamp(1.5rem, 4vw, 4rem);
+  background:
+    radial-gradient(circle at top, rgba(46, 125, 100, 0.35), transparent 55%),
+    radial-gradient(circle at 20% 20%, rgba(17, 87, 82, 0.4), transparent 45%),
+    linear-gradient(135deg, #0f2f2b, #1a4a42);
+  color: $lightText;
+}
+
+.race__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.race__eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.4rem;
+}
+
+.race__title {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  margin-bottom: 0.4rem;
+}
+
+.race__subtitle {
+  max-width: 520px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.race__status {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  min-width: 180px;
+  display: grid;
+  gap: 0.3rem;
+  text-align: right;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.race__statusLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.race__statusValue {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.race__winner {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffd43b;
+}
+
+.race__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 2rem;
+}
+
+.race__trackPanel {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.race-track {
+  margin-top: 0;
+}
+
+.race__classBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  padding: 0.5rem 1.2rem;
+  height: 60px;
+  align-self: start;
+  width: 100%;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.race__classLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.race__classValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.race__classBanner[data-class="Red"] {
+  background: linear-gradient(120deg, rgba(255, 107, 107, 0.4), rgba(0, 0, 0, 0.25));
+}
+
+.race__classBanner[data-class="Blue"] {
+  background: linear-gradient(120deg, rgba(77, 171, 247, 0.4), rgba(0, 0, 0, 0.25));
+}
+
+.race__classBanner[data-class="Green"] {
+  background: linear-gradient(120deg, rgba(99, 230, 190, 0.4), rgba(0, 0, 0, 0.25));
+}
+
+.race__classBanner[data-class="Yellow"] {
+  background: linear-gradient(120deg, rgba(255, 212, 59, 0.4), rgba(0, 0, 0, 0.25));
+  color: #1d1d1d;
+}
+
+.race__classBanner[data-class="Orange"] {
+  background: linear-gradient(120deg, rgba(255, 146, 43, 0.4), rgba(0, 0, 0, 0.25));
+}
+
+.race__sidePanel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.race__log {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 1.1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.race__logHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    font-size: 1.1rem;
+  }
+}
+
+.race__logClear {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: $lightText;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.race__logList {
+  display: grid;
+  gap: 0.6rem;
+  max-height: 240px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.race__logEmpty {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.race__logItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  align-items: start;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.5rem 0.6rem;
+}
+
+.race__logBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  color: #1b1b1b;
+  background: #ffffff;
+  min-width: 34px;
+  text-align: center;
+}
+
+.race__logBadge--player1 {
+  background: #ff6b6b;
+  color: #1b1b1b;
+}
+
+.race__logBadge--player2 {
+  background: #4dabf7;
+  color: #102038;
+}
+
+.race__logBadge--player3 {
+  background: #63e6be;
+  color: #0b2f2a;
+}
+
+.race__logBadge--player4 {
+  background: #ffd43b;
+  color: #1d1d1d;
+}
+
+.race__logText {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.2rem;
+}
+
+.race__winnerModal {
+  display: grid;
+  gap: 1rem;
+}
+
+.race__winnerModalText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $darkText;
+}
+
+.race__winnerModalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.race__players {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.race__playersHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.race__playerCard {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.race__playerBadge {
+  height: 44px;
+  width: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--player-color);
+  color: $darkText;
+  font-weight: 700;
+}
+
+.race__playerName {
+  font-weight: 600;
+}
+
+.race__playerPos {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.race__playerStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.race__playerDeck {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 1100px) {
+  .race__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .race__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .race__status {
+    text-align: left;
+  }
+}

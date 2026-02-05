@@ -1,0 +1,135 @@
+@use "../../../../assets/scss/ui/import" as *;
+
+.race-deck {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 18px;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+
+  &__header {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+
+    h2 {
+      margin-bottom: 0.25rem;
+      font-size: 1.4rem;
+      color: #333;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  &__counts {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 140px;
+
+    div {
+      display: grid;
+      gap: 0.2rem;
+      background: rgba(17, 87, 82, 0.12);
+      border-radius: 10px;
+      padding: 0.5rem 0.7rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    strong {
+      font-size: 1.2rem;
+      color: $darkText;
+      letter-spacing: 0;
+    }
+  }
+
+  &__card {
+    background: linear-gradient(135deg, #f1f3f5, #ffffff);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    display: grid;
+    gap: 0.35rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  &__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: 700;
+  }
+
+  &__draw {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  &__reshuffle {
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  &__actions {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__auto {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  &__autoRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__autoLabel {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.55);
+    font-weight: 700;
+  }
+
+  &__autoValue {
+    font-weight: 700;
+    font-size: 0.9rem;
+    min-width: 48px;
+    text-align: right;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  &__winnerBanner {
+    background: linear-gradient(120deg, #115752, #2e7d64);
+    color: $lightText;
+    padding: 0.6rem 0.9rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .race-deck {
+    &__header {
+      flex-direction: column;
+    }
+
+    &__counts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

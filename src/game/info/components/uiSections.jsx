@@ -347,7 +347,7 @@ const ModalExamples = () => {
 };
 
 const ToastExamples = () => {
-  const { showToast, log, clearLog } = useToast();
+    const { showToast, log, clearLog } = useToast();
   const [message, setMessage] = useState("Hello toast!");
 
   const durationMs = 3000;
@@ -360,12 +360,12 @@ const ToastExamples = () => {
     <div className="info__examplesRow">
       <div className="info__example info__example--full">
         <div className="info__exampleMeta">
-          <div className="info__exampleTitle">Trigger toasts</div>
-          <div className="info__exampleDesc">
-            Enter a message and click a button to emit a toast. Clicking the toast dismisses it
-            early. Auto-dismiss is set to {durationMs / 1000}s for this demo.
+            <div className="info__exampleTitle">Trigger toasts</div>
+            <div className="info__exampleDesc">
+              Enter a message and click a button to emit a toast. Clicking the toast dismisses it
+              early. Auto-dismiss is set to {durationMs / 1000}s for this demo.
+            </div>
           </div>
-        </div>
 
         <div className="info__formGrid">
           <div className="info__formRow">
@@ -380,21 +380,21 @@ const ToastExamples = () => {
             />
           </div>
 
-          <div className="info__buttonRow">
-            <Button variant={BUTTON_VARIANT.PRIMARY} onClick={() => fire(TOAST_TYPE.SUCCESS)}>
-              Success
-            </Button>
-            <Button variant={BUTTON_VARIANT.SECONDARY} onClick={() => fire(TOAST_TYPE.WARNING)}>
-              Warning
-            </Button>
-            <Button variant={BUTTON_VARIANT.SECONDARY} onClick={() => fire(TOAST_TYPE.ERROR)}>
-              Error
-            </Button>
-            <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => fire(TOAST_TYPE.INFO)}>
-              Info
-            </Button>
+            <div className="info__buttonRow">
+              <Button variant={BUTTON_VARIANT.PRIMARY} onClick={() => fire(TOAST_TYPE.PLAYER1)}>
+                Player 1
+              </Button>
+              <Button variant={BUTTON_VARIANT.SECONDARY} onClick={() => fire(TOAST_TYPE.PLAYER2)}>
+                Player 2
+              </Button>
+              <Button variant={BUTTON_VARIANT.SECONDARY} onClick={() => fire(TOAST_TYPE.PLAYER3)}>
+                Player 3
+              </Button>
+              <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => fire(TOAST_TYPE.PLAYER4)}>
+                Player 4
+              </Button>
+            </div>
           </div>
-        </div>
 
         <div className="info__toastLog">
           <div className="info__toastLogHeader">
@@ -409,15 +409,15 @@ const ToastExamples = () => {
               <div className="info__toastLogEmpty">No toasts yet.</div>
             ) : (
               log.map((entry) => (
-                <div key={entry.id} className="info__toastLogItem">
-                  <div className={`info__toastLogBadge info__toastLogBadge--${entry.type}`}>
-                    {entry.type.toUpperCase()}
+                  <div key={entry.id} className="info__toastLogItem">
+                    <div className={`info__toastLogBadge info__toastLogBadge--${entry.type}`}>
+                      {entry.type.replace("player", "P")}
+                    </div>
+                    <div className="info__toastLogMsg">{entry.message}</div>
                   </div>
-                  <div className="info__toastLogMsg">{entry.message}</div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
         </div>
       </div>
     </div>

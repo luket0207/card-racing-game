@@ -15,16 +15,31 @@ console.log(gameState.ui.top);
 const GameContext = createContext(null);
 
 const DEFAULT_GAME_STATE = Object.freeze({
-  player: {
-    health: 100,
-    money: 0,
-    progress: 0,
+  player1: {
+    racer: null,
+    deck: [],
+    position: 0,
   },
-  ui: {
-    top: "red",
-    mid: "green",
-    right: "blue",
+  player2: {
+    racer: null,
+    deck: [],
+    position: 0,
   },
+  player3: {
+    racer: null,
+    deck: [],
+    position: 0,
+  },
+  player4: {
+    racer: null,
+    deck: [],
+    position: 0,
+  },
+  gameState: {
+    shuffledDeck: [],
+    turn: 0,
+    discardPile: [],
+  }
 });
 
 const setByPath = (obj, path, value) => {

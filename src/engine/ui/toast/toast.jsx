@@ -14,13 +14,13 @@
  * import { useToast, TOAST_TYPE } from "../../engine/ui/toast/toast";
  *
  * const MyComponent = () => {
- *   const { showToast, success, warning, error, info } = useToast();
+ *   const { showToast, player1, player2, player3, player4 } = useToast();
  *
  *   return (
  *     <>
- *       <button onClick={() => success("Saved!")}>Success</button>
- *       <button onClick={() => showToast(TOAST_TYPE.ERROR, "Something broke", { durationMs: 5000 })}>
- *         Error (5s)
+ *       <button onClick={() => player1("Player 1 moved!")}>Player 1</button>
+ *       <button onClick={() => showToast(TOAST_TYPE.PLAYER2, "Player 2 gained stamina", { durationMs: 5000 })}>
+ *         Player 2 (5s)
  *       </button>
  *     </>
  *   );
@@ -31,10 +31,10 @@ import React, { createContext, useCallback, useContext, useMemo, useRef, useStat
 import "./toast.scss";
 
 export const TOAST_TYPE = Object.freeze({
-  SUCCESS: "success",
-  WARNING: "warning",
-  ERROR: "error",
-  INFO: "info",
+  PLAYER1: "player1",
+  PLAYER2: "player2",
+  PLAYER3: "player3",
+  PLAYER4: "player4",
 });
 
 const ToastContext = createContext(null);
@@ -44,6 +44,13 @@ const EXIT_ANIMATION_MS = 260;
 const isValidType = (type) => Object.values(TOAST_TYPE).includes(type);
 
 const makeId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+const TOAST_LABEL = Object.freeze({
+  [TOAST_TYPE.PLAYER1]: "Player 1",
+  [TOAST_TYPE.PLAYER2]: "Player 2",
+  [TOAST_TYPE.PLAYER3]: "Player 3",
+  [TOAST_TYPE.PLAYER4]: "Player 4",
+});
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
@@ -86,7 +93,7 @@ export const ToastProvider = ({ children }) => {
 
   const showToast = useCallback(
     (type, message, options = {}) => {
-      const safeType = isValidType(type) ? type : TOAST_TYPE.INFO;
+      const safeType = isValidType(type) ? type : TOAST_TYPE.PLAYER1;
       const safeMessage = typeof message === "string" ? message : String(message ?? "");
 
       const durationMsRaw = options.durationMs;
@@ -136,10 +143,10 @@ export const ToastProvider = ({ children }) => {
     [dismissToast]
   );
 
-  const success = useCallback((message, options) => showToast(TOAST_TYPE.SUCCESS, message, options), [showToast]);
-  const warning = useCallback((message, options) => showToast(TOAST_TYPE.WARNING, message, options), [showToast]);
-  const error = useCallback((message, options) => showToast(TOAST_TYPE.ERROR, message, options), [showToast]);
-  const info = useCallback((message, options) => showToast(TOAST_TYPE.INFO, message, options), [showToast]);
+  const player1 = useCallback((message, options) => showToast(TOAST_TYPE.PLAYER1, message, options), [showToast]);
+  const player2 = useCallback((message, options) => showToast(TOAST_TYPE.PLAYER2, message, options), [showToast]);
+  const player3 = useCallback((message, options) => showToast(TOAST_TYPE.PLAYER3, message, options), [showToast]);
+  const player4 = useCallback((message, options) => showToast(TOAST_TYPE.PLAYER4, message, options), [showToast]);
 
   const clearLog = useCallback(() => {
     setLog([]);
@@ -158,14 +165,14 @@ export const ToastProvider = ({ children }) => {
       toasts,
       log,
       showToast,
-      success,
-      warning,
-      error,
-      info,
+      player1,
+      player2,
+      player3,
+      player4,
       dismissToast,
       clearLog,
     }),
-    [toasts, log, showToast, success, warning, error, info, dismissToast, clearLog]
+    [toasts, log, showToast, player1, player2, player3, player4, dismissToast, clearLog]
   );
 
   return (
@@ -195,7 +202,7 @@ const ToastViewport = ({ toasts, onDismiss }) => {
           onClick={() => onDismiss(t.id)}
           title="Click to dismiss"
         >
-          <div className="toast__title">{t.type.toUpperCase()}</div>
+          <div className="toast__title">{TOAST_LABEL[t.type] ?? t.type}</div>
           <div className="toast__message">{t.message}</div>
         </button>
       ))}

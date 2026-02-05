@@ -375,17 +375,19 @@
   white-space: nowrap;
 }
 
-.info__toastLogBadge--success {
-  background: #1f6f54;
+.info__toastLogBadge--player1 {
+  background: #ff6b6b;
 }
-.info__toastLogBadge--warning {
-  background: #9a6b12;
+.info__toastLogBadge--player2 {
+  background: #4dabf7;
 }
-.info__toastLogBadge--error {
-  background: #b42318;
+.info__toastLogBadge--player3 {
+  background: #63e6be;
+  color: #0b2f2a;
 }
-.info__toastLogBadge--info {
-  background: #115752;
+.info__toastLogBadge--player4 {
+  background: #ffd43b;
+  color: #1d1d1d;
 }
 
 .info__toastLogMsg {

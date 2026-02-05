@@ -1,0 +1,76 @@
+@use "../../../../assets/scss/ui/import" as *;
+
+.race-card {
+  background: linear-gradient(160deg, #ffffff, #f1f3f5);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: grid;
+  gap: 0.5rem;
+  position: relative;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+
+  &__header,
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__id {
+    font-weight: 700;
+  }
+
+  &__class {
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(17, 87, 82, 0.1);
+    font-weight: 700;
+  }
+
+  &__title {
+    font-size: 1.1rem;
+    color: $darkText;
+  }
+
+  &__text {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  &__owner {
+    font-weight: 700;
+  }
+
+  &__code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    text-transform: none;
+    letter-spacing: 0;
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  &[data-class="Red"] {
+    border-color: rgba(255, 107, 107, 0.6);
+  }
+
+  &[data-class="Blue"] {
+    border-color: rgba(77, 171, 247, 0.6);
+  }
+
+  &[data-class="Green"] {
+    border-color: rgba(99, 230, 190, 0.6);
+  }
+
+  &[data-class="Yellow"] {
+    border-color: rgba(255, 212, 59, 0.6);
+  }
+
+  &[data-class="Orange"] {
+    border-color: rgba(255, 146, 43, 0.6);
+  }
+}
