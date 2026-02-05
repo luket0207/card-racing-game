@@ -48,6 +48,24 @@
     gap: 0.5rem;
   }
 
+  &__board {
+    position: relative;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__overlayPiece {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    transition:
+      left var(--move-duration, 500ms) ease,
+      top var(--move-duration, 500ms) ease;
+  }
+
   &__tile {
     position: relative;
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));

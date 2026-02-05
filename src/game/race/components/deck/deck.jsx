@@ -4,11 +4,12 @@ import { Slider } from "primereact/slider";
 import CardDisplay from "../card/card";
 import "./deck.scss";
 
-const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, onReset }) => {
+const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw }) => {
   const lastDrawText = lastDraw
     ? `${lastDraw.playerName} drew ${lastDraw.cardName}`
     : "No cards drawn yet.";
   const [autoDelay, setAutoDelay] = useState(0);
+  const [manualCooldown, setManualCooldown] = useState(false);
 
   const autoDelayLabel = useMemo(() => {
     if (!autoDelay) return "Off";
@@ -19,11 +20,17 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, onReset }
     if (!autoDelay || winner) return undefined;
 
     const interval = setInterval(() => {
-      onDraw();
+      onDraw({ source: "auto", delaySec: autoDelay });
     }, autoDelay * 1000);
 
     return () => clearInterval(interval);
   }, [autoDelay, onDraw, winner]);
+
+  useEffect(() => {
+    if (!manualCooldown) return undefined;
+    const timeout = setTimeout(() => setManualCooldown(false), 500);
+    return () => clearTimeout(timeout);
+  }, [manualCooldown]);
 
   return (
     <section className="race-deck">
@@ -45,11 +52,16 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, onReset }
       </div>
 
       <div className="race-deck__actions">
-        <Button variant={BUTTON_VARIANT.PRIMARY} onClick={onDraw} disabled={!!winner}>
+        <Button
+          variant={BUTTON_VARIANT.PRIMARY}
+          onClick={() => {
+            if (manualCooldown || winner) return;
+            setManualCooldown(true);
+            onDraw({ source: "manual" });
+          }}
+          disabled={!!winner || manualCooldown}
+        >
           Draw Next Card
-        </Button>
-        <Button variant={BUTTON_VARIANT.TERTIARY} onClick={onReset}>
-          Reset Race
         </Button>
       </div>
 

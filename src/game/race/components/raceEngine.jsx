@@ -30,13 +30,7 @@ const buildCardLookup = (allCards) => {
 
 const cardLookup = buildCardLookup(cards);
 
-const buildRandomDeck = () => {
-  const shuffled = [...cards].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 16).map((card) => card.id);
-};
-
-const resolveDeck = (deck) =>
-  Array.isArray(deck) && deck.length === 16 ? deck : buildRandomDeck();
+const resolveDeck = (deck) => (Array.isArray(deck) && deck.length === 16 ? deck : []);
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -367,7 +361,7 @@ const createInitialState = (deckOverrides = {}) => {
 
 const useRaceEngine = () => {
   const { showToast } = useToast();
-  const { gameState, setGameState } = useGame();
+  const { gameState } = useGame();
   const deckOverrides = useMemo(
     () => ({
       player1: gameState?.player1?.deck,
@@ -466,25 +460,6 @@ const useRaceEngine = () => {
     });
   }, [emitEvents]);
 
-  const resetRace = useCallback(() => {
-    const newDecks = {
-      player1: buildRandomDeck(),
-      player2: buildRandomDeck(),
-      player3: buildRandomDeck(),
-      player4: buildRandomDeck(),
-    };
-
-    setGameState((prev) => ({
-      ...prev,
-      player1: { ...prev.player1, deck: newDecks.player1, position: 0 },
-      player2: { ...prev.player2, deck: newDecks.player2, position: 0 },
-      player3: { ...prev.player3, deck: newDecks.player3, position: 0 },
-      player4: { ...prev.player4, deck: newDecks.player4, position: 0 },
-    }));
-
-    setState(createInitialState(newDecks));
-  }, [setGameState]);
-
   useEffect(() => {
     if (pendingEventsRef.current.length > 0) {
       const toEmit = [...pendingEventsRef.current];
@@ -503,7 +478,6 @@ const useRaceEngine = () => {
     turnCount: state.turnCount,
     raceClass: state.raceClass,
     drawNextCard: drawNextCardWithToasts,
-    resetRace,
   };
 };
 

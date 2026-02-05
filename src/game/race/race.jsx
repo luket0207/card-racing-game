@@ -1,11 +1,10 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Deck from "./components/deck/deck";
 import Track from "./components/track/track";
 import useRaceEngine from "./components/raceEngine";
 import { useToast } from "../../engine/ui/toast/toast";
-import { useModal, MODAL_BUTTONS } from "../../engine/ui/modal/modalContext";
-import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
+import Piece from "./components/piece/piece";
 import "./race.scss";
 
 const Race = () => {
@@ -19,45 +18,67 @@ const Race = () => {
     turnCount,
     raceClass,
     drawNextCard,
-    resetRace,
   } = useRaceEngine();
   const { log, clearLog } = useToast();
-  const { openModal, closeModal } = useModal();
   const navigate = useNavigate();
+  const [tilePositions, setTilePositions] = useState({});
+  const [moveDurationMs, setMoveDurationMs] = useState(500);
+
+  const handleMeasure = useCallback((positions) => {
+    setTilePositions(positions);
+  }, []);
+
+  const handleDraw = useCallback(
+    (meta = { source: "manual" }) => {
+      if (meta?.source === "auto" && typeof meta.delaySec === "number") {
+        const baseMs = meta.delaySec * 1000;
+        setMoveDurationMs(Math.max(200, baseMs - 100));
+      } else {
+        setMoveDurationMs(500);
+      }
+      drawNextCard();
+    },
+    [drawNextCard]
+  );
+
+  const overlay = useMemo(
+    () => (
+      <div className="race-track__overlay" style={{ "--move-duration": `${moveDurationMs}ms` }}>
+        {players.map((player) => {
+          const pos = tilePositions[player.position] ?? tilePositions[0];
+          if (!pos) return null;
+          const index = players.findIndex((p) => p.id === player.id);
+          const offsets = [
+            { x: -12, y: -12 },
+            { x: 12, y: -12 },
+            { x: -12, y: 12 },
+            { x: 12, y: 12 },
+          ];
+          const offset = offsets[index % offsets.length] ?? { x: 0, y: 0 };
+          return (
+            <div
+              key={`overlay-${player.id}`}
+              className="race-track__overlayPiece"
+              style={{ left: `${pos.x + offset.x}px`, top: `${pos.y + offset.y}px` }}
+            >
+              <Piece
+                label={player.short}
+                color={player.color}
+                playerId={player.id}
+                status={player.status}
+              />
+            </div>
+          );
+        })}
+      </div>
+    ),
+    [moveDurationMs, players, tilePositions]
+  );
 
   useEffect(() => {
     if (!winner) return;
-
-    openModal({
-      modalTitle: "Race Finished",
-      modalContent: (
-        <div className="race__winnerModal">
-          <p className="race__winnerModalText">{winner.name} wins the race!</p>
-          <div className="race__winnerModalActions">
-            <Button
-              variant={BUTTON_VARIANT.PRIMARY}
-              onClick={() => {
-                closeModal();
-                resetRace();
-              }}
-            >
-              Reset Race
-            </Button>
-            <Button
-              variant={BUTTON_VARIANT.TERTIARY}
-              onClick={() => {
-                closeModal();
-                navigate("/");
-              }}
-            >
-              Return Home
-            </Button>
-          </div>
-        </div>
-      ),
-      buttons: MODAL_BUTTONS.NONE,
-    });
-  }, [winner, openModal, closeModal, resetRace, navigate]);
+    navigate("/");
+  }, [winner, navigate]);
 
   return (
     <div className="race">
@@ -83,7 +104,14 @@ const Race = () => {
             <span className="race__classLabel">Race Class</span>
             <span className="race__classValue">{raceClass ?? "Unclassed"}</span>
           </div>
-          <Track tiles={tiles} players={players} winner={winner} />
+          <Track
+            tiles={tiles}
+            players={players}
+            winner={winner}
+            onMeasure={handleMeasure}
+            overlay={overlay}
+            showPieces={false}
+          />
         </section>
 
         <aside className="race__sidePanel">
@@ -92,8 +120,7 @@ const Race = () => {
             discardCount={discardCount}
             lastDraw={lastDraw}
             winner={winner}
-            onDraw={drawNextCard}
-            onReset={resetRace}
+            onDraw={handleDraw}
           />
 
           <section className="race__log">
