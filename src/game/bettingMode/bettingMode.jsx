@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
@@ -112,10 +112,11 @@ const buildRacersForTheme = (theme, count = 4) => {
 
 const BettingMode = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { gameState, setGameState } = useGame();
   const { clearLog } = useToast();
   const { openModal, closeModal, isModalOpen } = useModal();
-  const hasPromptedRef = useRef(false);
+  const promptKeyRef = useRef(null);
   const suppressPromptRef = useRef(false);
   const betting = gameState.betting ?? {};
   const [themeId, setThemeId] = useState(betting.themeId ?? "dots");
@@ -269,21 +270,6 @@ const BettingMode = () => {
     navigate("/");
   }, [navigate, setGameState]);
 
-  const handleNewRun = useCallback(() => {
-    setGameState((prev) => ({
-      ...prev,
-      betting: {
-        active: false,
-        gold: 500,
-        raceIndex: 1,
-        themeId,
-        currentRace: null,
-        bets: [],
-        lastResult: null,
-      },
-    }));
-  }, [setGameState, themeId]);
-
   const startRun = useCallback(
     (selectedThemeId) => {
       suppressPromptRef.current = true;
@@ -309,13 +295,8 @@ const BettingMode = () => {
     [closeModal, generateRaceForTheme, setGameState]
   );
 
-  useEffect(() => {
+  const openRunModal = useCallback(() => {
     if (isModalOpen) return;
-    if (suppressPromptRef.current) {
-      suppressPromptRef.current = false;
-      return;
-    }
-    hasPromptedRef.current = true;
     openModal({
       modalTitle: "Betting Mode",
       modalContent: (
@@ -367,7 +348,19 @@ const BettingMode = () => {
       ),
       buttons: MODAL_BUTTONS.NONE,
     });
-  }, [betting.active, closeModal, isModalOpen, navigate, openModal, pendingThemeId, startRun]);
+  }, [isModalOpen, openModal, pendingThemeId, startRun]);
+
+  useEffect(() => {
+    const fromHome = location.state?.fromHome === true;
+    if (!fromHome) return;
+    if (promptKeyRef.current === location.key) return;
+    if (suppressPromptRef.current) {
+      suppressPromptRef.current = false;
+      return;
+    }
+    promptKeyRef.current = location.key;
+    openRunModal();
+  }, [location.key, location.state, openRunModal]);
 
   useEffect(() => {
     if (betting.active === true && betting.themeId) {
@@ -386,8 +379,8 @@ const BettingMode = () => {
           <p>Gold: {gold} - Race {raceIndex} / 10</p>
         </div>
         <div className="betting-mode__headerActions">
-          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleNewRun}>
-            Start New Run
+          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={openRunModal}>
+            Run Options
           </Button>
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
             Back Home
