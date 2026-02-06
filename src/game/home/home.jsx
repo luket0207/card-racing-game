@@ -7,7 +7,7 @@ const Home = () => {
       <div className="home_content">
         <h1>Racing Game</h1>
         <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
-          Race Setup
+          Single Race
         </Button>
         <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
           Betting Mode

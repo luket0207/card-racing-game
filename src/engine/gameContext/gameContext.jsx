@@ -35,6 +35,7 @@ const DEFAULT_GAME_STATE = Object.freeze({
     deck: [],
     position: 0,
   },
+  raceLaps: 1,
   betting: {
     active: false,
     gold: 500,

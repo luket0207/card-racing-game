@@ -12,9 +12,8 @@ import themes from "../../assets/gameContent/themes";
 import "./race.scss";
 
 const PAST_POST_BETS = {
-  fast: { label: "Past The Post Fast (<180)", odds: [2, 3], threshold: 180 },
-  average: { label: "Past The Post Average (<200)", odds: [1, 1], threshold: 200 },
-  slow: { label: "Past The Post Slow (<220)", odds: [3, 2], threshold: 220 },
+  fast: { label: "Past The Post Fast (<=200)", threshold: 200 },
+  slow: { label: "Past The Post Slow (>200)", threshold: 200 },
 };
 
 const calcPayout = (stake, odds) => {
@@ -34,6 +33,8 @@ const Race = () => {
     turnCount,
     raceClass,
     themeId,
+    totalLaps,
+    totalTiles,
     drawNextCard,
     resetRace,
   } = useRaceEngine();
@@ -44,7 +45,9 @@ const Race = () => {
   const betting = gameState?.betting ?? {};
   const isBetting = betting.active === true;
   const modalKeyRef = useRef(null);
+  const bettingFinishRef = useRef(null);
   const bettingRace = betting.currentRace;
+  const bettingBets = betting.bets ?? [];
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
     [themeId]
@@ -52,6 +55,7 @@ const Race = () => {
   const pieceSize = activeTheme?.iconSize ?? "small";
   const standings = useMemo(() => {
     return [...players].sort((a, b) => {
+      if ((b.lap ?? 1) !== (a.lap ?? 1)) return (b.lap ?? 1) - (a.lap ?? 1);
       if (b.position !== a.position) return b.position - a.position;
       const aSeq = a.arrivalSeq > 0 ? a.arrivalSeq : Number.POSITIVE_INFINITY;
       const bSeq = b.arrivalSeq > 0 ? b.arrivalSeq : Number.POSITIVE_INFINITY;
@@ -64,6 +68,7 @@ const Race = () => {
   useEffect(() => {
     if (!winner) {
       modalKeyRef.current = null;
+      bettingFinishRef.current = null;
     }
   }, [winner]);
 
@@ -124,11 +129,16 @@ const Race = () => {
 
   useEffect(() => {
     if (!winner) return;
-    const raceKey = `${isBetting ? "bet" : "standard"}-${turnCount}`;
+    if (bettingFinishRef.current === null) {
+      bettingFinishRef.current =
+        isBetting || (bettingRace && bettingBets.length >= 0) ? "bet" : "standard";
+    }
+    const mode = bettingFinishRef.current ?? (isBetting ? "bet" : "standard");
+    const raceKey = `${mode}-${turnCount}`;
     if (modalKeyRef.current === raceKey) return;
     modalKeyRef.current = raceKey;
 
-    if (!isBetting) {
+    if (mode !== "bet") {
       openModal({
         modalTitle: "Race Finished",
         modalContent: (
@@ -139,7 +149,9 @@ const Race = () => {
                 <div key={`winner-stand-${player.id}`} className="race__winnerModalRow">
                   <span>#{index + 1}</span>
                   <span>{player.name}</span>
-                  <span>Tile {player.position}</span>
+                <span>
+                  Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
+                </span>
                 </div>
               ))}
             </div>
@@ -194,15 +206,17 @@ const Race = () => {
         won = !!bet.racerId && (bet.racerId === winnerId || bet.racerId === secondId);
       } else if (PAST_POST_BETS[bet.type]) {
         const config = PAST_POST_BETS[bet.type];
-        odds = config.odds;
+        odds = bet.odds ?? [1, 1];
         label = config.label;
-        won = turnCount < config.threshold;
+        won = bet.type === "fast" ? turnCount <= config.threshold : turnCount > config.threshold;
       }
       const payoutBase =
         bet.type === "eachway"
-          ? bet.cost ?? (bet.stake ?? 0) * 2
+          ? (bet.stake ?? 0) / 2
           : bet.stake ?? 0;
-      const basePayout = won ? calcPayout(payoutBase, odds) : 0;
+      const basePayout = won
+        ? calcPayout(payoutBase, odds) * (bet.type === "eachway" ? 2 : 1)
+        : 0;
       return {
         ...bet,
         won,
@@ -256,12 +270,19 @@ const Race = () => {
       modalContent: (
         <div className="race__winnerModal">
           <p className="race__winnerModalText">{winner.name} wins the race!</p>
+          {isBankrupt && (
+            <p className="race__bettingOutcome">
+              You have run out of gold. The betting run is over.
+            </p>
+          )}
           <div className="race__winnerModalStandings">
             {standings.map((player, index) => (
               <div key={`winner-stand-${player.id}`} className="race__winnerModalRow">
                 <span>#{index + 1}</span>
                 <span>{player.name}</span>
-                <span>Tile {player.position}</span>
+                <span>
+                  Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
+                </span>
               </div>
             ))}
           </div>
@@ -354,15 +375,16 @@ const Race = () => {
       <header className="race__header">
         <div>
           <p className="race__eyebrow">Card Racing Prototype</p>
-          <h1 className="race__title">64-Tile Sprint</h1>
+          <h1 className="race__title">{totalTiles}-Tile Sprint</h1>
           <p className="race__subtitle">
-            Four racers, one combined deck. Draw cards to move each piece and race to tile 64.
+            Four racers, one combined deck. Draw cards to move each piece and race to tile {totalTiles}.
           </p>
         </div>
 
         <div className="race__status">
           <div className="race__statusLabel">Turns Drawn</div>
           <div className="race__statusValue">{turnCount}</div>
+          <div className="race__statusMeta">Laps: {totalLaps}</div>
           {winner && <div className="race__winner">Winner: {winner.name}</div>}
         </div>
       </header>
@@ -375,8 +397,17 @@ const Race = () => {
                 {standings.map((player, index) => (
                   <div key={`stand-${player.id}`} className="race__leaderItem">
                     <span>#{index + 1}</span>
-                    <span>{player.name}</span>
-                    <span>Tile {player.position}</span>
+                    <span className="race__leaderName">
+                      <span
+                        className="race__leaderDot"
+                        style={{ background: player.color }}
+                        aria-hidden="true"
+                      />
+                      {player.name}
+                    </span>
+                    <span>
+                      Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -396,6 +427,7 @@ const Race = () => {
             overlay={overlay}
             showPieces={false}
             pieceSize={pieceSize}
+            finishTile={totalTiles}
           />
         </section>
 
@@ -408,6 +440,38 @@ const Race = () => {
             onDraw={handleDraw}
             autoDelayDefault={isBetting ? 0.6 : 0}
           />
+
+          {isBetting && (
+            <section className="race__bets">
+              <div className="race__betsHeader">
+                <h2>Active Bets</h2>
+                <span>{bettingBets.length}</span>
+              </div>
+              <div className="race__betsList">
+                {bettingBets.length === 0 ? (
+                  <div className="race__betsEmpty">No bets placed.</div>
+                ) : (
+                  bettingBets.map((bet) => (
+                    <div key={bet.id} className="race__betsItem">
+                      <span className="race__betsType">
+                        {bet.type === "fast"
+                          ? "Past The Post Fast"
+                          : bet.type === "slow"
+                            ? "Past The Post Slow"
+                            : bet.type}
+                      </span>
+                      <span className="race__betsTarget">
+                        {bet.racerId
+                          ? players.find((p) => p.id === bet.racerId)?.name ?? "Racer"
+                          : "Race"}
+                      </span>
+                      <span className="race__betsStake">{bet.stake}g</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          )}
 
           <section className="race__log">
             <div className="race__logHeader">
@@ -447,7 +511,9 @@ const Race = () => {
                 </div>
                 <div className="race__playerInfo">
                   <div className="race__playerName">{player.name}</div>
-                  <div className="race__playerPos">Tile {player.position}</div>
+                  <div className="race__playerPos">
+                    Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
+                  </div>
                   <div className="race__playerStats">
                     <span>
                       Status:{" "}

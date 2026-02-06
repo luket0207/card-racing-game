@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import Piece from "../piece/piece";
 import "./track.scss";
 
-const Track = ({ tiles, players, onMeasure, overlay, showPieces = true, pieceSize = "small" }) => {
+const Track = ({
+  tiles,
+  players,
+  onMeasure,
+  overlay,
+  showPieces = true,
+  pieceSize = "small",
+  finishTile = 32,
+}) => {
   const boardRef = useRef(null);
   const startRef = useRef(null);
   const tileRefs = useRef({});
@@ -69,7 +77,7 @@ const Track = ({ tiles, players, onMeasure, overlay, showPieces = true, pieceSiz
               ))}
           </div>
         </div>
-        <div className="race-track__finish">Finish: Tile 64</div>
+        <div className="race-track__finish">Finish: Tile {finishTile}</div>
       </div>
 
       <div className="race-track__board" ref={boardRef}>
@@ -80,7 +88,9 @@ const Track = ({ tiles, players, onMeasure, overlay, showPieces = true, pieceSiz
             return (
               <div
                 key={`tile-${tile}`}
-                className={`race-track__tile${tile === 64 ? " race-track__tile--finish" : ""}`}
+                className={`race-track__tile${
+                  tile === finishTile ? " race-track__tile--finish" : ""
+                }`}
                 ref={(node) => {
                   if (node) tileRefs.current[tile] = node;
                 }}

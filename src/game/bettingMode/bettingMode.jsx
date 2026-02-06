@@ -11,9 +11,8 @@ import "./bettingMode.scss";
 const BET_TYPES = [
   { id: "outright", label: "Outright (Winner)" },
   { id: "eachway", label: "Each Way (1st or 2nd)" },
-  { id: "fast", label: "Past The Post Fast (<180 turns)", odds: [2, 3] },
-  { id: "average", label: "Past The Post Average (<200 turns)", odds: [1, 1] },
-  { id: "slow", label: "Past The Post Slow (<220 turns)", odds: [3, 2] },
+  { id: "fast", label: "Past The Post Fast (<=200 turns)" },
+  { id: "slow", label: "Past The Post Slow (>200 turns)" },
 ];
 
 const coinTotalsToTier = (total) => {
@@ -97,6 +96,33 @@ const buildOdds = (racers) => {
   });
 };
 
+const buildPastPostOdds = (racers) => {
+  const totals = racers.map((r) => r.coinTotal);
+  const max = Math.max(...totals);
+  const avg = totals.reduce((sum, v) => sum + v, 0) / Math.max(1, totals.length);
+
+  // Emphasize top-end strength more than quantity.
+  const strength = max + 0.35 * avg;
+  const baseline = 25 + 0.35 * 25; // good, good, average, average
+
+  const delta = strength - baseline;
+  const fastShift = delta * 0.08;
+  const fastDecimal = Math.max(1.2, Math.min(3.2, 2 - fastShift));
+  const slowDecimal = Math.max(1.2, Math.min(3.2, 2 + fastShift));
+
+  const toOdds = (decimal) => {
+    const numerator = Math.max(1, Math.round((decimal - 1) * 10));
+    const denominator = 10;
+    const divisor = gcd(numerator, denominator);
+    return [numerator / divisor, denominator / divisor];
+  };
+
+  return {
+    fast: toOdds(fastDecimal),
+    slow: toOdds(slowDecimal),
+  };
+};
+
 const buildRacersForTheme = (theme, count = 4) => {
   const pieces = theme?.pieces ?? [];
   const pooled = theme?.namePool ?? [];
@@ -147,14 +173,15 @@ const BettingMode = () => {
   const [betType, setBetType] = useState("outright");
   const [betRacerId, setBetRacerId] = useState("player1");
   const [stake, setStake] = useState(100);
+  const [betError, setBetError] = useState("");
   const betTypeLabels = useMemo(
     () => BET_TYPES.reduce((acc, bet) => ({ ...acc, [bet.id]: bet.label }), {}),
     []
   );
 
   const minBet = gold < 100 ? gold : 100;
-  const betCost = betType === "eachway" ? stake * 2 : stake;
-  const maxStake = betType === "eachway" ? Math.floor(gold / 2) : gold;
+  const betCost = stake;
+  const maxStake = gold;
   const isOutOfGold = gold <= 0;
 
   useEffect(() => {
@@ -214,6 +241,28 @@ const BettingMode = () => {
   }, [betting.active, betting.themeId, currentRace, generateRaceForTheme, setGameState, themeId]);
 
   const bets = betting.bets ?? [];
+  const betsByType = useMemo(
+    () => bets.reduce((acc, bet) => ({ ...acc, [bet.type]: bet }), {}),
+    [bets]
+  );
+  const hasPastPostBet = useMemo(
+    () => bets.some((bet) => bet.type === "fast" || bet.type === "slow"),
+    [bets]
+  );
+  const pastPostOdds = useMemo(
+    () => (currentRace ? buildPastPostOdds(currentRace.racers) : { fast: [1, 1], slow: [1, 1] }),
+    [currentRace]
+  );
+
+  const selectedOdds = useMemo(() => {
+    if (betType === "outright" || betType === "eachway") {
+      const racer = currentRace?.racers?.find((r) => r.id === betRacerId);
+      return racer?.odds ?? [1, 1];
+    }
+    if (betType === "fast") return pastPostOdds.fast;
+    if (betType === "slow") return pastPostOdds.slow;
+    return [1, 1];
+  }, [betRacerId, betType, currentRace, pastPostOdds]);
   const hasBets = bets.length > 0;
 
   useEffect(() => {
@@ -222,18 +271,47 @@ const BettingMode = () => {
     }
   }, [currentRace?.racers]);
 
+  useEffect(() => {
+    setBetError("");
+  }, [betType, betRacerId, stake]);
+
   const handleAddBet = useCallback(() => {
     if (!currentRace) return;
+    if (betsByType[betType]) {
+      setBetError("You can only place one bet of this type per race.");
+      return;
+    }
+    if ((betType === "fast" || betType === "slow") && hasPastPostBet) {
+      setBetError("You can only place one Past The Post bet per race.");
+      return;
+    }
     const amount = Math.max(0, Number(stake));
-    const cost = betType === "eachway" ? amount * 2 : amount;
-    if (amount <= 0 || cost > gold) return;
-    if (amount < 100 && gold >= 100) return;
+    const cost = amount;
+    if (amount <= 0) {
+      setBetError("Bet amount must be greater than 0.");
+      return;
+    }
+    if (amount < 100 && gold >= 100) {
+      setBetError("Minimum bet is 100 gold.");
+      return;
+    }
+    if (cost > gold) {
+      setBetError("You cannot afford this bet.");
+      return;
+    }
+    const odds =
+      betType === "fast"
+        ? pastPostOdds.fast
+        : betType === "slow"
+          ? pastPostOdds.slow
+          : selectedOdds;
     const bet = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       type: betType,
       racerId: ["outright", "eachway"].includes(betType) ? betRacerId : null,
       stake: amount,
       cost,
+      odds,
     };
     setGameState((prev) => ({
       ...prev,
@@ -243,8 +321,41 @@ const BettingMode = () => {
         bets: [bet, ...(prev.betting?.bets ?? [])],
       },
     }));
+    setBetError("");
     setStake(minBet);
-  }, [betRacerId, betType, currentRace, gold, minBet, setGameState, stake]);
+  }, [
+    betRacerId,
+    betType,
+    betsByType,
+    currentRace,
+    gold,
+    hasPastPostBet,
+    minBet,
+    pastPostOdds,
+    selectedOdds,
+    setGameState,
+    stake,
+  ]);
+
+  const handleRemoveBet = useCallback(
+    (betId) => {
+      setGameState((prev) => {
+        const existing = prev.betting?.bets ?? [];
+        const bet = existing.find((b) => b.id === betId);
+        if (!bet) return prev;
+        const refunded = bet.cost ?? bet.stake ?? 0;
+        return {
+          ...prev,
+          betting: {
+            ...(prev.betting ?? {}),
+            gold: (prev.betting?.gold ?? 0) + refunded,
+            bets: existing.filter((b) => b.id !== betId),
+          },
+        };
+      });
+    },
+    [setGameState]
+  );
 
   const handleStartRace = useCallback(() => {
     if (!currentRace) return;
@@ -256,6 +367,7 @@ const BettingMode = () => {
       ...prev,
       themeId: currentRace.themeId,
       racers,
+      raceLaps: 2,
       player1: { ...prev.player1, deck: racers[0]?.deck ?? [], position: 0 },
       player2: { ...prev.player2, deck: racers[1]?.deck ?? [], position: 0 },
       player3: { ...prev.player3, deck: racers[2]?.deck ?? [], position: 0 },
@@ -460,18 +572,32 @@ const BettingMode = () => {
                 value={stake}
                 onChange={(e) => setStake(Number(e.target.value))}
               />
+              <div className="betting-mode__odds">
+                Odds {selectedOdds[0]}/{selectedOdds[1]}
+              </div>
               <Button
                 variant={BUTTON_VARIANT.PRIMARY}
                 onClick={handleAddBet}
-                disabled={gold <= 0 || betCost > gold || stake < minBet}
+                disabled={
+                  gold <= 0 ||
+                  betCost > gold ||
+                  stake < minBet ||
+                  !!betsByType[betType] ||
+                  ((betType === "fast" || betType === "slow") && hasPastPostBet)
+                }
               >
-                Add Bet
+                {betsByType[betType]
+                  ? "Bet Already Placed"
+                  : (betType === "fast" || betType === "slow") && hasPastPostBet
+                    ? "Past The Post Already Placed"
+                    : "Add Bet"}
               </Button>
             </div>
 
             <div className="betting-mode__betHint">
-              Minimum bet is {minBet}. Each-way costs double the stake.
+              Minimum bet is {minBet}. Each-way splits the stake in half.
             </div>
+            {betError && <div className="betting-mode__betError">{betError}</div>}
 
             <div className="betting-mode__betsList">
               {bets.length === 0 ? (
@@ -486,6 +612,12 @@ const BettingMode = () => {
                         : "Race"}
                     </span>
                     <span>{b.stake}g</span>
+                    <Button
+                      variant={BUTTON_VARIANT.TERTIARY}
+                      onClick={() => handleRemoveBet(b.id)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 ))
               )}

@@ -133,7 +133,7 @@
 
 .betting-mode__betRow {
   display: grid;
-  grid-template-columns: 1fr 1fr 120px auto;
+  grid-template-columns: 1fr 1fr 120px auto auto;
   gap: 0.6rem;
   align-items: center;
 
@@ -147,9 +147,19 @@
   }
 }
 
+.betting-mode__odds {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .betting-mode__betHint {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.65);
+}
+
+.betting-mode__betError {
+  font-size: 0.8rem;
+  color: #ffb4b4;
 }
 
 .betting-mode__betsList {
@@ -160,7 +170,7 @@
 
 .betting-mode__betItem {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr auto auto;
   gap: 0.6rem;
   padding: 0.45rem 0.6rem;
   border-radius: 10px;

@@ -3,8 +3,11 @@ import cards from "../../../assets/gameContent/cards";
 import { TOAST_TYPE, useToast } from "../../../engine/ui/toast/toast";
 import { useGame } from "../../../engine/gameContext/gameContext";
 
-const TOTAL_TILES = 64;
+const TOTAL_TILES = 32;
 const ROW_SIZE = 8;
+const QUARTER = TOTAL_TILES / 4;
+const HALF = TOTAL_TILES / 2;
+const THREE_QUARTER = QUARTER * 3;
 
 const PLAYER_CONFIG = [
   { id: "player1", name: "Player 1", short: "P1", color: "#ff6b6b" },
@@ -36,9 +39,9 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 const getStage = (position) => {
   if (position <= 0) return "SST";
-  if (position <= 16) return "SST";
-  if (position <= 32) return "SEM";
-  if (position <= 48) return "SLM";
+  if (position <= QUARTER) return "SST";
+  if (position <= HALF) return "SEM";
+  if (position <= THREE_QUARTER) return "SLM";
   return "SED";
 };
 
@@ -54,10 +57,16 @@ const getStatusCounts = (player) => {
   return { staminaCount, fatigueCount, surplus };
 };
 
+const getProgress = (player) => {
+  const lap = player.lap ?? 1;
+  return (lap - 1) * TOTAL_TILES + player.position;
+};
+
 const getPlaceRank = (players, playerId) => {
   const target = players.find((p) => p.id === playerId);
   if (!target) return null;
-  const higherCount = players.filter((p) => p.position > target.position).length;
+  const targetProgress = getProgress(target);
+  const higherCount = players.filter((p) => getProgress(p) > targetProgress).length;
   return higherCount + 1;
 };
 
@@ -68,11 +77,11 @@ const evaluateCondition = (condition, player, players, raceClass) => {
 
   switch (condition) {
     case "HAF":
-      return player.position <= 32;
+      return player.position <= HALF;
     case "HAS":
-      return player.position >= 33;
+      return player.position >= HALF + 1;
     case "HAM":
-      return player.position >= 17 && player.position <= 48;
+      return player.position >= QUARTER + 1 && player.position <= THREE_QUARTER;
     case "HAE":
       return stage === "SST" || stage === "SED";
     case "SST":
@@ -159,33 +168,107 @@ const getTargetPlayers = (targetCode, activePlayer, players) => {
     case "SED":
       return players.filter((player) => getStage(player.position) === targetCode);
     case "AHE":
-      return players.filter((player) => player.position > activePlayer.position);
+      return players.filter((player) => getProgress(player) > getProgress(activePlayer));
     case "BEH":
-      return players.filter((player) => player.position < activePlayer.position);
+      return players.filter((player) => getProgress(player) < getProgress(activePlayer));
     default:
       return [];
   }
 };
 
-const applyMoveWithStatus = (player, baseAmount, arrivalCounter) => {
-  const { surplus } = getStatusCounts(player);
-  const adjusted = Math.max(0, baseAmount + surplus);
-  const nextPosition = clamp(player.position + adjusted, 0, TOTAL_TILES);
+const advancePlayer = (player, distance, totalLaps, arrivalCounter) => {
+  if (distance <= 0) {
+    return {
+      player: {
+        ...player,
+        status: [],
+      },
+      arrivalCounter,
+      movedAmount: 0,
+      newLap: player.lap,
+    };
+  }
+
+  let nextPosition = player.position + distance;
+  let nextLap = player.lap;
+
+  while (nextPosition > TOTAL_TILES && nextLap < totalLaps) {
+    nextPosition -= TOTAL_TILES;
+    nextLap += 1;
+  }
+
+  if (nextPosition >= TOTAL_TILES && nextLap >= totalLaps) {
+    nextPosition = TOTAL_TILES;
+    nextLap = totalLaps;
+  } else {
+    nextPosition = clamp(nextPosition, 0, TOTAL_TILES);
+  }
+
+  const nextArrivalCounter = arrivalCounter + 1;
+
   return {
     player: {
       ...player,
       position: nextPosition,
+      lap: nextLap,
       status: [],
-      arrivalSeq: adjusted > 0 ? arrivalCounter + 1 : player.arrivalSeq,
+      arrivalSeq: nextArrivalCounter,
     },
-    movedAmount: adjusted,
-    baseAmount,
-    surplus,
-    arrivalCounter: adjusted > 0 ? arrivalCounter + 1 : arrivalCounter,
+    arrivalCounter: nextArrivalCounter,
+    movedAmount: distance,
+    newLap: nextLap,
   };
 };
 
-const applyEffect = (effectToken, activePlayerId, players, arrivalCounter) => {
+const retreatPlayer = (player, distance, totalLaps) => {
+  if (distance <= 0) {
+    return player;
+  }
+
+  let remaining = distance;
+  let nextPosition = player.position;
+  let nextLap = player.lap;
+
+  while (remaining > 0) {
+    if (nextLap <= 1) {
+      nextPosition = Math.max(0, nextPosition - remaining);
+      remaining = 0;
+      continue;
+    }
+
+    if (remaining >= nextPosition) {
+      remaining -= nextPosition;
+      nextLap -= 1;
+      nextPosition = TOTAL_TILES + 1;
+    } else {
+      nextPosition -= remaining;
+      remaining = 0;
+    }
+  }
+
+  if (nextPosition === TOTAL_TILES + 1) {
+    nextPosition = TOTAL_TILES;
+  }
+
+  return {
+    ...player,
+    position: clamp(nextPosition, 0, TOTAL_TILES),
+    lap: Math.min(Math.max(1, nextLap), totalLaps),
+  };
+};
+
+const applyMoveWithStatus = (player, baseAmount, arrivalCounter, totalLaps) => {
+  const { surplus } = getStatusCounts(player);
+  const adjusted = Math.max(0, baseAmount + surplus);
+  const result = advancePlayer(player, adjusted, totalLaps, arrivalCounter);
+  return {
+    ...result,
+    baseAmount,
+    surplus,
+  };
+};
+
+const applyEffect = (effectToken, activePlayerId, players, arrivalCounter, totalLaps) => {
   const activePlayer = players.find((player) => player.id === activePlayerId);
   if (!activePlayer) return { players, events: [], arrivalCounter };
   const parts = effectToken.split(",");
@@ -207,7 +290,7 @@ const applyEffect = (effectToken, activePlayerId, players, arrivalCounter) => {
     switch (effectCode) {
       case "M":
         {
-          const moveResult = applyMoveWithStatus(player, amount, nextArrivalCounter);
+          const moveResult = applyMoveWithStatus(player, amount, nextArrivalCounter, totalLaps);
           nextArrivalCounter = moveResult.arrivalCounter;
           const modifierText =
             moveResult.surplus !== 0
@@ -233,8 +316,7 @@ const applyEffect = (effectToken, activePlayerId, players, arrivalCounter) => {
         if (amount <= 0) return player;
         nextArrivalCounter += 1;
         return {
-          ...player,
-          position: clamp(player.position - amount, 0, TOTAL_TILES),
+          ...retreatPlayer(player, amount, totalLaps),
           arrivalSeq: nextArrivalCounter,
         };
       case "S":
@@ -309,7 +391,7 @@ const applyStatusEffect = (effectToken, activePlayerId, players) => {
   return { players, events: [] };
 };
 
-const applyCardEffects = (cardCode, activePlayer, players, raceClass, arrivalCounter) => {
+const applyCardEffects = (cardCode, activePlayer, players, raceClass, arrivalCounter, totalLaps) => {
   const { conditions, effectsIfTrue, effectsIfFalse } = parseCardCode(cardCode);
   const allConditionsMet =
     conditions.length === 0 ||
@@ -326,7 +408,13 @@ const applyCardEffects = (cardCode, activePlayer, players, raceClass, arrivalCou
   effectsToApply.forEach((effectToken) => {
     const [effectCode] = effectToken.split(",");
     if (effectCode === "M" || effectCode === "MB") {
-      const result = applyEffect(effectToken, activePlayer.id, updatedPlayers, nextArrivalCounter);
+      const result = applyEffect(
+        effectToken,
+        activePlayer.id,
+        updatedPlayers,
+        nextArrivalCounter,
+        totalLaps
+      );
       updatedPlayers = result.players;
       events = [...events, ...result.events];
       nextArrivalCounter = result.arrivalCounter;
@@ -358,6 +446,7 @@ const createInitialState = (deckOverrides = {}, racers = PLAYER_CONFIG) => {
     short: player.short ?? `P${index + 1}`,
     deck: resolveDeck(deckOverrides[player.id]),
     position: 0,
+    lap: 1,
     status: [],
     arrivalSeq: 0,
   }));
@@ -385,6 +474,11 @@ const createInitialState = (deckOverrides = {}, racers = PLAYER_CONFIG) => {
 const useRaceEngine = () => {
   const { showToast } = useToast();
   const { gameState } = useGame();
+  const totalLaps = useMemo(() => {
+    const value = Number(gameState?.raceLaps ?? 1);
+    if (!Number.isFinite(value)) return 1;
+    return Math.min(5, Math.max(1, value));
+  }, [gameState?.raceLaps]);
   const deckOverrides = useMemo(
     () => ({
       player1: gameState?.player1?.deck,
@@ -466,13 +560,22 @@ const useRaceEngine = () => {
 
       const result =
         activePlayer && cardCode
-          ? applyCardEffects(cardCode, activePlayer, tickedPlayers, raceClass, prev.arrivalCounter)
+          ? applyCardEffects(
+              cardCode,
+              activePlayer,
+              tickedPlayers,
+              raceClass,
+              prev.arrivalCounter,
+              totalLaps
+            )
           : { players: tickedPlayers, events: [], arrivalCounter: prev.arrivalCounter };
       const players = result.players;
       pendingEventsRef.current = result.events;
 
       const updatedActive = players.find((player) => player.id === card.playerId);
-      const winner = players.find((player) => player.position >= TOTAL_TILES) || null;
+      const winner =
+        players.find((player) => player.lap >= totalLaps && player.position >= TOTAL_TILES) ||
+        null;
       const nextRaceClass = cardData?.class ?? null;
 
       return {
@@ -497,7 +600,7 @@ const useRaceEngine = () => {
         arrivalCounter: result.arrivalCounter ?? prev.arrivalCounter,
       };
     });
-  }, [emitEvents]);
+  }, [emitEvents, totalLaps]);
 
   useEffect(() => {
     if (pendingEventsRef.current.length > 0) {
@@ -521,6 +624,8 @@ const useRaceEngine = () => {
     turnCount: state.turnCount,
     raceClass: state.raceClass,
     themeId,
+    totalLaps,
+    totalTiles: TOTAL_TILES,
     drawNextCard: drawNextCardWithToasts,
     resetRace,
   };

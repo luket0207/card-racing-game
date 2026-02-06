@@ -52,6 +52,7 @@ const RaceSetup = () => {
   );
   const [racerCount, setRacerCount] = useState(4);
   const [humanCount, setHumanCount] = useState(1);
+  const [lapCount, setLapCount] = useState(1);
   const [racers, setRacers] = useState(() => buildDefaultRacers(4, 1, themes[0]));
 
   const activeRacers = useMemo(() => racers.slice(0, racerCount), [racers, racerCount]);
@@ -134,6 +135,7 @@ const RaceSetup = () => {
       ...prev,
       themeId: activeTheme?.id ?? "dots",
       racers: trimmed,
+      raceLaps: lapCount,
     }));
     navigate("/deck-selection");
   }, [activeRacers, activeTheme?.id, navigate, setGameState]);
@@ -188,6 +190,21 @@ const RaceSetup = () => {
             onChange={(e) => handleHumanCountChange(Number(e.target.value))}
           >
             {Array.from({ length: racerCount }, (_, idx) => idx + 1).map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="race-setup__control">
+          <label htmlFor="lap-count">Laps</label>
+          <select
+            id="lap-count"
+            value={lapCount}
+            onChange={(e) => setLapCount(Number(e.target.value))}
+          >
+            {Array.from({ length: 5 }, (_, idx) => idx + 1).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>

@@ -30,8 +30,6 @@ import ReactDOM from "react-dom";
 import Button, { BUTTON_VARIANT } from "../button/button";
 import { MODAL_BUTTONS } from "./modalContext";
 import "./modal.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 
 const Modal = ({
@@ -89,9 +87,6 @@ const Modal = ({
         <div className="modal__header">
           <div className="modal__title">{title || "Modal"}</div>
 
-          <button type="button" className="modal__close" onClick={footerConfig.safeClose} aria-label="Close modal">
-            <FontAwesomeIcon icon={faXmark} />
-          </button>
         </div>
 
         <div className="modal__body">{content || <h2>Modal</h2>}</div>

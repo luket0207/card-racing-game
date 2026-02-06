@@ -55,13 +55,18 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, autoDelay
         <Button
           variant={BUTTON_VARIANT.PRIMARY}
           onClick={() => {
-            if (manualCooldown || winner) return;
+            if (winner) return;
+            if (autoDelay > 0) {
+              setAutoDelay(0);
+              return;
+            }
+            if (manualCooldown) return;
             setManualCooldown(true);
             onDraw({ source: "manual" });
           }}
-          disabled={!!winner || manualCooldown}
+          disabled={!!winner || (autoDelay === 0 && manualCooldown)}
         >
-          Draw Next Card
+          {autoDelay > 0 ? "Pause Auto Draw" : "Draw Next Card"}
         </Button>
       </div>
 
