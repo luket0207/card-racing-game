@@ -9,6 +9,9 @@ const Home = () => {
         <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
           Race Setup
         </Button>
+        <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode">
+          Betting Mode
+        </Button>
         <Button variant={BUTTON_VARIANT.TERTIARY} to="/deck-selection?mode=export">
           Just Select a Deck
         </Button>

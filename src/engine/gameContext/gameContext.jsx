@@ -35,6 +35,15 @@ const DEFAULT_GAME_STATE = Object.freeze({
     deck: [],
     position: 0,
   },
+  betting: {
+    active: false,
+    gold: 500,
+    raceIndex: 1,
+    themeId: "dots",
+    currentRace: null,
+    bets: [],
+    lastResult: null,
+  },
   gameState: {
     shuffledDeck: [],
     turn: 0,

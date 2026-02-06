@@ -4,11 +4,11 @@ import { Slider } from "primereact/slider";
 import CardDisplay from "../card/card";
 import "./deck.scss";
 
-const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw }) => {
+const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, autoDelayDefault = 0 }) => {
   const lastDrawText = lastDraw
     ? `${lastDraw.playerName} drew ${lastDraw.cardName}`
     : "No cards drawn yet.";
-  const [autoDelay, setAutoDelay] = useState(0);
+  const [autoDelay, setAutoDelay] = useState(() => autoDelayDefault);
   const [manualCooldown, setManualCooldown] = useState(false);
 
   const autoDelayLabel = useMemo(() => {
@@ -75,7 +75,7 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw }) => {
             value={autoDelay}
             min={0}
             max={3}
-            step={0.5}
+            step={0.3}
             onChange={(event) => setAutoDelay(event.value ?? 0)}
             disabled={!!winner}
           />

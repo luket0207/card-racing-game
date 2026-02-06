@@ -1,0 +1,184 @@
+@use "../../assets/scss/ui/import" as *;
+
+.betting-mode {
+  min-height: 100vh;
+  padding: 3rem clamp(1.5rem, 4vw, 4rem);
+  background:
+    radial-gradient(circle at top, rgba(90, 60, 120, 0.25), transparent 55%),
+    linear-gradient(135deg, #12121f, #1f2238);
+  color: $lightText;
+}
+
+.betting-mode__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0 0 0.35rem;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.betting-mode__headerActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.betting-mode__controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.betting-mode__control {
+  display: grid;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  select {
+    background: #ffffff;
+    color: #1b1b1b;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+.betting-mode__hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.betting-mode__themeDisplay {
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+}
+
+.betting-mode__themeModal {
+  display: grid;
+  gap: 1rem;
+  color: #1b1b1b;
+
+  p {
+    margin: 0;
+  }
+}
+
+.betting-mode__themeSelect {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #cfd4da;
+  background: #ffffff;
+  color: #1b1b1b;
+}
+
+.betting-mode__themeActions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.betting-mode__layout {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2rem;
+}
+
+.betting-mode__racers,
+.betting-mode__bets {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.betting-mode__racers h2,
+.betting-mode__bets h2 {
+  margin: 0;
+}
+
+.betting-mode__racer {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.betting-mode__racerName {
+  font-weight: 700;
+}
+
+.betting-mode__racerMeta {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.betting-mode__betRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px auto;
+  gap: 0.6rem;
+  align-items: center;
+
+  select,
+  input {
+    background: #ffffff;
+    color: #1b1b1b;
+    border: none;
+    border-radius: 8px;
+    padding: 0.45rem 0.6rem;
+  }
+}
+
+.betting-mode__betHint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.betting-mode__betsList {
+  display: grid;
+  gap: 0.5rem;
+  min-height: 120px;
+}
+
+.betting-mode__betItem {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.85rem;
+}
+
+.betting-mode__empty {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1000px) {
+  .betting-mode__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .betting-mode__betRow {
+    grid-template-columns: 1fr;
+  }
+}

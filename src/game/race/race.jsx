@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Deck from "./components/deck/deck";
 import Track from "./components/track/track";
@@ -10,6 +10,18 @@ import { useGame } from "../../engine/gameContext/gameContext";
 import Piece from "./components/piece/piece";
 import themes from "../../assets/gameContent/themes";
 import "./race.scss";
+
+const PAST_POST_BETS = {
+  fast: { label: "Past The Post Fast (<180)", odds: [2, 3], threshold: 180 },
+  average: { label: "Past The Post Average (<200)", odds: [1, 1], threshold: 200 },
+  slow: { label: "Past The Post Slow (<220)", odds: [3, 2], threshold: 220 },
+};
+
+const calcPayout = (stake, odds) => {
+  const [num, denom] = odds;
+  const decimal = denom === 0 ? 0 : num / denom;
+  return Math.round(stake * (decimal + 1));
+};
 
 const Race = () => {
   const {
@@ -28,7 +40,11 @@ const Race = () => {
   const { log, clearLog } = useToast();
   const { openModal, closeModal } = useModal();
   const navigate = useNavigate();
-  const { gameState } = useGame();
+  const { gameState, setGameState } = useGame();
+  const betting = gameState?.betting ?? {};
+  const isBetting = betting.active === true;
+  const modalKeyRef = useRef(null);
+  const bettingRace = betting.currentRace;
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
     [themeId]
@@ -44,6 +60,12 @@ const Race = () => {
   }, [players]);
   const [tilePositions, setTilePositions] = useState({});
   const [moveDurationMs, setMoveDurationMs] = useState(500);
+
+  useEffect(() => {
+    if (!winner) {
+      modalKeyRef.current = null;
+    }
+  }, [winner]);
 
   const handleMeasure = useCallback((positions) => {
     setTilePositions(positions);
@@ -97,13 +119,136 @@ const Race = () => {
         })}
       </div>
     ),
-    [moveDurationMs, players, tilePositions]
+    [moveDurationMs, pieceSize, players, tilePositions]
   );
 
   useEffect(() => {
     if (!winner) return;
+    const raceKey = `${isBetting ? "bet" : "standard"}-${turnCount}`;
+    if (modalKeyRef.current === raceKey) return;
+    modalKeyRef.current = raceKey;
+
+    if (!isBetting) {
+      openModal({
+        modalTitle: "Race Finished",
+        modalContent: (
+          <div className="race__winnerModal">
+            <p className="race__winnerModalText">{winner.name} wins the race!</p>
+            <div className="race__winnerModalStandings">
+              {standings.map((player, index) => (
+                <div key={`winner-stand-${player.id}`} className="race__winnerModalRow">
+                  <span>#{index + 1}</span>
+                  <span>{player.name}</span>
+                  <span>Tile {player.position}</span>
+                </div>
+              ))}
+            </div>
+            <div className="race__winnerModalActions">
+              <Button
+                variant={BUTTON_VARIANT.PRIMARY}
+                onClick={() => {
+                  closeModal();
+                  resetRace();
+                }}
+              >
+                Race Again
+              </Button>
+              <Button
+                variant={BUTTON_VARIANT.TERTIARY}
+                onClick={() => {
+                  closeModal();
+                  navigate("/");
+                }}
+              >
+                Return Home
+              </Button>
+            </div>
+          </div>
+        ),
+        buttons: MODAL_BUTTONS.NONE,
+      });
+      return;
+    }
+
+    const oddsByRacer = new Map(
+      (bettingRace?.racers ?? []).map((r) => [r.id, r.odds ?? [1, 1]])
+    );
+    const raceIndex = betting.raceIndex ?? 1;
+    const isFinalRace = raceIndex >= 10;
+    const winnerId = standings[0]?.id;
+    const secondId = standings[1]?.id;
+
+    const betResults = (betting.bets ?? []).map((bet) => {
+      let won = false;
+      let odds = [1, 1];
+      let label = bet.type;
+      if (bet.type === "outright") {
+        odds = oddsByRacer.get(bet.racerId) ?? [1, 1];
+        label = `Outright: ${standings.find((p) => p.id === bet.racerId)?.name ?? "Racer"}`;
+        won = bet.racerId === winnerId;
+      } else if (bet.type === "eachway") {
+        odds = oddsByRacer.get(bet.racerId) ?? [1, 1];
+        label = `Each Way: ${standings.find((p) => p.id === bet.racerId)?.name ?? "Racer"}`;
+        won = bet.racerId === winnerId || bet.racerId === secondId;
+      } else if (PAST_POST_BETS[bet.type]) {
+        const config = PAST_POST_BETS[bet.type];
+        odds = config.odds;
+        label = config.label;
+        won = turnCount < config.threshold;
+      }
+      const basePayout = won
+        ? calcPayout(bet.stake, odds) * (bet.type === "eachway" ? 2 : 1)
+        : 0;
+      return {
+        ...bet,
+        won,
+        odds,
+        label,
+        payout: basePayout,
+      };
+    });
+
+    const baseTotal = betResults.reduce((sum, bet) => sum + bet.payout, 0);
+    const totalPayout = isFinalRace ? Math.round(baseTotal * 2) : baseTotal;
+    const goldAfter = (betting.gold ?? 0) + totalPayout;
+    const isBankrupt = goldAfter <= 0;
+    const endGame = isFinalRace || isBankrupt;
+
+    const result = {
+      raceIndex,
+      isFinalRace,
+      basePayout: baseTotal,
+      totalPayout,
+      goldAfter,
+      betResults,
+      turnCount,
+      standings: standings.map((player, index) => ({
+        id: player.id,
+        name: player.name,
+        position: player.position,
+        place: index + 1,
+      })),
+    };
+
+    setGameState((prev) => ({
+      ...prev,
+      betting: {
+        ...(prev.betting ?? {}),
+        gold: goldAfter,
+        lastResult: result,
+        bets: [],
+        currentRace: null,
+        raceIndex: endGame ? raceIndex : raceIndex + 1,
+        active: endGame ? false : prev.betting?.active ?? true,
+      },
+    }));
+
     openModal({
-      modalTitle: "Race Finished",
+      modalTitle: isFinalRace
+        ? "Final Race Results"
+        : isBankrupt
+          ? "Game Over"
+          : "Betting Results",
       modalContent: (
         <div className="race__winnerModal">
           <p className="race__winnerModalText">{winner.name} wins the race!</p>
@@ -116,31 +261,80 @@ const Race = () => {
               </div>
             ))}
           </div>
+          <div className="race__bettingSummary">
+            <div className="race__bettingRow">
+              <span>Turns</span>
+              <span>{turnCount}</span>
+            </div>
+            {betResults.map((bet) => (
+              <div key={bet.id} className="race__bettingRow">
+                <span>
+                  {bet.label} ({bet.odds[0]}/{bet.odds[1]})
+                </span>
+                <span>{bet.won ? `+${bet.payout}` : "Lost"}</span>
+              </div>
+            ))}
+            {isFinalRace && baseTotal > 0 && (
+              <div className="race__bettingRow">
+                <span>Final Race Bonus</span>
+                <span>x2</span>
+              </div>
+            )}
+            <div className="race__bettingTotal">
+              <span>Total Winnings</span>
+              <span>{totalPayout}</span>
+            </div>
+            <div className="race__bettingTotal">
+              <span>Gold After</span>
+              <span>{goldAfter}</span>
+            </div>
+          </div>
           <div className="race__winnerModalActions">
             <Button
               variant={BUTTON_VARIANT.PRIMARY}
               onClick={() => {
                 closeModal();
-                resetRace();
+                if (endGame) {
+                  setGameState((prev) => ({
+                    ...prev,
+                    betting: {
+                      active: false,
+                      gold: 500,
+                      raceIndex: 1,
+                      themeId: prev.betting?.themeId ?? "dots",
+                      currentRace: null,
+                      bets: [],
+                      lastResult: null,
+                    },
+                  }));
+                  navigate("/");
+                } else {
+                  navigate("/betting-mode");
+                }
               }}
             >
-              Race Again
-            </Button>
-            <Button
-              variant={BUTTON_VARIANT.TERTIARY}
-              onClick={() => {
-                closeModal();
-                navigate("/");
-              }}
-            >
-              Return Home
+              {endGame ? "Return Home" : "Back to Betting"}
             </Button>
           </div>
         </div>
       ),
       buttons: MODAL_BUTTONS.NONE,
     });
-  }, [winner, openModal, closeModal, navigate]);
+  }, [
+    betting.bets,
+    betting.gold,
+    betting.raceIndex,
+    bettingRace,
+    closeModal,
+    isBetting,
+    navigate,
+    openModal,
+    resetRace,
+    setGameState,
+    standings,
+    turnCount,
+    winner,
+  ]);
 
   useEffect(() => {
     if (!Array.isArray(gameState?.racers) || gameState.racers.length === 0) {
@@ -208,6 +402,7 @@ const Race = () => {
             lastDraw={lastDraw}
             winner={winner}
             onDraw={handleDraw}
+            autoDelayDefault={isBetting ? 0.6 : 0}
           />
 
           <section className="race__log">
