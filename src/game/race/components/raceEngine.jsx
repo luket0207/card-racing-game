@@ -167,31 +167,38 @@ const getTargetPlayers = (targetCode, activePlayer, players) => {
   }
 };
 
-const applyMoveWithStatus = (player, baseAmount) => {
+const applyMoveWithStatus = (player, baseAmount, arrivalCounter) => {
   const { surplus } = getStatusCounts(player);
   const adjusted = Math.max(0, baseAmount + surplus);
   const nextPosition = clamp(player.position + adjusted, 0, TOTAL_TILES);
   return {
-    player: { ...player, position: nextPosition, status: [] },
+    player: {
+      ...player,
+      position: nextPosition,
+      status: [],
+      arrivalSeq: adjusted > 0 ? arrivalCounter + 1 : player.arrivalSeq,
+    },
     movedAmount: adjusted,
     baseAmount,
     surplus,
+    arrivalCounter: adjusted > 0 ? arrivalCounter + 1 : arrivalCounter,
   };
 };
 
-const applyEffect = (effectToken, activePlayerId, players) => {
+const applyEffect = (effectToken, activePlayerId, players, arrivalCounter) => {
   const activePlayer = players.find((player) => player.id === activePlayerId);
-  if (!activePlayer) return { players, events: [] };
+  if (!activePlayer) return { players, events: [], arrivalCounter };
   const parts = effectToken.split(",");
-  if (parts.length < 3) return { players, events: [] };
+  if (parts.length < 3) return { players, events: [], arrivalCounter };
 
   const [effectCode, targetCode, rawAmount] = parts;
   const amount = Number(rawAmount);
-  if (!Number.isFinite(amount)) return { players, events: [] };
+  if (!Number.isFinite(amount)) return { players, events: [], arrivalCounter };
 
   const targets = getTargetPlayers(targetCode, activePlayer, players);
 
   const events = [];
+  let nextArrivalCounter = arrivalCounter;
 
   const nextPlayers = players.map((player) => {
     const isTarget = targets.some((target) => target.id === player.id);
@@ -200,7 +207,8 @@ const applyEffect = (effectToken, activePlayerId, players) => {
     switch (effectCode) {
       case "M":
         {
-          const moveResult = applyMoveWithStatus(player, amount);
+          const moveResult = applyMoveWithStatus(player, amount, nextArrivalCounter);
+          nextArrivalCounter = moveResult.arrivalCounter;
           const modifierText =
             moveResult.surplus !== 0
               ? ` (base ${amount}, ${moveResult.surplus > 0 ? "+" : ""}${moveResult.surplus} status)`
@@ -222,7 +230,13 @@ const applyEffect = (effectToken, activePlayerId, players) => {
           color: player.color,
           message: `${player.name} moves back ${amount}.`,
         });
-        return { ...player, position: clamp(player.position - amount, 0, TOTAL_TILES) };
+        if (amount <= 0) return player;
+        nextArrivalCounter += 1;
+        return {
+          ...player,
+          position: clamp(player.position - amount, 0, TOTAL_TILES),
+          arrivalSeq: nextArrivalCounter,
+        };
       case "S":
       case "F":
       case "RF":
@@ -232,7 +246,7 @@ const applyEffect = (effectToken, activePlayerId, players) => {
     }
   });
 
-  return { players: nextPlayers, events };
+  return { players: nextPlayers, events, arrivalCounter: nextArrivalCounter };
 };
 
 const applyStatusEffect = (effectToken, activePlayerId, players) => {
@@ -295,7 +309,7 @@ const applyStatusEffect = (effectToken, activePlayerId, players) => {
   return { players, events: [] };
 };
 
-const applyCardEffects = (cardCode, activePlayer, players, raceClass) => {
+const applyCardEffects = (cardCode, activePlayer, players, raceClass, arrivalCounter) => {
   const { conditions, effectsIfTrue, effectsIfFalse } = parseCardCode(cardCode);
   const allConditionsMet =
     conditions.length === 0 ||
@@ -306,14 +320,16 @@ const applyCardEffects = (cardCode, activePlayer, players, raceClass) => {
 
   let updatedPlayers = players;
   let events = [];
+  let nextArrivalCounter = arrivalCounter;
   const pendingStatusEffects = [];
 
   effectsToApply.forEach((effectToken) => {
     const [effectCode] = effectToken.split(",");
     if (effectCode === "M" || effectCode === "MB") {
-      const result = applyEffect(effectToken, activePlayer.id, updatedPlayers);
+      const result = applyEffect(effectToken, activePlayer.id, updatedPlayers, nextArrivalCounter);
       updatedPlayers = result.players;
       events = [...events, ...result.events];
+      nextArrivalCounter = result.arrivalCounter;
     } else {
       pendingStatusEffects.push(effectToken);
     }
@@ -325,7 +341,7 @@ const applyCardEffects = (cardCode, activePlayer, players, raceClass) => {
     events = [...events, ...result.events];
   });
 
-  return { players: updatedPlayers, events };
+  return { players: updatedPlayers, events, arrivalCounter: nextArrivalCounter };
 };
 
 const tickStatuses = (players) =>
@@ -343,6 +359,7 @@ const createInitialState = (deckOverrides = {}, racers = PLAYER_CONFIG) => {
     deck: resolveDeck(deckOverrides[player.id]),
     position: 0,
     status: [],
+    arrivalSeq: 0,
   }));
 
   const combinedDeck = players.flatMap((player) =>
@@ -361,6 +378,7 @@ const createInitialState = (deckOverrides = {}, racers = PLAYER_CONFIG) => {
     winner: null,
     turnCount: 0,
     raceClass: null,
+    arrivalCounter: 0,
   };
 };
 
@@ -448,8 +466,8 @@ const useRaceEngine = () => {
 
       const result =
         activePlayer && cardCode
-          ? applyCardEffects(cardCode, activePlayer, tickedPlayers, raceClass)
-          : { players: tickedPlayers, events: [] };
+          ? applyCardEffects(cardCode, activePlayer, tickedPlayers, raceClass, prev.arrivalCounter)
+          : { players: tickedPlayers, events: [], arrivalCounter: prev.arrivalCounter };
       const players = result.players;
       pendingEventsRef.current = result.events;
 
@@ -465,6 +483,7 @@ const useRaceEngine = () => {
         lastDraw: {
           playerId: card.playerId,
           playerName: updatedActive?.name ?? "Unknown",
+          playerColor: updatedActive?.color ?? null,
           cardId: card.cardId,
           cardClass: cardData?.class ?? "Unknown",
           cardName: cardData?.name ?? "Unknown Card",
@@ -475,6 +494,7 @@ const useRaceEngine = () => {
         winner,
         turnCount: prev.turnCount + 1,
         raceClass: nextRaceClass,
+        arrivalCounter: result.arrivalCounter ?? prev.arrivalCounter,
       };
     });
   }, [emitEvents]);

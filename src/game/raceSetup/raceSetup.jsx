@@ -10,15 +10,25 @@ const AI_NAMES = [
   "Rift", "Quill", "Lumen", "Glitch", "Zephyr",
 ];
 
+const shuffle = (items) => {
+  const array = [...items];
+  for (let i = array.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 const buildDefaultRacers = (count, humanCount, theme) => {
   const pieces = theme?.pieces ?? [];
   const pooledNames = theme?.namePool ?? AI_NAMES;
   const fixed = theme?.nameStyle === "fixed";
+  const aiNamePool = shuffle(pooledNames);
   const racers = [];
   for (let i = 0; i < count; i += 1) {
     const isHuman = i < humanCount;
     const piece = pieces[i % pieces.length];
-    const baseName = fixed && piece ? piece.name : isHuman ? `Player ${i + 1}` : pooledNames[i % pooledNames.length];
+    const baseName = fixed && piece ? piece.name : aiNamePool[i % aiNamePool.length];
     racers.push({
       id: `player${i + 1}`,
       name: baseName,
@@ -41,8 +51,8 @@ const RaceSetup = () => {
     [themeId]
   );
   const [racerCount, setRacerCount] = useState(4);
-  const [humanCount, setHumanCount] = useState(2);
-  const [racers, setRacers] = useState(() => buildDefaultRacers(4, 2, themes[0]));
+  const [humanCount, setHumanCount] = useState(1);
+  const [racers, setRacers] = useState(() => buildDefaultRacers(4, 1, themes[0]));
 
   const activeRacers = useMemo(() => racers.slice(0, racerCount), [racers, racerCount]);
 
@@ -80,19 +90,21 @@ const RaceSetup = () => {
 
   const handleHumanCountChange = useCallback((value) => {
     setHumanCount(value);
+    const aiNames = shuffle(activeTheme?.namePool ?? AI_NAMES);
     setRacers((prev) =>
-      prev.map((r, idx) => ({
-        ...r,
-        type: idx < value ? "human" : "ai",
-        name:
-          idx < value
-            ? r.name
-            : activeTheme?.nameStyle === "fixed"
+      prev.map((r, idx) => {
+        const isHuman = idx < value;
+        return {
+          ...r,
+          type: isHuman ? "human" : "ai",
+          name:
+            activeTheme?.nameStyle === "fixed"
               ? r.name
-              : (activeTheme?.namePool ?? AI_NAMES)[idx % (activeTheme?.namePool ?? AI_NAMES).length],
-      }))
+              : aiNames[idx % aiNames.length],
+        };
+      })
     );
-  }, [activeTheme]);
+  }, [activeTheme, racerCount]);
 
   const handleThemeChange = useCallback((value) => {
     const nextTheme = themes.find((t) => t.id === value) ?? themes[0];
@@ -205,7 +217,7 @@ const RaceSetup = () => {
             </div>
 
             <div className="race-setup__field">
-              <label>Piece Color</label>
+              <label>Piece</label>
               <select
                 value={racer.pieceId}
                 onChange={(e) => {

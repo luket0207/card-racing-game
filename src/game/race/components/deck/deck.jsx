@@ -97,6 +97,7 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw }) => {
           text={lastDraw.cardText}
           code={lastDraw.cardCode}
           id={lastDraw.cardId}
+          borderColor={lastDraw.playerColor}
         />
       )}
 

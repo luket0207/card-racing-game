@@ -6,6 +6,7 @@ import useRaceEngine from "./components/raceEngine";
 import { useToast } from "../../engine/ui/toast/toast";
 import { useModal, MODAL_BUTTONS } from "../../engine/ui/modal/modalContext";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
+import { useGame } from "../../engine/gameContext/gameContext";
 import Piece from "./components/piece/piece";
 import themes from "../../assets/gameContent/themes";
 import "./race.scss";
@@ -27,11 +28,20 @@ const Race = () => {
   const { log, clearLog } = useToast();
   const { openModal, closeModal } = useModal();
   const navigate = useNavigate();
+  const { gameState } = useGame();
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
     [themeId]
   );
   const pieceSize = activeTheme?.iconSize ?? "small";
+  const standings = useMemo(() => {
+    return [...players].sort((a, b) => {
+      if (b.position !== a.position) return b.position - a.position;
+      const aSeq = a.arrivalSeq > 0 ? a.arrivalSeq : Number.POSITIVE_INFINITY;
+      const bSeq = b.arrivalSeq > 0 ? b.arrivalSeq : Number.POSITIVE_INFINITY;
+      return aSeq - bSeq;
+    });
+  }, [players]);
   const [tilePositions, setTilePositions] = useState({});
   const [moveDurationMs, setMoveDurationMs] = useState(500);
 
@@ -81,7 +91,6 @@ const Race = () => {
                 image={player.image}
                 icon={player.icon}
                 size={pieceSize}
-                showLabel={pieceSize === "small" && !player.image && !player.icon}
               />
             </div>
           );
@@ -98,6 +107,15 @@ const Race = () => {
       modalContent: (
         <div className="race__winnerModal">
           <p className="race__winnerModalText">{winner.name} wins the race!</p>
+          <div className="race__winnerModalStandings">
+            {standings.map((player, index) => (
+              <div key={`winner-stand-${player.id}`} className="race__winnerModalRow">
+                <span>#{index + 1}</span>
+                <span>{player.name}</span>
+                <span>Tile {player.position}</span>
+              </div>
+            ))}
+          </div>
           <div className="race__winnerModalActions">
             <Button
               variant={BUTTON_VARIANT.PRIMARY}
@@ -124,6 +142,12 @@ const Race = () => {
     });
   }, [winner, openModal, closeModal, navigate]);
 
+  useEffect(() => {
+    if (!Array.isArray(gameState?.racers) || gameState.racers.length === 0) {
+      navigate("/");
+    }
+  }, [gameState, navigate]);
+
   return (
     <div
       className={`race race--theme-${themeId ?? "default"}`}
@@ -147,6 +171,21 @@ const Race = () => {
 
       <div className="race__layout">
         <section className="race__trackPanel">
+          <div className="race__leaderBanner">
+            {standings.length > 0 ? (
+              <div className="race__leaderList">
+                {standings.map((player, index) => (
+                  <div key={`stand-${player.id}`} className="race__leaderItem">
+                    <span>#{index + 1}</span>
+                    <span>{player.name}</span>
+                    <span>Tile {player.position}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              "Standings: TBD"
+            )}
+          </div>
           <div className="race__classBanner" data-class={raceClass ?? "Unclassed"}>
             <span className="race__classLabel">Race Class</span>
             <span className="race__classValue">{raceClass ?? "Unclassed"}</span>

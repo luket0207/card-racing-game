@@ -81,10 +81,26 @@
   gap: 0.6rem;
 }
 
+.deck-selection__upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: $lightText;
+}
+
+.deck-selection__upload input {
+  display: none;
+}
+
 .deck-selection__deckList {
   display: grid;
   gap: 0.6rem;
-  max-height: 300px;
+  max-height: 240px;
   overflow: auto;
 }
 
@@ -154,19 +170,57 @@
 }
 
 .deck-selection__currencyList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.5rem;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
-.deck-selection__currencyItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
+.deck-selection__currencyBar {
+  display: inline-flex;
+  gap: 0;
+  width: auto;
+  max-width: 100%;
+  border: 1px solid #333;
+  border-radius: 6px;
+  overflow: hidden;
 }
+
+.deck-selection__currencySeg {
+  height: 20px;
+  min-width: 38px;
+  background: rgba(255, 255, 255, 0.3);
+  border-right: 3px solid #333;
+  display: block;
+  box-sizing: border-box;
+  line-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.deck-selection__currencySeg:last-child {
+  border-right: none;
+}
+
+.deck-selection__currencySeg--red {
+  background: #ff6b6b;
+}
+
+.deck-selection__currencySeg--blue {
+  background: #4dabf7;
+}
+
+.deck-selection__currencySeg--green {
+  background: #63e6be;
+}
+
+.deck-selection__currencySeg--yellow {
+  background: #ffd43b;
+}
+
+.deck-selection__currencySeg--orange {
+  background: #ffa94d;
+}
+
 
 .deck-selection__cardsHeader {
   display: flex;

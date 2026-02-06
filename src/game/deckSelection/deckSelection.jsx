@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
@@ -16,9 +16,24 @@ const PLAYER_LIST = [
 
 const DeckSelection = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isExportMode = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("mode") === "export";
+  }, [location.search]);
   const { gameState, setGameState } = useGame();
   const { clearLog } = useToast();
   const racers = useMemo(() => {
+    if (isExportMode) {
+      return [
+        {
+          id: "player1",
+          name: "Player 1",
+          type: "human",
+          color: themes[0]?.pieces?.[0]?.color ?? "#ffffff",
+        },
+      ];
+    }
     const list =
       Array.isArray(gameState?.racers) && gameState.racers.length > 0
         ? gameState.racers
@@ -29,11 +44,18 @@ const DeckSelection = () => {
             color: themes[0]?.pieces?.[idx % (themes[0]?.pieces?.length ?? 1)]?.color ?? "#ffffff",
           }));
     return list;
-  }, [gameState?.racers]);
+  }, [gameState?.racers, isExportMode]);
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === gameState?.themeId) ?? themes[0],
     [gameState?.themeId]
   );
+
+  useEffect(() => {
+    if (isExportMode) return;
+    if (!Array.isArray(gameState?.racers) || gameState.racers.length === 0) {
+      navigate("/");
+    }
+  }, [gameState, isExportMode, navigate]);
 
   const humanRacers = useMemo(() => racers.filter((r) => r.type === "human"), [racers]);
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
@@ -187,6 +209,7 @@ const DeckSelection = () => {
 
   const startRace = useCallback(() => {
     if (!isReady) return;
+    if (isExportMode) return;
     const withAiDecks = { ...decks };
     racers.forEach((r) => {
       if (r.type === "ai" && (!withAiDecks[r.id] || withAiDecks[r.id].length !== 16)) {
@@ -203,13 +226,61 @@ const DeckSelection = () => {
     }));
     clearLog();
     navigate("/race");
-  }, [activeTheme?.id, buildRandomDeck, clearLog, decks, isReady, navigate, racers, setGameState]);
+  }, [activeTheme?.id, buildRandomDeck, clearLog, decks, isExportMode, isReady, navigate, racers, setGameState]);
 
   const confirmDeck = useCallback(() => {
     if (!activeDeckFull || activeConfirmed) return;
     setConfirmed((prev) => ({ ...prev, [activePlayerId]: true }));
     setActivePlayerIndex((prev) => Math.min(prev + 1, humanRacers.length - 1));
   }, [activeConfirmed, activeDeckFull, activePlayerId, humanRacers.length]);
+
+  const validateDeck = useCallback(
+    (deck) => {
+      if (!Array.isArray(deck) || deck.length !== 16) return false;
+      for (const cardId of deck) {
+        if (!cards.find((c) => c.id === cardId)) return false;
+      }
+      const spend = getSpendByClass(deck);
+      return Object.values(spend).every((val) => val <= 5);
+    },
+    [getSpendByClass]
+  );
+
+  const handleExportDeck = useCallback(() => {
+    if (!activeDeckFull || activeConfirmed) return;
+    const payload = btoa(JSON.stringify({ deck: activeDeck }));
+    const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "deck.txt";
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [activeConfirmed, activeDeck, activeDeckFull]);
+
+  const handleImportDeck = useCallback(
+    (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const content = String(reader.result || "");
+          const decoded = atob(content.trim());
+          const parsed = JSON.parse(decoded);
+          const deck = parsed?.deck;
+          if (!validateDeck(deck)) return;
+          setDecks((prev) => ({ ...prev, [activePlayerId]: deck }));
+          setConfirmed((prev) => ({ ...prev, [activePlayerId]: false }));
+        } catch (err) {
+          // ignore invalid files
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    },
+    [activePlayerId, validateDeck]
+  );
 
   return (
     <div className="deck-selection">
@@ -231,30 +302,35 @@ const DeckSelection = () => {
           </div>
 
           <div className="deck-selection__playerStatus">
-            {racers.map((player) => (
-              <div
-                key={player.id}
-                className={`deck-selection__playerRow${
-                  player.id === activePlayerId ? " deck-selection__playerRow--active" : ""
-                }`}
-              >
-                <span>{player.name}</span>
+            {activePlayerId && (
+              <div className="deck-selection__playerRow deck-selection__playerRow--active">
+                <span>{activePlayerName}</span>
                 <span>
-                  {(decks[player.id] ?? []).length}/16
-                  {confirmed[player.id] ? " (OK)" : ""}
+                  {(decks[activePlayerId] ?? []).length}/16
+                  {confirmed[activePlayerId] ? " (OK)" : ""}
                 </span>
               </div>
-            ))}
+            )}
           </div>
 
           <div className="deck-selection__confirm">
-            <Button
-              variant={BUTTON_VARIANT.PRIMARY}
-              onClick={confirmDeck}
-              disabled={!activeDeckFull || activeConfirmed}
-            >
-              {activePlayerIndex === PLAYER_LIST.length - 1 ? "Confirm Deck" : "Confirm & Next"}
-            </Button>
+            {isExportMode ? (
+              <Button
+                variant={BUTTON_VARIANT.PRIMARY}
+                onClick={handleExportDeck}
+                disabled={!activeDeckFull || activeConfirmed}
+              >
+                Download Deck (.txt)
+              </Button>
+            ) : (
+              <Button
+                variant={BUTTON_VARIANT.PRIMARY}
+                onClick={confirmDeck}
+                disabled={!activeDeckFull || activeConfirmed}
+              >
+                {activePlayerIndex === humanRacers.length - 1 ? "Confirm Deck" : "Confirm & Next"}
+              </Button>
+            )}
           </div>
 
           <div className="deck-selection__deckActions">
@@ -272,6 +348,17 @@ const DeckSelection = () => {
             >
               Clear Deck
             </Button>
+            {!isExportMode && (
+              <label className="deck-selection__upload">
+                <input
+                  type="file"
+                  accept=".txt"
+                  onChange={handleImportDeck}
+                  disabled={activeConfirmed}
+                />
+                Upload Deck (.txt)
+              </label>
+            )}
           </div>
 
           <div className="deck-selection__deckList">
@@ -285,7 +372,7 @@ const DeckSelection = () => {
                   <div>
                     <div className="deck-selection__deckTitle">{card?.name ?? cardId}</div>
                     <div className="deck-selection__deckMeta">
-                      {card?.class ?? "Unknown"} - {cardId}
+                      {card?.class ?? "Unknown"} - {cardId} - Cost {card?.cost ?? 0}
                     </div>
                   </div>
                   <button
@@ -301,28 +388,33 @@ const DeckSelection = () => {
             })}
           </div>
 
-          <div className="deck-selection__start">
-            <div>
-              {isReady ? "All decks ready." : "Each player needs 16 cards to start."}
+          {!isExportMode && (
+            <div className="deck-selection__start">
+              <div>
+                {isReady ? "All decks ready." : "Each player needs 16 cards to start."}
+              </div>
+              <Button variant={BUTTON_VARIANT.PRIMARY} onClick={startRace} disabled={!isReady}>
+                Start Race
+              </Button>
             </div>
-            <Button variant={BUTTON_VARIANT.PRIMARY} onClick={startRace} disabled={!isReady}>
-              Start Race
-            </Button>
-          </div>
+          )}
         </section>
 
         <section className="deck-selection__cards">
           <div className="deck-selection__currency">
             <div className="deck-selection__currencyTitle">Coins</div>
             <div className="deck-selection__currencyList">
-              {["Red", "Blue", "Green", "Yellow", "Orange"].map((cls) => (
-                <div key={cls} className="deck-selection__currencyItem">
-                  <span className={`deck-selection__badge deck-selection__badge--${cls.toLowerCase()}`}>
-                    {cls}
-                  </span>
-                  <span>{activeSpend[cls] ?? 0}/5</span>
-                </div>
-              ))}
+              <div className="deck-selection__currencyBar" aria-label="Coins">
+                {["Red", "Blue", "Green", "Yellow", "Orange"].flatMap((cls) => {
+                  const remaining = 5 - (activeSpend[cls] ?? 0);
+                  return Array.from({ length: remaining }, (_, idx) => (
+                    <span
+                      key={`${cls}-coin-${idx}`}
+                      className={`deck-selection__currencySeg deck-selection__currencySeg--${cls.toLowerCase()}`}
+                    />
+                  ));
+                })}
+              </div>
             </div>
           </div>
 

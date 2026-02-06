@@ -99,6 +99,33 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
+.race__leaderBanner {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  padding: 0.5rem 1.2rem;
+  min-height: 60px;
+  width: 100%;
+  margin-bottom: 0.6rem;
+  background: rgba(0, 0, 0, 0.35);
+  color: $lightText;
+  font-weight: 600;
+}
+
+.race__leaderList {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.race__leaderItem {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .race__classLabel {
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -240,6 +267,19 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+.race__winnerModalStandings {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.race__winnerModalRow {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .race__players {

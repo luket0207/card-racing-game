@@ -4,11 +4,12 @@
   background: linear-gradient(160deg, #ffffff, #f1f3f5);
   border-radius: 16px;
   padding: 1rem 1.2rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 4px solid rgba(0, 0, 0, 0.08);
   display: grid;
   gap: 0.5rem;
   position: relative;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  min-height: 250px;
 
   &__header,
   &__footer {
@@ -26,10 +27,11 @@
   }
 
   &__class {
-    padding: 0.2rem 0.5rem;
+    height: 12px;
+    width: 12px;
     border-radius: 999px;
     background: rgba(17, 87, 82, 0.1);
-    font-weight: 700;
+    border: 2px solid rgba(0, 0, 0, 0.15);
   }
 
   &__title {
@@ -55,22 +57,32 @@
   }
 
   &[data-class="Red"] {
-    border-color: rgba(255, 107, 107, 0.6);
+    .race-card__class {
+      background: #ff6b6b;
+    }
   }
 
   &[data-class="Blue"] {
-    border-color: rgba(77, 171, 247, 0.6);
+    .race-card__class {
+      background: #4dabf7;
+    }
   }
 
   &[data-class="Green"] {
-    border-color: rgba(99, 230, 190, 0.6);
+    .race-card__class {
+      background: #63e6be;
+    }
   }
 
   &[data-class="Yellow"] {
-    border-color: rgba(255, 212, 59, 0.6);
+    .race-card__class {
+      background: #ffd43b;
+    }
   }
 
   &[data-class="Orange"] {
-    border-color: rgba(255, 146, 43, 0.6);
+    .race-card__class {
+      background: #ff922b;
+    }
   }
 }
