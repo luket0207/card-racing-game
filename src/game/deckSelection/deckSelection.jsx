@@ -4,15 +4,8 @@ import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
 import cards from "../../assets/gameContent/cards";
+import themes from "../../assets/gameContent/themes";
 import "./deckSelection.scss";
-
-const DEFAULT_COLORS = [
-  { label: "Red", value: "#ff6b6b" },
-  { label: "Blue", value: "#4dabf7" },
-  { label: "Green", value: "#63e6be" },
-  { label: "Yellow", value: "#ffd43b" },
-  { label: "Orange", value: "#ffa94d" },
-];
 
 const PLAYER_LIST = [
   { id: "player1", name: "Player 1" },
@@ -33,10 +26,14 @@ const DeckSelection = () => {
             id: p.id,
             name: p.name,
             type: idx < 2 ? "human" : "ai",
-            color: DEFAULT_COLORS[idx % DEFAULT_COLORS.length]?.value ?? "#ffffff",
+            color: themes[0]?.pieces?.[idx % (themes[0]?.pieces?.length ?? 1)]?.color ?? "#ffffff",
           }));
     return list;
   }, [gameState?.racers]);
+  const activeTheme = useMemo(
+    () => themes.find((t) => t.id === gameState?.themeId) ?? themes[0],
+    [gameState?.themeId]
+  );
 
   const humanRacers = useMemo(() => racers.filter((r) => r.type === "human"), [racers]);
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
@@ -198,6 +195,7 @@ const DeckSelection = () => {
     });
     setGameState((prev) => ({
       ...prev,
+      themeId: activeTheme?.id ?? "dots",
       player1: { ...prev.player1, deck: withAiDecks.player1 ?? [], position: 0 },
       player2: { ...prev.player2, deck: withAiDecks.player2 ?? [], position: 0 },
       player3: { ...prev.player3, deck: withAiDecks.player3 ?? [], position: 0 },
@@ -205,7 +203,7 @@ const DeckSelection = () => {
     }));
     clearLog();
     navigate("/race");
-  }, [buildRandomDeck, clearLog, decks, isReady, navigate, racers, setGameState]);
+  }, [activeTheme?.id, buildRandomDeck, clearLog, decks, isReady, navigate, racers, setGameState]);
 
   const confirmDeck = useCallback(() => {
     if (!activeDeckFull || activeConfirmed) return;

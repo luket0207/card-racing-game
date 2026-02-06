@@ -7,6 +7,7 @@ import { useToast } from "../../engine/ui/toast/toast";
 import { useModal, MODAL_BUTTONS } from "../../engine/ui/modal/modalContext";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import Piece from "./components/piece/piece";
+import themes from "../../assets/gameContent/themes";
 import "./race.scss";
 
 const Race = () => {
@@ -19,12 +20,18 @@ const Race = () => {
     winner,
     turnCount,
     raceClass,
+    themeId,
     drawNextCard,
     resetRace,
   } = useRaceEngine();
   const { log, clearLog } = useToast();
   const { openModal, closeModal } = useModal();
   const navigate = useNavigate();
+  const activeTheme = useMemo(
+    () => themes.find((t) => t.id === themeId) ?? themes[0],
+    [themeId]
+  );
+  const pieceSize = activeTheme?.iconSize ?? "small";
   const [tilePositions, setTilePositions] = useState({});
   const [moveDurationMs, setMoveDurationMs] = useState(500);
 
@@ -52,11 +59,12 @@ const Race = () => {
           const pos = tilePositions[player.position] ?? tilePositions[0];
           if (!pos) return null;
           const index = players.findIndex((p) => p.id === player.id);
+          const baseOffset = pieceSize === "large" ? 18 : pieceSize === "medium" ? 16 : 8;
           const offsets = [
-            { x: -12, y: -12 },
-            { x: 12, y: -12 },
-            { x: -12, y: 12 },
-            { x: 12, y: 12 },
+            { x: -baseOffset, y: -baseOffset },
+            { x: baseOffset, y: -baseOffset },
+            { x: -baseOffset, y: baseOffset },
+            { x: baseOffset, y: baseOffset },
           ];
           const offset = offsets[index % offsets.length] ?? { x: 0, y: 0 };
           return (
@@ -70,6 +78,10 @@ const Race = () => {
                 color={player.color}
                 playerId={player.id}
                 status={player.status}
+                image={player.image}
+                icon={player.icon}
+                size={pieceSize}
+                showLabel={pieceSize === "small" && !player.image && !player.icon}
               />
             </div>
           );
@@ -113,7 +125,10 @@ const Race = () => {
   }, [winner, openModal, closeModal, navigate]);
 
   return (
-    <div className="race">
+    <div
+      className={`race race--theme-${themeId ?? "default"}`}
+      style={{ "--track-bg": activeTheme?.trackColor ?? "rgba(255,255,255,0.08)" }}
+    >
       <header className="race__header">
         <div>
           <p className="race__eyebrow">Card Racing Prototype</p>
@@ -143,6 +158,7 @@ const Race = () => {
             onMeasure={handleMeasure}
             overlay={overlay}
             showPieces={false}
+            pieceSize={pieceSize}
           />
         </section>
 
@@ -168,7 +184,10 @@ const Race = () => {
               ) : (
                 log.slice(0, 12).map((entry) => (
                   <div key={entry.id} className="race__logItem">
-                    <span className={`race__logBadge race__logBadge--${entry.type}`}>
+                    <span
+                      className="race__logBadge"
+                      style={entry.color ? { background: entry.color, color: "#1b1b1b" } : undefined}
+                    >
                       {entry.type.replace("player", "P")}
                     </span>
                     <span className="race__logText">{entry.message}</span>

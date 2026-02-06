@@ -111,6 +111,7 @@ export const ToastProvider = ({ children }) => {
         message: safeMessage,
         createdAt,
         durationMs,
+        color: options.color ?? null,
         isExiting: false,
       };
 
@@ -125,6 +126,7 @@ export const ToastProvider = ({ children }) => {
           message: safeMessage,
           createdAt,
           durationMs,
+          color: options.color ?? null,
         },
         ...prev,
       ]);
@@ -199,6 +201,7 @@ const ToastViewport = ({ toasts, onDismiss }) => {
           key={t.id}
           type="button"
           className={`toast toast--${t.type}${t.isExiting ? " toast--exit" : ""}`}
+          style={t.color ? { background: t.color, color: "#111827" } : undefined}
           onClick={() => onDismiss(t.id)}
           title="Click to dismiss"
         >

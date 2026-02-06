@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import Piece from "../piece/piece";
 import "./track.scss";
 
-const Track = ({ tiles, players, onMeasure, overlay, showPieces = true }) => {
+const Track = ({ tiles, players, onMeasure, overlay, showPieces = true, pieceSize = "small" }) => {
   const boardRef = useRef(null);
   const startRef = useRef(null);
   const tileRefs = useRef({});
@@ -62,6 +62,9 @@ const Track = ({ tiles, players, onMeasure, overlay, showPieces = true }) => {
                   color={player.color}
                   playerId={player.id}
                   status={player.status}
+                  image={player.image}
+                  icon={player.icon}
+                  size={pieceSize}
                 />
               ))}
           </div>
@@ -92,6 +95,9 @@ const Track = ({ tiles, players, onMeasure, overlay, showPieces = true }) => {
                         color={player.color}
                         playerId={player.id}
                         status={player.status}
+                        image={player.image}
+                        icon={player.icon}
+                        size={pieceSize}
                       />
                     ))}
                   </div>

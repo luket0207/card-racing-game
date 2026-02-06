@@ -211,6 +211,7 @@ const applyEffect = (effectToken, activePlayerId, players) => {
               : "does not move";
           events.push({
             playerId: player.id,
+            color: player.color,
             message: `${player.name} ${actionText}${modifierText}.`,
           });
           return moveResult.player;
@@ -218,6 +219,7 @@ const applyEffect = (effectToken, activePlayerId, players) => {
       case "MB":
         events.push({
           playerId: player.id,
+          color: player.color,
           message: `${player.name} moves back ${amount}.`,
         });
         return { ...player, position: clamp(player.position - amount, 0, TOTAL_TILES) };
@@ -253,6 +255,7 @@ const applyStatusEffect = (effectToken, activePlayerId, players) => {
       if (!isTarget) return player;
       events.push({
         playerId: player.id,
+        color: player.color,
         message: `${player.name} gains ${effectCode === "S" ? "stamina" : "fatigue"} (duration ${amount}).`,
       });
       return {
@@ -277,6 +280,7 @@ const applyStatusEffect = (effectToken, activePlayerId, players) => {
       if (remainingToRemove > 0) {
         events.push({
           playerId: player.id,
+          color: player.color,
           message: `${player.name} removes ${remainingToRemove} fatigue.`,
         });
       }
@@ -379,11 +383,14 @@ const useRaceEngine = () => {
         name: r.name,
         short: r.short ?? `P${idx + 1}`,
         color: r.color ?? PLAYER_CONFIG[idx]?.color ?? "#ffffff",
+        image: r.image ?? null,
+        icon: r.icon ?? null,
       }));
     }
     return PLAYER_CONFIG;
   }, [gameState?.racers]);
   const [state, setState] = useState(() => createInitialState(deckOverrides, racers));
+  const themeId = gameState?.themeId ?? "dots";
   const pendingEventsRef = useRef([]);
 
   const tiles = useMemo(
@@ -409,7 +416,7 @@ const useRaceEngine = () => {
   const emitEvents = useCallback(
     (events) => {
       events.forEach((event) => {
-        showToast(typeFromPlayerId(event.playerId), event.message);
+        showToast(typeFromPlayerId(event.playerId), event.message, { color: event.color });
       });
     },
     [showToast, typeFromPlayerId]
@@ -493,6 +500,7 @@ const useRaceEngine = () => {
     winner: state.winner,
     turnCount: state.turnCount,
     raceClass: state.raceClass,
+    themeId,
     drawNextCard: drawNextCardWithToasts,
     resetRace,
   };
