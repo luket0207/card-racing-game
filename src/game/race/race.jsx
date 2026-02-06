@@ -182,23 +182,27 @@ const Race = () => {
       let won = false;
       let odds = [1, 1];
       let label = bet.type;
+      const racerName =
+        bet.racerId ? standings.find((p) => p.id === bet.racerId)?.name ?? "Racer" : "Racer";
       if (bet.type === "outright") {
         odds = oddsByRacer.get(bet.racerId) ?? [1, 1];
-        label = `Outright: ${standings.find((p) => p.id === bet.racerId)?.name ?? "Racer"}`;
-        won = bet.racerId === winnerId;
+        label = `Outright: ${racerName}`;
+        won = !!bet.racerId && bet.racerId === winnerId;
       } else if (bet.type === "eachway") {
         odds = oddsByRacer.get(bet.racerId) ?? [1, 1];
-        label = `Each Way: ${standings.find((p) => p.id === bet.racerId)?.name ?? "Racer"}`;
-        won = bet.racerId === winnerId || bet.racerId === secondId;
+        label = `Each Way: ${racerName}`;
+        won = !!bet.racerId && (bet.racerId === winnerId || bet.racerId === secondId);
       } else if (PAST_POST_BETS[bet.type]) {
         const config = PAST_POST_BETS[bet.type];
         odds = config.odds;
         label = config.label;
         won = turnCount < config.threshold;
       }
-      const basePayout = won
-        ? calcPayout(bet.stake, odds) * (bet.type === "eachway" ? 2 : 1)
-        : 0;
+      const payoutBase =
+        bet.type === "eachway"
+          ? bet.cost ?? (bet.stake ?? 0) * 2
+          : bet.stake ?? 0;
+      const basePayout = won ? calcPayout(payoutBase, odds) : 0;
       return {
         ...bet,
         won,

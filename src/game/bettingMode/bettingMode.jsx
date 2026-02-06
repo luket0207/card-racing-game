@@ -76,13 +76,24 @@ const buildRandomDeck = (limits) => {
   return [];
 };
 
+const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
+
 const buildOdds = (racers) => {
-  const total = racers.reduce((sum, r) => sum + r.coinTotal, 0);
-  return racers.map((r) => {
-    const p = r.coinTotal / total;
+  const WEIGHT_K = 0.4;
+  const weights = racers.map((r) => Math.exp(r.coinTotal * WEIGHT_K));
+  const total = weights.reduce((sum, w) => sum + w, 0);
+
+  return racers.map((r, idx) => {
+    const p = total > 0 ? weights[idx] / total : 0;
     const decimal = p > 0 ? 1 / p : 10;
-    const frac = Math.max(1, Math.round((decimal - 1) * 2));
-    return { ...r, odds: [frac, 2], decimalOdds: decimal };
+
+    // Use fair fractional odds: (1/p - 1) rounded to 0.1 for clean ratios.
+    const numerator = Math.max(1, Math.round((decimal - 1) * 10));
+    const denominator = 10;
+    const divisor = gcd(numerator, denominator);
+    const odds = [numerator / divisor, denominator / divisor];
+
+    return { ...r, odds, decimalOdds: decimal };
   });
 };
 
@@ -298,10 +309,14 @@ const BettingMode = () => {
   const openRunModal = useCallback(() => {
     if (isModalOpen) return;
     openModal({
-      modalTitle: "Betting Mode",
+      modalTitle: betting.active === true ? "Betting Mode" : "Start Betting Run",
       modalContent: (
         <div className="betting-mode__themeModal">
-          <p>Pick a theme and choose whether to start a new run or continue.</p>
+          <p>
+            {betting.active === true
+              ? "Pick a theme and choose whether to continue or start a new run."
+              : "Pick a theme to start your betting run."}
+          </p>
           <select
             className="betting-mode__themeSelect"
             defaultValue={pendingThemeId}
@@ -332,7 +347,7 @@ const BettingMode = () => {
               variant={BUTTON_VARIANT.PRIMARY}
               onClick={() => startRun(pendingThemeRef.current)}
             >
-              Start New Run
+              {betting.active === true ? "Start New Run" : "Start Run"}
             </Button>
             <Button
               variant={BUTTON_VARIANT.TERTIARY}
@@ -348,7 +363,7 @@ const BettingMode = () => {
       ),
       buttons: MODAL_BUTTONS.NONE,
     });
-  }, [isModalOpen, openModal, pendingThemeId, startRun]);
+  }, [betting.active, closeModal, isModalOpen, navigate, openModal, pendingThemeId, startRun]);
 
   useEffect(() => {
     const fromHome = location.state?.fromHome === true;
@@ -379,9 +394,6 @@ const BettingMode = () => {
           <p>Gold: {gold} - Race {raceIndex} / 10</p>
         </div>
         <div className="betting-mode__headerActions">
-          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={openRunModal}>
-            Run Options
-          </Button>
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
             Back Home
           </Button>
