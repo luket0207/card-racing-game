@@ -1,30 +1,17 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
-import { useGame } from "../../engine/gameContext/gameContext";
+import { DEFAULT_GAME_STATE, useGame } from "../../engine/gameContext/gameContext";
 import themes from "../../assets/gameContent/themes";
 import Calendar from "./components/calendar/calendar";
 import EndCampaignModal from "./components/endCampaignModal/endCampaignModal";
 import Piece from "../race/components/piece/piece";
+import { buildCampaignCalendar } from "./hooks/useCampaignCalendar";
 import "./campaignHome.scss";
 
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
 const DEFAULT_CAMPAIGN = {
   active: false,
@@ -40,30 +27,6 @@ const DEFAULT_CAMPAIGN = {
   calendar: [],
   day: 0,
   monthNames: [],
-};
-
-const buildCalendar = () => {
-  const shuffledMonths = [...MONTH_NAMES].sort(() => Math.random() - 0.5);
-  const monthNames = shuffledMonths.slice(0, 3);
-
-  const types = ["normal", "race", "event", "miniGame"];
-  const weights = [0.55, 0.25, 0.12, 0.08];
-
-  const pickType = () => {
-    const roll = Math.random();
-    let sum = 0;
-    for (let i = 0; i < types.length; i += 1) {
-      sum += weights[i];
-      if (roll <= sum) return types[i];
-    }
-    return "normal";
-  };
-
-  const calendar = Array.from({ length: 28 * 3 }, () => ({
-    type: pickType(),
-  }));
-
-  return { calendar, monthNames };
 };
 
 const CampaignHome = () => {
@@ -120,24 +83,35 @@ const CampaignHome = () => {
       return;
     }
 
-    const { calendar, monthNames } = buildCalendar();
+    const { calendar, monthNames } = buildCampaignCalendar();
     const firstPiece = selectedPiece ?? pieceOptions[0];
 
-    setGameState((prev) => ({
-      ...prev,
-      campaign: {
-        ...DEFAULT_CAMPAIGN,
-        active: true,
-        playerName: playerName.trim(),
-        themeId,
-        pieceId: firstPiece?.value ?? "",
-        difficulty,
-        calendar,
-        monthNames,
-        day: 0,
-      },
-    }));
-  }, [difficulty, openModal, pieceOptions, playerName, selectedPiece, setGameState, themeId]);
+    const nextCampaign = {
+      ...DEFAULT_CAMPAIGN,
+      active: true,
+      playerName: playerName.trim(),
+      themeId,
+      pieceId: firstPiece?.value ?? "",
+      difficulty,
+      calendar,
+      monthNames,
+      day: 0,
+    };
+
+    sessionStorage.setItem("campaignActive", "1");
+    setGameState({
+      ...DEFAULT_GAME_STATE,
+      campaign: nextCampaign,
+    });
+  }, [
+    difficulty,
+    openModal,
+    pieceOptions,
+    playerName,
+    selectedPiece,
+    setGameState,
+    themeId,
+  ]);
 
   const currentDayType = campaign.calendar?.[campaign.day]?.type ?? "normal";
 
@@ -150,7 +124,8 @@ const CampaignHome = () => {
         buttons: MODAL_BUTTONS.OK,
         onClick: () => {
           closeModal();
-          setGameState((prev) => ({ ...prev, campaign: DEFAULT_CAMPAIGN }));
+          sessionStorage.removeItem("campaignActive");
+          setGameState(DEFAULT_GAME_STATE);
           navigate("/");
         },
       });
@@ -173,12 +148,21 @@ const CampaignHome = () => {
       buttons: MODAL_BUTTONS.YES_NO,
       onYes: () => {
         closeModal();
-        setGameState((prev) => ({ ...prev, campaign: DEFAULT_CAMPAIGN }));
+        sessionStorage.removeItem("campaignActive");
+        setGameState(DEFAULT_GAME_STATE);
         navigate("/");
       },
       onNo: () => closeModal(),
     });
   }, [closeModal, navigate, openModal, setGameState]);
+
+  useEffect(() => {
+    if (!isActive) return;
+    if (!sessionStorage.getItem("campaignActive")) {
+      setGameState(DEFAULT_GAME_STATE);
+      navigate("/");
+    }
+  }, [isActive, navigate, setGameState]);
 
   if (!isActive) {
     return (

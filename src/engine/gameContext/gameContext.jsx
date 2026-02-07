@@ -14,7 +14,7 @@ console.log(gameState.ui.top);
 
 const GameContext = createContext(null);
 
-const DEFAULT_GAME_STATE = Object.freeze({
+export const DEFAULT_GAME_STATE = Object.freeze({
   player1: {
     racer: null,
     deck: [],
