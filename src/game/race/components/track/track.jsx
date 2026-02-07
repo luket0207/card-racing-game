@@ -77,7 +77,6 @@ const Track = ({
               ))}
           </div>
         </div>
-        <div className="race-track__finish">Finish: Tile {finishTile}</div>
       </div>
 
       <div className="race-track__board" ref={boardRef}>

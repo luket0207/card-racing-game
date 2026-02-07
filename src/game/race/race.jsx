@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Deck from "./components/deck/deck";
+import Details from "./components/details/details";
 import Track from "./components/track/track";
 import useRaceEngine from "./components/raceEngine";
 import { useToast } from "../../engine/ui/toast/toast";
@@ -374,34 +374,6 @@ const Race = () => {
     >
       <div className="race__layout">
         <section className="race__trackPanel">
-          <div className="race__leaderBanner">
-            {standings.length > 0 ? (
-              <div className="race__leaderList">
-                {standings.map((player, index) => (
-                  <div key={`stand-${player.id}`} className="race__leaderItem">
-                    <span>#{index + 1}</span>
-                    <span className="race__leaderName">
-                      <span
-                        className="race__leaderDot"
-                        style={{ background: player.color }}
-                        aria-hidden="true"
-                      />
-                      {player.name}
-                    </span>
-                    <span>
-                      Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              "Standings: TBD"
-            )}
-          </div>
-          <div className="race__classBanner" data-class={raceClass ?? "Unclassed"}>
-            <span className="race__classLabel">Race Class</span>
-            <span className="race__classValue">{raceClass ?? "Unclassed"}</span>
-          </div>
           <Track
             tiles={tiles}
             players={players}
@@ -415,7 +387,7 @@ const Race = () => {
         </section>
 
         <aside className="race__sidePanel">
-          <Deck
+          <Details
             drawPileCount={drawPileCount}
             discardCount={discardCount}
             lastDraw={lastDraw}
@@ -424,7 +396,36 @@ const Race = () => {
             autoDelayDefault={isBetting ? 0.6 : 0}
             turnCount={turnCount}
             totalLaps={totalLaps}
+            standings={standings}
+            raceClass={raceClass}
           />
+        </aside>
+        <section className="race__bottomRow">
+          <section className="race__log">
+            <div className="race__logHeader">
+              <h2>Race Log</h2>
+              <button type="button" className="race__logClear" onClick={clearLog}>
+                Clear
+              </button>
+            </div>
+            <div className="race__logList" role="log" aria-label="Race event log">
+              {log.length === 0 ? (
+                <div className="race__logEmpty">No events yet.</div>
+              ) : (
+                log.map((entry) => (
+                  <div key={entry.id} className="race__logItem">
+                    <span
+                      className="race__logBadge"
+                      style={entry.color ? { background: entry.color, color: "#1b1b1b" } : undefined}
+                    >
+                      {entry.type.replace("player", "P")}
+                    </span>
+                    <span className="race__logText">{entry.message}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
 
           {isBetting && (
             <section className="race__bets">
@@ -457,34 +458,7 @@ const Race = () => {
               </div>
             </section>
           )}
-
-          <section className="race__log">
-            <div className="race__logHeader">
-              <h2>Race Log</h2>
-              <button type="button" className="race__logClear" onClick={clearLog}>
-                Clear
-              </button>
-            </div>
-            <div className="race__logList" role="log" aria-label="Race event log">
-              {log.length === 0 ? (
-                <div className="race__logEmpty">No events yet.</div>
-              ) : (
-                log.map((entry) => (
-                  <div key={entry.id} className="race__logItem">
-                    <span
-                      className="race__logBadge"
-                      style={entry.color ? { background: entry.color, color: "#1b1b1b" } : undefined}
-                    >
-                      {entry.type.replace("player", "P")}
-                    </span>
-                    <span className="race__logText">{entry.message}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
-        </aside>
+        </section>
       </div>
     </div>
   );

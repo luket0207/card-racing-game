@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import Button, { BUTTON_VARIANT } from "../../../../engine/ui/button/button";
 import { Slider } from "primereact/slider";
 import CardDisplay from "../card/card";
-import "./deck.scss";
+import "./details.scss";
 
-const Deck = ({
+const Details = ({
   drawPileCount,
   discardCount,
   lastDraw,
@@ -13,6 +13,8 @@ const Deck = ({
   autoDelayDefault = 0,
   turnCount = 0,
   totalLaps = 1,
+  standings = [],
+  raceClass,
 }) => {
   const lastDrawText = lastDraw
     ? `${lastDraw.playerName} drew ${lastDraw.cardName}`
@@ -42,33 +44,67 @@ const Deck = ({
   }, [manualCooldown]);
 
   return (
-    <section className="race-deck">
-      <div className="race-deck__header">
+    <section className="details">
+      <div className="details__leader">
+        <div className="race__leaderBanner">
+          {standings.length > 0 ? (
+            <div className="race__leaderList">
+              {standings.map((player, index) => (
+                <div key={`stand-${player.id}`} className="race__leaderItem">
+                  <span>#{index + 1}</span>
+                  <span className="race__leaderName">
+                    <span
+                      className="race__leaderDot"
+                      style={{ background: player.color }}
+                      aria-hidden="true"
+                    />
+                    {player.name}
+                  </span>
+                  <span>
+                    Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            "Standings: TBD"
+          )}
+        </div>
+      </div>
+      <div className="details__class">
+        <div className="race__classBanner" data-class={raceClass ?? "Unclassed"}>
+          <span className="race__classLabel">Race Class</span>
+          <span className="race__classValue">{raceClass ?? "Unclassed"}</span>
+        </div>
+      </div>
+
+      <div className="details__header">
         <div>
           <h2>Race Deck</h2>
           <p>Combined deck built from each player deck.</p>
         </div>
-        <div className="race-deck__counts">
-          <div>
-            <span>Draw Pile</span>
-            <strong>{drawPileCount}</strong>
-          </div>
-          <div>
-            <span>Discard</span>
-            <strong>{discardCount}</strong>
-          </div>
-          <div>
-            <span>Turns Drawn</span>
-            <strong>{turnCount}</strong>
-          </div>
-          <div>
-            <span>Laps</span>
-            <strong>{totalLaps}</strong>
-          </div>
+      </div>
+
+      <div className="details__counts">
+        <div>
+          <span>Draw Pile</span>
+          <strong>{drawPileCount}</strong>
+        </div>
+        <div>
+          <span>Discard</span>
+          <strong>{discardCount}</strong>
+        </div>
+        <div>
+          <span>Turns Drawn</span>
+          <strong>{turnCount}</strong>
+        </div>
+        <div>
+          <span>Laps</span>
+          <strong>{totalLaps}</strong>
         </div>
       </div>
 
-      <div className="race-deck__actions">
+      <div className="details__actions">
         <Button
           variant={BUTTON_VARIANT.PRIMARY}
           onClick={() => {
@@ -87,11 +123,11 @@ const Deck = ({
         </Button>
       </div>
 
-      <div className="race-deck__auto">
-        <label className="race-deck__autoLabel" htmlFor="auto-draw">
+      <div className="details__auto">
+        <label className="details__autoLabel" htmlFor="auto-draw">
           Auto Draw
         </label>
-        <div className="race-deck__autoRow">
+        <div className="details__autoRow">
           <Slider
             id="auto-draw"
             value={autoDelay}
@@ -101,17 +137,17 @@ const Deck = ({
             onChange={(event) => setAutoDelay(event.value ?? 0)}
             disabled={!!winner}
           />
-          <span className="race-deck__autoValue">{autoDelayLabel}</span>
+          <span className="details__autoValue">{autoDelayLabel}</span>
         </div>
       </div>
 
-      <div className="race-deck__card">
-        <div className="race-deck__label">Latest Draw</div>
-        <div className="race-deck__draw">{lastDrawText}</div>
-        {lastDraw?.reshuffled && <div className="race-deck__reshuffle">Discard pile reshuffled.</div>}
+      <div className="details__card">
+        <div className="details__label">Latest Draw</div>
+        <div className="details__draw">{lastDrawText}</div>
+        {lastDraw?.reshuffled && <div className="details__reshuffle">Discard pile reshuffled.</div>}
       </div>
 
-      <div className="race-deck__cardSlot">
+      <div className="details__cardSlot">
         {lastDraw ? (
           <CardDisplay
             owner={lastDraw.playerName}
@@ -123,13 +159,13 @@ const Deck = ({
             borderColor={lastDraw.playerColor}
           />
         ) : (
-          <div className="race-deck__cardPlaceholder" aria-hidden="true" />
+          <div className="details__cardPlaceholder" aria-hidden="true" />
         )}
       </div>
 
-      {winner && <div className="race-deck__winnerBanner">{winner.name} wins!</div>}
+      {winner && <div className="details__winnerBanner">{winner.name} wins!</div>}
     </section>
   );
 };
 
-export default Deck;
+export default Details;

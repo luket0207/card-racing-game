@@ -2,21 +2,21 @@
 
 .race {
   min-height: 100vh;
-  padding: 3rem clamp(1.5rem, 4vw, 4rem);
+  padding: 1rem clamp(1rem, 4vw, 4rem);
   color: $lightText;
   width: calc(100vw - 380px);
 }
 
 .race__layout {
-  display: grid;
-  grid-template-columns: 750px 1fr;
-  gap: 2rem;
-  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   align-items: flex-start;
 }
 
 
 .race__trackPanel {
+  order: 2;
   background: var(--track-bg, rgba(255, 255, 255, 0.08));
   border-radius: 24px;
   padding: 1.5rem;
@@ -24,7 +24,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  height: 660px;
+  width: 100%;
 }
 
 .race-track {
@@ -119,8 +119,27 @@
 }
 
 .race__sidePanel {
+  order: 1;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.2rem;
+  width: 100%;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "details";
+  align-items: start;
+}
+
+.details {
+  grid-area: details;
+}
+
+.race__bottomRow {
+  order: 3;
+  display: grid;
+  gap: 1.2rem;
+  width: 100%;
+  grid-template-columns: 50% 50%;
+  align-items: start;
 }
 
 .race__bets {
@@ -329,6 +348,10 @@
 
 @media (max-width: 1100px) {
   .race__layout {
+    gap: 1.5rem;
+  }
+
+  .race__bottomRow {
     grid-template-columns: 1fr;
   }
 }
