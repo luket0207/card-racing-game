@@ -158,7 +158,7 @@ const BettingMode = () => {
   const promptKeyRef = useRef(null);
   const suppressPromptRef = useRef(false);
   const betting = gameState.betting ?? {};
-  const [themeId, setThemeId] = useState(betting.themeId ?? "dots");
+  const [themeId, setThemeId] = useState(betting.themeId ?? "cars");
   const [pendingThemeId, setPendingThemeId] = useState(themeId);
   const pendingThemeRef = useRef(themeId);
   const currentRace = betting.currentRace;
@@ -394,7 +394,7 @@ const BettingMode = () => {
         active: false,
         gold: 500,
         raceIndex: 1,
-        themeId: prev.betting?.themeId ?? "dots",
+        themeId: prev.betting?.themeId ?? "cars",
         currentRace: null,
         bets: [],
         lastResult: null,

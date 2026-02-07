@@ -37,7 +37,7 @@ const Deck = ({
 
   useEffect(() => {
     if (!manualCooldown) return undefined;
-    const timeout = setTimeout(() => setManualCooldown(false), 500);
+    const timeout = setTimeout(() => setManualCooldown(false), 200);
     return () => clearTimeout(timeout);
   }, [manualCooldown]);
 

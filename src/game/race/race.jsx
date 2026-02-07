@@ -82,7 +82,7 @@ const Race = () => {
         const baseMs = meta.delaySec * 1000;
         setMoveDurationMs(Math.max(200, baseMs - 100));
       } else {
-        setMoveDurationMs(500);
+        setMoveDurationMs(200);
       }
       drawNextCard();
     },
@@ -326,7 +326,7 @@ const Race = () => {
                       active: false,
                       gold: 500,
                       raceIndex: 1,
-                      themeId: prev.betting?.themeId ?? "dots",
+                      themeId: prev.betting?.themeId ?? "cars",
                       currentRace: null,
                       bets: [],
                       lastResult: null,

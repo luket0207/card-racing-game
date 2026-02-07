@@ -2,19 +2,10 @@
 
 .race-piece {
   --piece-color: #ff6b6b;
-  background: radial-gradient(circle at 30% 30%, #ffffff, var(--piece-color));
-  border: 2px solid #1d1d1d;
-  border-radius: 999px;
-  color: $darkText;
-  font-weight: 700;
-  font-size: 0.75rem;
   height: 28px;
   width: 28px;
   display: grid;
   place-items: center;
-  box-shadow:
-    0 8px 12px rgba(0, 0, 0, 0.15),
-    inset 0 0 0 2px rgba(255, 255, 255, 0.6);
   position: relative;
   overflow: visible;
 }

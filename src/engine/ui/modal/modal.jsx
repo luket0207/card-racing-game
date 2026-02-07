@@ -78,10 +78,6 @@ const Modal = ({
     <div
       className="modal-backdrop"
       role="presentation"
-      onMouseDown={(e) => {
-        // Close when clicking the backdrop only (not the modal itself)
-        if (e.target === e.currentTarget) footerConfig.safeClose();
-      }}
     >
       <div className="modal" role="dialog" aria-modal="true" aria-label={title || "Modal"}>
         <div className="modal__header">

@@ -45,7 +45,7 @@ const buildDefaultRacers = (count, humanCount, theme) => {
 const RaceSetup = () => {
   const navigate = useNavigate();
   const { setGameState } = useGame();
-  const [themeId, setThemeId] = useState("dots");
+  const [themeId, setThemeId] = useState("cars");
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
     [themeId]
@@ -133,7 +133,7 @@ const RaceSetup = () => {
     }));
     setGameState((prev) => ({
       ...prev,
-      themeId: activeTheme?.id ?? "dots",
+      themeId: activeTheme?.id ?? "cars",
       racers: trimmed,
       raceLaps: lapCount,
     }));

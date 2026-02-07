@@ -218,7 +218,7 @@ const DeckSelection = () => {
     });
     setGameState((prev) => ({
       ...prev,
-      themeId: activeTheme?.id ?? "dots",
+      themeId: activeTheme?.id ?? "cars",
       player1: { ...prev.player1, deck: withAiDecks.player1 ?? [], position: 0 },
       player2: { ...prev.player2, deck: withAiDecks.player2 ?? [], position: 0 },
       player3: { ...prev.player3, deck: withAiDecks.player3 ?? [], position: 0 },

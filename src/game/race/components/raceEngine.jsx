@@ -502,7 +502,7 @@ const useRaceEngine = () => {
     return PLAYER_CONFIG;
   }, [gameState?.racers]);
   const [state, setState] = useState(() => createInitialState(deckOverrides, racers));
-  const themeId = gameState?.themeId ?? "dots";
+  const themeId = gameState?.themeId ?? "cars";
   const pendingEventsRef = useRef([]);
 
   const tiles = useMemo(

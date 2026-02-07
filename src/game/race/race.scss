@@ -3,18 +3,16 @@
 .race {
   min-height: 100vh;
   padding: 3rem clamp(1.5rem, 4vw, 4rem);
-  background:
-    radial-gradient(circle at top, rgba(46, 125, 100, 0.35), transparent 55%),
-    radial-gradient(circle at 20% 20%, rgba(17, 87, 82, 0.4), transparent 45%),
-    linear-gradient(135deg, #0f2f2b, #1a4a42);
   color: $lightText;
+  width: calc(100vw - 380px);
 }
 
 .race__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: 750px 1fr;
   gap: 2rem;
   margin-top: 2.5rem;
+  align-items: flex-start;
 }
 
 
@@ -26,6 +24,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  height: 660px;
 }
 
 .race-track {
