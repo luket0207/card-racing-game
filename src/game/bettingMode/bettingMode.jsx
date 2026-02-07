@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { faCoins, faStar } from "@fortawesome/free-solid-svg-icons";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
-import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
+import { buildRandomDeck, buildRacersForTheme } from "../utils/raceSetupUtils";
 import Piece from "../race/components/piece/piece";
 import "./bettingMode.scss";
 
@@ -44,39 +44,6 @@ const buildCoinLimits = () => {
   return { limits, total };
 };
 
-const getSpendByClass = (deck) =>
-  deck.reduce(
-    (acc, cardId) => {
-      const card = cards.find((c) => c.id === cardId);
-      const cls = card?.class;
-      const cost = card?.cost ?? 0;
-      if (cls) acc[cls] = (acc[cls] ?? 0) + cost;
-      return acc;
-    },
-    { Red: 0, Blue: 0, Green: 0, Yellow: 0, Orange: 0 }
-  );
-
-const buildRandomDeck = (limits) => {
-  const canAfford = (deck, card) => {
-    const spend = getSpendByClass(deck);
-    return (spend[card.class] ?? 0) + card.cost <= (limits[card.class] ?? 0);
-  };
-
-  for (let tryCount = 0; tryCount < 200; tryCount += 1) {
-    const deck = [];
-    let attempts = 0;
-    while (deck.length < 16 && attempts < 12000) {
-      attempts += 1;
-      const card = cards[Math.floor(Math.random() * cards.length)];
-      if (!card) continue;
-      if (!canAfford(deck, card)) continue;
-      deck.push(card.id);
-    }
-    if (deck.length === 16) return deck;
-  }
-
-  return [];
-};
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
 
@@ -126,29 +93,6 @@ const buildPastPostOdds = (racers) => {
   };
 };
 
-const buildRacersForTheme = (theme, count = 4) => {
-  const pieces = theme?.pieces ?? [];
-  const pooled = theme?.namePool ?? [];
-  const fixed = theme?.nameStyle === "fixed";
-  const shuffledPieces = [...pieces].sort(() => Math.random() - 0.5);
-  const shuffledNames = [...pooled].sort(() => Math.random() - 0.5);
-
-  return Array.from({ length: count }, (_, idx) => {
-    const piece = shuffledPieces[idx % shuffledPieces.length];
-    const name = fixed
-      ? piece?.name ?? `Racer ${idx + 1}`
-      : shuffledNames[idx % shuffledNames.length] ?? `Racer ${idx + 1}`;
-    return {
-      id: `player${idx + 1}`,
-      name,
-      type: "ai",
-      pieceId: piece?.id ?? `piece-${idx + 1}`,
-      color: piece?.color ?? "#ffffff",
-      image: piece?.image ?? null,
-      icon: piece?.icon ?? null,
-    };
-  });
-};
 
 const BettingMode = () => {
   const navigate = useNavigate();
@@ -514,9 +458,15 @@ const BettingMode = () => {
   return (
     <div className={`betting-mode${hideBehindModal ? " betting-mode--masked" : ""}`}>
       <header className="betting-mode__header">
-        <div>
-          <h1>Betting Mode</h1>
-          <p>Gold: {gold} - Race {raceIndex} / 10</p>
+        <div className="betting-mode__summary">
+          <div className="betting-mode__gold">
+            <span className="betting-mode__goldLabel">
+              <FontAwesomeIcon icon={faCoins} />
+              Gold
+            </span>
+            <span className="betting-mode__goldValue">{gold}</span>
+          </div>
+          <div className="betting-mode__raceInfo">Race {raceIndex} / 10</div>
         </div>
         <div className="betting-mode__headerActions">
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">

@@ -111,17 +111,21 @@ const Deck = ({
         {lastDraw?.reshuffled && <div className="race-deck__reshuffle">Discard pile reshuffled.</div>}
       </div>
 
-      {lastDraw && (
-        <CardDisplay
-          owner={lastDraw.playerName}
-          cardClass={lastDraw.cardClass}
-          title={lastDraw.cardName}
-          text={lastDraw.cardText}
-          code={lastDraw.cardCode}
-          id={lastDraw.cardId}
-          borderColor={lastDraw.playerColor}
-        />
-      )}
+      <div className="race-deck__cardSlot">
+        {lastDraw ? (
+          <CardDisplay
+            owner={lastDraw.playerName}
+            cardClass={lastDraw.cardClass}
+            title={lastDraw.cardName}
+            text={lastDraw.cardText}
+            code={lastDraw.cardCode}
+            id={lastDraw.cardId}
+            borderColor={lastDraw.playerColor}
+          />
+        ) : (
+          <div className="race-deck__cardPlaceholder" aria-hidden="true" />
+        )}
+      </div>
 
       {winner && <div className="race-deck__winnerBanner">{winner.name} wins!</div>}
     </section>

@@ -122,6 +122,14 @@
     font-weight: 600;
     text-align: center;
   }
+
+  &__cardSlot {
+    min-height: 215px;
+  }
+
+  &__cardPlaceholder {
+    min-height: 215px;
+  }
 }
 
 @media (max-width: 900px) {
