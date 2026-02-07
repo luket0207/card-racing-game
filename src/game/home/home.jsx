@@ -60,6 +60,9 @@ const Home = () => {
           <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
             Single Race
           </Button>
+          <Button variant={BUTTON_VARIANT.PRIMARY} to="/campaign">
+            Campaign Mode
+          </Button>
           <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
             Betting Mode
           </Button>

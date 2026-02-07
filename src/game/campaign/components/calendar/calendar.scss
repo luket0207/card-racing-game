@@ -1,0 +1,83 @@
+@use "../../../../assets/scss/ui/import" as *;
+
+.campaign-calendar {
+  display: grid;
+  gap: 1rem;
+  background: rgba(31, 38, 45, 0.75);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(245, 247, 250, 0.08);
+}
+
+.campaign-calendar__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  color: $secondaryForeground;
+}
+
+.campaign-calendar__header span {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.7);
+}
+
+.campaign-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.campaign-calendar__day {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  display: grid;
+  gap: 0.35rem;
+  min-height: 72px;
+  color: rgba(245, 247, 250, 0.8);
+  border: 1px solid rgba(245, 247, 250, 0.06);
+}
+
+.campaign-calendar__day--active {
+  border-color: rgba($primaryBackground, 0.7);
+  box-shadow: 0 0 0 2px rgba($primaryBackground, 0.25);
+}
+
+.campaign-calendar__dayNumber {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.campaign-calendar__dayType {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.campaign-calendar__day--race {
+  background: rgba($class-red, 0.2);
+}
+
+.campaign-calendar__day--event {
+  background: rgba($class-blue, 0.2);
+}
+
+.campaign-calendar__day--miniGame {
+  background: rgba($class-yellow, 0.2);
+}
+
+@media (max-width: 900px) {
+  .campaign-calendar__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .campaign-calendar__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

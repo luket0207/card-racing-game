@@ -1,0 +1,16 @@
+@use "../../../../assets/scss/ui/import" as *;
+
+.end-campaign {
+  display: grid;
+  gap: 0.75rem;
+  color: $darkText;
+}
+
+.end-campaign h2 {
+  margin: 0;
+}
+
+.end-campaign p {
+  margin: 0;
+  color: rgba(31, 38, 45, 0.75);
+}

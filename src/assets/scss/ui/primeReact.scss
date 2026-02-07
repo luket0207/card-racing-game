@@ -1,0 +1,20 @@
+.p-inputtext,
+.p-dropdown,
+.p-inputnumber input,
+.p-inputnumber,
+.p-dropdown-label {
+  min-height: 50px;
+  height: 50px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.p-inputnumber input {
+  width: 100%;
+}
+
+.p-dropdown-items {
+    padding: 0;
+}
