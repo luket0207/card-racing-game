@@ -48,9 +48,10 @@ export const buildRacersForTheme = (theme, count = 4) => {
   const fixed = theme?.nameStyle === "fixed";
   const shuffledPieces = [...pieces].sort(() => Math.random() - 0.5);
   const shuffledNames = [...pooled].sort(() => Math.random() - 0.5);
+  const limitedPieces = shuffledPieces.slice(0, count);
 
   return Array.from({ length: count }, (_, idx) => {
-    const piece = shuffledPieces[idx % shuffledPieces.length];
+    const piece = limitedPieces[idx];
     const name = fixed
       ? piece?.name ?? `Racer ${idx + 1}`
       : shuffledNames[idx % shuffledNames.length] ?? `Racer ${idx + 1}`;

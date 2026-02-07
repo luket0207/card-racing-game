@@ -10,6 +10,14 @@ import {
   faVanShuttle,
   faHorse,
 } from "@fortawesome/free-solid-svg-icons";
+import stanImage from "../images/themes/southPark/stan.png";
+import kyleImage from "../images/themes/southPark/kyle.png";
+import kennyImage from "../images/themes/southPark/kenny.png";
+import cartmanImage from "../images/themes/southPark/cartman.png";
+import jimmyImage from "../images/themes/southPark/jimmy.png";
+import buttersImage from "../images/themes/southPark/butters.png";
+import tweakImage from "../images/themes/southPark/tweak.png";
+import wendyImage from "../images/themes/southPark/wendy.png";
 
 const themes = [
   {
@@ -113,6 +121,23 @@ const themes = [
         type: "image",
         image: "https://img.pokemondb.net/sprites/legends-arceus/normal/snorlax.png",
       },
+    ],
+  },
+  {
+    id: "southPark",
+    name: "South Park",
+    nameStyle: "fixed",
+    trackColor: "#c9b089",
+    iconSize: "large",
+    pieces: [
+      { id: "stan", name: "Stan", color: "#2f6fd6", type: "image", image: stanImage },
+      { id: "kyle", name: "Kyle", color: "#3da35a", type: "image", image: kyleImage },
+      { id: "kenny", name: "Kenny", color: "#f08a24", type: "image", image: kennyImage },
+      { id: "cartman", name: "Cartman", color: "#d64545", type: "image", image: cartmanImage },
+      { id: "jimmy", name: "Jimmy", color: "#f2c94c", type: "image", image: jimmyImage },
+      { id: "butters", name: "Butters", color: "#8fc8ff", type: "image", image: buttersImage },
+      { id: "tweak", name: "Tweak", color: "#8a7d6f", type: "image", image: tweakImage },
+      { id: "wendy", name: "Wendy", color: "#7a4db7", type: "image", image: wendyImage },
     ],
   },
   {
