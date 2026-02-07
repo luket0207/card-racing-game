@@ -12,6 +12,9 @@ const Home = () => {
         <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
           Betting Mode
         </Button>
+        <Button variant={BUTTON_VARIANT.TERTIARY} to="/how-to-play">
+          How To Play
+        </Button>
         <Button variant={BUTTON_VARIANT.TERTIARY} to="/deck-selection?mode=export">
           Just Select a Deck
         </Button>

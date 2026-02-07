@@ -1,4 +1,4 @@
-@import "../../../assets/scss/ui/import";
+@use "../../../assets/scss/ui/import" as *;
 
 .btn {
   display: inline-flex;
@@ -179,3 +179,4 @@ button.btn:disabled {
   user-select: none;
   pointer-events: none; /* clicks go to the button/link */
 }
+

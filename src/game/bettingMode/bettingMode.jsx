@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
@@ -210,7 +212,15 @@ const BettingMode = () => {
       return { ...r, coinLimits: limits, coinTotal: total, deck };
     });
     const racersWithOdds = buildOdds(racers);
-    return { racers: racersWithOdds, themeId: theme.id };
+    const bestOddsValue = Math.min(
+      ...racersWithOdds.map((r) => (r.odds?.[0] ?? 1) / (r.odds?.[1] ?? 1))
+    );
+    const favorites = racersWithOdds.filter(
+      (r) => (r.odds?.[0] ?? 1) / (r.odds?.[1] ?? 1) === bestOddsValue
+    );
+    const favouriteId =
+      favorites[Math.floor(Math.random() * favorites.length)]?.id ?? null;
+    return { racers: racersWithOdds, themeId: theme.id, favouriteId };
   }, []);
 
   const generateRace = useCallback(() => generateRaceForTheme(activeTheme), [
@@ -498,8 +508,10 @@ const BettingMode = () => {
   }, [betting.active, betting.themeId]);
 
 
+  const hideBehindModal = isModalOpen && betting.active !== true;
+
   return (
-    <div className="betting-mode">
+    <div className={`betting-mode${hideBehindModal ? " betting-mode--masked" : ""}`}>
       <header className="betting-mode__header">
         <div>
           <h1>Betting Mode</h1>
@@ -535,12 +547,25 @@ const BettingMode = () => {
         <div className="betting-mode__layout">
           <section className="betting-mode__racers">
             <h2>Racers</h2>
+            <div className="betting-mode__favouriteHint">
+              <span className="betting-mode__favouriteIcon" aria-hidden="true">
+                <FontAwesomeIcon icon={faStar} />
+              </span>
+              <span>- Race Favourite</span>
+            </div>
             {currentRace.racers.map((r) => (
               <div key={r.id} className="betting-mode__racer">
-                <div className="betting-mode__racerName">{r.name}</div>
+                <div className="betting-mode__racerName">
+                  {r.name}
+                  {currentRace.favouriteId === r.id && (
+                    <span className="betting-mode__racerStar" title="Favourite">
+                      <FontAwesomeIcon icon={faStar} />
+                    </span>
+                  )}
+                </div>
                 <div className="betting-mode__racerMeta">
-                  Coins: {r.coinTotal} ({coinTotalsToTier(r.coinTotal)}) - Odds {r.odds[0]}/
-                  {r.odds[1]}
+                  Odds {r.odds[0]}/{r.odds[1]} 
+                  ({coinTotalsToTier(r.coinTotal)})
                 </div>
               </div>
             ))}

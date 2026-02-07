@@ -2,11 +2,22 @@
 
 .betting-mode {
   min-height: 100vh;
+  width: 100vw;
   padding: 3rem clamp(1.5rem, 4vw, 4rem);
   background:
     radial-gradient(circle at top, rgba(90, 60, 120, 0.25), transparent 55%),
     linear-gradient(135deg, #12121f, #1f2238);
   color: $lightText;
+}
+
+.betting-mode--masked {
+  .betting-mode__header,
+  .betting-mode__controls,
+  .betting-mode__layout,
+  .betting-mode__racers,
+  .betting-mode__bets {
+    visibility: hidden;
+  }
 }
 
 .betting-mode__header {
@@ -124,11 +135,33 @@
 
 .betting-mode__racerName {
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .betting-mode__racerMeta {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.7);
+}
+
+.betting-mode__racerStar {
+  color: #ffd43b;
+  font-size: 0.8rem;
+}
+
+.betting-mode__favouriteHint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: -0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.betting-mode__favouriteIcon {
+  color: #ffd43b;
+  font-size: 0.8rem;
 }
 
 .betting-mode__betRow {

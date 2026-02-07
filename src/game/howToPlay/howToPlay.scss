@@ -1,0 +1,58 @@
+@use "../../assets/scss/ui/import" as *;
+
+.how-to-play {
+  min-height: 100vh;
+  width: 100vw;
+  background-image: url("../../assets/images/home_background.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  padding: 3rem clamp(1.5rem, 4vw, 4rem);
+  color: $darkText;
+}
+
+.how-to-play__content {
+  width: min(960px, 100%);
+  background-color: #ffffffd6;
+  border-radius: 16px;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.2),
+    0 8px 20px rgba(0, 0, 0, 0.15);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.how-to-play__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.how-to-play__section {
+  display: grid;
+  gap: 0.6rem;
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.75);
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 720px) {
+  .how-to-play__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

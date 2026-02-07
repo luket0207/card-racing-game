@@ -6,6 +6,7 @@ import Race from "./game/race/race";
 import DeckSelection from "./game/deckSelection/deckSelection";
 import RaceSetup from "./game/raceSetup/raceSetup";
 import BettingMode from "./game/bettingMode/bettingMode";
+import HowToPlay from "./game/howToPlay/howToPlay";
 
 const NotFound = () => <div>404</div>;
 
@@ -16,6 +17,7 @@ export default function AppRoutes() {
       <Route path="/info" element={<Info />} />
       <Route path="/race-setup" element={<RaceSetup />} />
       <Route path="/betting-mode" element={<BettingMode />} />
+      <Route path="/how-to-play" element={<HowToPlay />} />
       <Route path="/deck-selection" element={<DeckSelection />} />
       <Route path="/race" element={<Race />} />
 
