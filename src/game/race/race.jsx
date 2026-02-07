@@ -372,23 +372,6 @@ const Race = () => {
       className={`race race--theme-${themeId ?? "default"}`}
       style={{ "--track-bg": activeTheme?.trackColor ?? "rgba(255,255,255,0.08)" }}
     >
-      <header className="race__header">
-        <div>
-          <p className="race__eyebrow">Card Racing Prototype</p>
-          <h1 className="race__title">{totalTiles}-Tile Sprint</h1>
-          <p className="race__subtitle">
-            Four racers, one combined deck. Draw cards to move each piece and race to tile {totalTiles}.
-          </p>
-        </div>
-
-        <div className="race__status">
-          <div className="race__statusLabel">Turns Drawn</div>
-          <div className="race__statusValue">{turnCount}</div>
-          <div className="race__statusMeta">Laps: {totalLaps}</div>
-          {winner && <div className="race__winner">Winner: {winner.name}</div>}
-        </div>
-      </header>
-
       <div className="race__layout">
         <section className="race__trackPanel">
           <div className="race__leaderBanner">
@@ -439,6 +422,8 @@ const Race = () => {
             winner={winner}
             onDraw={handleDraw}
             autoDelayDefault={isBetting ? 0.6 : 0}
+            turnCount={turnCount}
+            totalLaps={totalLaps}
           />
 
           {isBetting && (
@@ -484,7 +469,7 @@ const Race = () => {
               {log.length === 0 ? (
                 <div className="race__logEmpty">No events yet.</div>
               ) : (
-                log.slice(0, 12).map((entry) => (
+                log.map((entry) => (
                   <div key={entry.id} className="race__logItem">
                     <span
                       className="race__logBadge"
@@ -499,33 +484,6 @@ const Race = () => {
             </div>
           </section>
 
-          <div className="race__players">
-            <div className="race__playersHeader">
-              <h2>Racers</h2>
-              <span>Start at tile 0</span>
-            </div>
-            {players.map((player) => (
-              <div className="race__playerCard" key={player.id}>
-                <div className="race__playerBadge" style={{ "--player-color": player.color }}>
-                  {player.short}
-                </div>
-                <div className="race__playerInfo">
-                  <div className="race__playerName">{player.name}</div>
-                  <div className="race__playerPos">
-                    Lap {player.lap ?? 1} / {totalLaps} - Tile {player.position}
-                  </div>
-                  <div className="race__playerStats">
-                    <span>
-                      Status:{" "}
-                      {player.status.map((entry) => `${entry.type}${entry.duration}`).join(", ") ||
-                        "None"}
-                    </span>
-                  </div>
-                  <div className="race__playerDeck">Deck: {player.deck.join(", ")}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </aside>
       </div>
     </div>

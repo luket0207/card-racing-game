@@ -2,6 +2,7 @@
 
 .race-setup {
   min-height: 100vh;
+  width: 100vw;
   padding: 2.5rem clamp(1.5rem, 4vw, 4rem);
   background:
     radial-gradient(circle at top, rgba(46, 125, 100, 0.35), transparent 55%),

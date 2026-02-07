@@ -4,7 +4,16 @@ import { Slider } from "primereact/slider";
 import CardDisplay from "../card/card";
 import "./deck.scss";
 
-const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, autoDelayDefault = 0 }) => {
+const Deck = ({
+  drawPileCount,
+  discardCount,
+  lastDraw,
+  winner,
+  onDraw,
+  autoDelayDefault = 0,
+  turnCount = 0,
+  totalLaps = 1,
+}) => {
   const lastDrawText = lastDraw
     ? `${lastDraw.playerName} drew ${lastDraw.cardName}`
     : "No cards drawn yet.";
@@ -37,7 +46,7 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, autoDelay
       <div className="race-deck__header">
         <div>
           <h2>Race Deck</h2>
-          <p>Combined 64-card pile built from each player deck.</p>
+          <p>Combined deck built from each player deck.</p>
         </div>
         <div className="race-deck__counts">
           <div>
@@ -47,6 +56,14 @@ const Deck = ({ drawPileCount, discardCount, lastDraw, winner, onDraw, autoDelay
           <div>
             <span>Discard</span>
             <strong>{discardCount}</strong>
+          </div>
+          <div>
+            <span>Turns Drawn</span>
+            <strong>{turnCount}</strong>
+          </div>
+          <div>
+            <span>Laps</span>
+            <strong>{totalLaps}</strong>
           </div>
         </div>
       </div>
