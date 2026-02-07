@@ -8,6 +8,7 @@ import { useToast } from "../../engine/ui/toast/toast";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
 import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
+import Piece from "../race/components/piece/piece";
 import "./bettingMode.scss";
 
 const BET_TYPES = [
@@ -523,17 +524,7 @@ const BettingMode = () => {
           </Button>
         </div>
       </header>
-
-      <div className="betting-mode__controls">
-        <div className="betting-mode__control">
-          <label>Theme</label>
-          <div className="betting-mode__themeDisplay">{activeTheme?.name ?? "Unknown"}</div>
-          {isThemeLocked && (
-            <div className="betting-mode__hint">Theme is locked for this run.</div>
-          )}
-        </div>
-      </div>
-
+      
       {isOutOfGold && !hasBets ? (
         <div className="betting-mode__racers">
           <h2>Game Over</h2>
@@ -553,22 +544,36 @@ const BettingMode = () => {
               </span>
               <span>- Race Favourite</span>
             </div>
-            {currentRace.racers.map((r) => (
-              <div key={r.id} className="betting-mode__racer">
-                <div className="betting-mode__racerName">
-                  {r.name}
-                  {currentRace.favouriteId === r.id && (
-                    <span className="betting-mode__racerStar" title="Favourite">
-                      <FontAwesomeIcon icon={faStar} />
-                    </span>
-                  )}
+              {currentRace.racers.map((r) => (
+                <div key={r.id} className="betting-mode__racer">
+                  <div className="betting-mode__racerRow">
+                    <div className="betting-mode__racerIcon">
+                      <Piece
+                        label={r.name}
+                        color={r.color}
+                        playerId={r.id}
+                        status={[]}
+                        image={r.image}
+                        icon={r.icon}
+                        size={activeTheme?.iconSize ?? "small"}
+                      />
+                    </div>
+                    <div className="betting-mode__racerInfo">
+                      <div className="betting-mode__racerName">
+                        {r.name}
+                        {currentRace.favouriteId === r.id && (
+                          <span className="betting-mode__racerStar" title="Favourite">
+                            <FontAwesomeIcon icon={faStar} />
+                          </span>
+                        )}
+                      </div>
+                      <div className="betting-mode__racerMeta">
+                        Odds {r.odds[0]}/{r.odds[1]} ({coinTotalsToTier(r.coinTotal)})
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="betting-mode__racerMeta">
-                  Odds {r.odds[0]}/{r.odds[1]} 
-                  ({coinTotalsToTier(r.coinTotal)})
-                </div>
-              </div>
-            ))}
+              ))}
           </section>
 
           <section className="betting-mode__bets">
