@@ -174,7 +174,7 @@
 
 .race__betsItem {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1.2fr 1.4fr auto auto auto;
   gap: 0.6rem;
   align-items: center;
   background: rgba(0, 0, 0, 0.2);
@@ -189,11 +189,25 @@
 }
 
 .race__betsTarget {
+  display: inline-flex;
+  align-items: center;
   color: rgba(255, 255, 255, 0.8);
 }
 
 .race__betsStake {
   font-weight: 600;
+}
+
+.race__betsOdds,
+.race__betsWin {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.race__betsPiece {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.5rem;
 }
 
 .race__log {

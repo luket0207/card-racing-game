@@ -29,7 +29,7 @@ const themes = [
       { id: "car-lightblue", name: "Light Blue", color: "#3ce5fc", type: "icon", icon: faBusSide },
       { id: "car-pink", name: "Pink", color: "#f783ac", type: "icon", icon: faBusSide },
       { id: "car-teal", name: "Teal", color: "#38d9a9", type: "icon", icon: faMotorcycle },
-      { id: "car-beige", name: "Beige", color: "#f5f5dc", type: "icon", icon: faMotorcycle },
+      { id: "car-grey", name: "Grey", color: "#666666", type: "icon", icon: faMotorcycle },
     ],
   },
   {

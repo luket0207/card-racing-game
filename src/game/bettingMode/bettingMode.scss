@@ -142,8 +142,9 @@
 
 .betting-mode__layout {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 2rem;
+  grid-template-columns: 35% 63%;
+  gap: 2%;
+  align-items: flex-start;
 }
 
 .betting-mode__racers,
@@ -248,17 +249,22 @@
 .betting-mode__betsList {
   display: grid;
   gap: 0.5rem;
-  min-height: 120px;
 }
 
 .betting-mode__betItem {
   display: grid;
-  grid-template-columns: 1fr 1fr auto auto;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(120px, 1fr) minmax(80px, auto) minmax(80px, auto);
   gap: 0.6rem;
   padding: 0.45rem 0.6rem;
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.2);
   font-size: 0.85rem;
+  align-items: center;
+  min-height: 50px;
+}
+
+.betting-mode__betItem span {
+  line-height: 1.1rem;
 }
 
 .betting-mode__empty {

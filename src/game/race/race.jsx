@@ -437,23 +437,50 @@ const Race = () => {
                 {bettingBets.length === 0 ? (
                   <div className="race__betsEmpty">No bets placed.</div>
                 ) : (
-                  bettingBets.map((bet) => (
-                    <div key={bet.id} className="race__betsItem">
-                      <span className="race__betsType">
-                        {bet.type === "fast"
-                          ? "Past The Post Fast"
-                          : bet.type === "slow"
-                            ? "Past The Post Slow"
-                            : bet.type}
-                      </span>
-                      <span className="race__betsTarget">
-                        {bet.racerId
-                          ? players.find((p) => p.id === bet.racerId)?.name ?? "Racer"
-                          : "Race"}
-                      </span>
-                      <span className="race__betsStake">{bet.stake}g</span>
-                    </div>
-                  ))
+                  bettingBets.map((bet) => {
+                    const target = bet.racerId
+                      ? players.find((p) => p.id === bet.racerId)
+                      : null;
+                    const odds = bet.odds ?? [1, 1];
+                    const stakeBase = bet.type === "eachway" ? (bet.stake ?? 0) / 2 : bet.stake ?? 0;
+                    const potentialWin = calcPayout(stakeBase, odds) * (bet.type === "eachway" ? 2 : 1);
+                    return (
+                      <div key={bet.id} className="race__betsItem">
+                        <span className="race__betsType">
+                          {bet.type === "fast"
+                            ? "Past The Post Fast"
+                            : bet.type === "slow"
+                              ? "Past The Post Slow"
+                              : bet.type}
+                        </span>
+                        <span className="race__betsTarget">
+                          {target ? (
+                            <>
+                              <span className="race__betsPiece">
+                                <Piece
+                                  label={target.short}
+                                  color={target.color}
+                                  playerId={target.id}
+                                  status={target.status}
+                                  image={target.image}
+                                  icon={target.icon}
+                                  size={pieceSize}
+                                />
+                              </span>
+                              {target.name}
+                            </>
+                          ) : (
+                            "Race"
+                          )}
+                        </span>
+                        <span className="race__betsOdds">
+                          Odds {odds[0]}/{odds[1]}
+                        </span>
+                        <span className="race__betsStake">{bet.stake}g</span>
+                        <span className="race__betsWin">Win {potentialWin}g</span>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </section>
