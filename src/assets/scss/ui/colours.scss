@@ -1,20 +1,20 @@
 /* UI Colour Variables */
 
 /* Site Background */
-$siteBackground: #242424; // dark grey
+$siteBackground: #1f262d; // dark slate
 
 /* Backgrounds */
-$primaryBackground: #115752;    // Teal
-$secondaryBackground: #2e7d64; // Lighter moss green
-$tertiaryBackground: #d5ceb5;   // Baige
+$primaryBackground: #9bc1e7;    // light blue accent
+$secondaryBackground: #2b333c;  // slate surface
+$tertiaryBackground: #f1f5f9;   // smoky white
 
 /* Foregrounds */
-$primaryForeground: #ffffff;    // White text on primary
-$secondaryForeground: #ffffff;  // White text on secondary
-$tertiaryForeground: #115752;   // Teal text on tertiary
+$primaryForeground: #0b1117;    // dark text on light blue
+$secondaryForeground: #f5f7fa;  // light text on slate
+$tertiaryForeground: #1f262d;   // dark slate text on smoky white
 
 /* Text */
 
-$darkText: #242424; // dark grey;
-$lightText: #ffffff;
-$links: #d5ceb5;
+$darkText: #1f262d; // dark slate
+$lightText: #f5f7fa;
+$links: #39a2ff;

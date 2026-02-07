@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
+import { Dropdown } from "primereact/dropdown";
+import { InputText } from "primereact/inputtext";
 import { useGame } from "../../engine/gameContext/gameContext";
 import themes from "../../assets/gameContent/themes";
 import "./raceSetup.scss";
@@ -155,61 +157,47 @@ const RaceSetup = () => {
       <div className="race-setup__controls">
         <div className="race-setup__control">
           <label htmlFor="theme-select">Theme</label>
-          <select
+          <Dropdown
             id="theme-select"
             value={themeId}
-            onChange={(e) => handleThemeChange(e.target.value)}
-          >
-            {themes.map((theme) => (
-              <option key={theme.id} value={theme.id}>
-                {theme.name}
-              </option>
-            ))}
-          </select>
+            options={themes.map((theme) => ({ label: theme.name, value: theme.id }))}
+            onChange={(e) => handleThemeChange(e.value)}
+          />
         </div>
         <div className="race-setup__control">
           <label htmlFor="racer-count">Racers</label>
-          <select
+          <Dropdown
             id="racer-count"
             value={racerCount}
-            onChange={(e) => handleRacerCountChange(Number(e.target.value))}
-          >
-            {[2, 3, 4].map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
+            options={[2, 3, 4].map((value) => ({ label: String(value), value }))}
+            onChange={(e) => handleRacerCountChange(Number(e.value))}
+          />
         </div>
 
         <div className="race-setup__control">
           <label htmlFor="human-count">Human Players</label>
-          <select
+          <Dropdown
             id="human-count"
             value={humanCount}
-            onChange={(e) => handleHumanCountChange(Number(e.target.value))}
-          >
-            {Array.from({ length: racerCount }, (_, idx) => idx + 1).map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
+            options={Array.from({ length: racerCount }, (_, idx) => idx + 1).map((value) => ({
+              label: String(value),
+              value,
+            }))}
+            onChange={(e) => handleHumanCountChange(Number(e.value))}
+          />
         </div>
 
         <div className="race-setup__control">
           <label htmlFor="lap-count">Laps</label>
-          <select
+          <Dropdown
             id="lap-count"
             value={lapCount}
-            onChange={(e) => setLapCount(Number(e.target.value))}
-          >
-            {Array.from({ length: 5 }, (_, idx) => idx + 1).map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
+            options={Array.from({ length: 5 }, (_, idx) => idx + 1).map((value) => ({
+              label: String(value),
+              value,
+            }))}
+            onChange={(e) => setLapCount(Number(e.value))}
+          />
         </div>
       </div>
 
@@ -225,8 +213,7 @@ const RaceSetup = () => {
 
             <div className="race-setup__field">
               <label>Name</label>
-              <input
-                type="text"
+              <InputText
                 value={racer.name}
                 onChange={(e) => updateRacer(index, { name: e.target.value })}
                 disabled={racer.type !== "human" && activeTheme?.nameStyle === "fixed"}
@@ -235,10 +222,14 @@ const RaceSetup = () => {
 
             <div className="race-setup__field">
               <label>Piece</label>
-              <select
+              <Dropdown
                 value={racer.pieceId}
+                options={(activeTheme?.pieces ?? []).map((piece) => ({
+                  label: piece.name,
+                  value: piece.id,
+                }))}
                 onChange={(e) => {
-                  const piece = activeTheme?.pieces?.find((p) => p.id === e.target.value);
+                  const piece = activeTheme?.pieces?.find((p) => p.id === e.value);
                   if (!piece) return;
                   const name = activeTheme?.nameStyle === "fixed" ? piece.name : racer.name;
                   updateRacer(index, {
@@ -249,13 +240,7 @@ const RaceSetup = () => {
                     name,
                   });
                 }}
-              >
-                {activeTheme?.pieces?.map((piece) => (
-                  <option key={piece.id} value={piece.id}>
-                    {piece.name}
-                  </option>
-                ))}
-              </select>
+              />
               <div className="race-setup__colorSwatch" style={{ background: racer.color }} />
             </div>
           </div>

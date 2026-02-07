@@ -5,10 +5,11 @@
   align-items: center;
   justify-content: center;
 
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
+  padding: 0.75rem 4rem 0.75rem 4rem;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 
   cursor: pointer;
   user-select: none;
@@ -18,14 +19,14 @@
 
   /* Enhanced transitions for a more "premium" feel */
   transition:
-    transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1),
-    box-shadow 0.3s cubic-bezier(0.2, 0.9, 0.2, 1),
-    opacity 0.4s ease,
-    filter 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+    box-shadow 0.16s ease,
+    opacity 0.16s ease,
+    filter 0.16s ease;
 
   /* Needed for the hover highlight overlay */
   position: relative;
   overflow: hidden;
+  isolation: isolate;
 
   /* If this is a Link (<a>), prevent browser link styling. */
   &:visited,
@@ -36,59 +37,77 @@
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.65);
+    outline: 2px solid rgba(127, 195, 255, 0.9);
     outline-offset: 2px;
   }
 
-  /* Elegant highlight overlay */
-  &::after {
+  /* Modern highlight overlay */
+  &::before {
     content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
-
-    /* Soft diagonal shine */
-    background: linear-gradient(
-      120deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.14) 35%,
-      rgba(255, 255, 255, 0.06) 55%,
-      rgba(255, 255, 255, 0) 100%
-    );
-
     opacity: 0;
-    transition: opacity 0.16s ease;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent);
+    transition: opacity 0.12s ease;
+    z-index: 0;
   }
 
-  /* More obvious, elegant hover effect */
+  &::after {
+    content: "›";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translate(0, -50%);
+    color: currentColor;
+    opacity: 0;
+    font-size: 1.8em;
+    line-height: 1;
+    transition:
+      opacity 0.16s ease,
+      left 0.25s ease,
+      transform 0.25s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+
   &:hover {
-    transform: translateY(-2px);
-
-    /* Two-layer shadow: soft ambient + key shadow */
     box-shadow:
-      0 10px 26px rgba(0, 0, 0, 0.18),
-      0 4px 10px rgba(0, 0, 0, 0.16);
+      0 12px 24px rgba(0, 0, 0, 0.35),
+      0 4px 10px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.05);
+  }
 
-    filter: brightness(1.04);
+  &:hover::before {
+    opacity: 1;
   }
 
   &:hover::after {
     opacity: 1;
+    left: calc(100% - 12px);
+    transform: translate(-100%, -50%);
   }
 
   &:active {
-    transform: translateY(-1px);
     box-shadow:
-      0 6px 18px rgba(0, 0, 0, 0.18),
-      0 3px 8px rgba(0, 0, 0, 0.16);
-    filter: brightness(1.01);
+      0 8px 18px rgba(0, 0, 0, 0.3),
+      0 3px 8px rgba(0, 0, 0, 0.22);
+    filter: brightness(1.02);
   }
 
   &--primary {
-    background-color: $primaryBackground;
+    background: linear-gradient(135deg, #7fc3ff, #4f96ff);
     color: $primaryForeground;
+    border: none;
+    box-shadow:
+      0 12px 26px rgba(20, 40, 80, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 
     /* Keep text colour stable across link pseudo-states */
+    &::before {
+      background: linear-gradient(90deg, $secondaryForeground, transparent);
+    }
+
     &:visited,
     &:hover,
     &:active,
@@ -98,8 +117,16 @@
   }
 
   &--secondary {
-    background-color: $secondaryBackground;
+    background: linear-gradient(135deg, #2b333c, #1f262d);
     color: $secondaryForeground;
+    border: none;
+    box-shadow:
+      0 10px 22px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+    &::before {
+      background: linear-gradient(90deg, $primaryBackground, transparent);
+    }
 
     /* Keep text colour stable across link pseudo-states */
     &:visited,
@@ -111,11 +138,15 @@
   }
 
   &--tertiary {
-    background-color: $tertiaryBackground;
+    background: linear-gradient(135deg, #f1f5f9, #d9e4f2);
     color: $tertiaryForeground;
 
     /* Optional: a subtle border so it still reads as a button */
-    border: 1px solid rgba(0, 0, 0, 0.18);
+    border: none;
+
+    &::before {
+      background: linear-gradient(90deg, $primaryBackground, transparent);
+    }
 
     /* Keep text colour stable across link pseudo-states */
     &:visited,
@@ -139,6 +170,22 @@
       opacity: 0;
     }
   }
+}
+
+.btn__label {
+  position: relative;
+  z-index: 1;
+}
+
+/* Override chevron sizing/positioning without touching the original block. */
+.btn::after {
+  content: "";
+  font-size: 120px;
+  transform: translate(0, -54%);
+}
+
+.btn:hover::after {
+  transform: translate(calc(-100% + 18px), -54%);
 }
 
 /* Anchor-specific hardening: ensure Link buttons never turn blue/purple */
@@ -169,6 +216,10 @@ button.btn:disabled {
   &::after {
     display: none;
   }
+  
+  &::before {
+    display: none;
+  }
 }
 
 
@@ -180,3 +231,33 @@ button.btn:disabled {
   pointer-events: none; /* clicks go to the button/link */
 }
 
+/* Override legacy ::after chevron and use a real icon node instead. */
+.btn::after,
+.btn:hover::after {
+  content: "" !important;
+  display: none !important;
+  opacity: 0 !important;
+}
+
+.btn__chevron {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translate(0, -54%);
+  color: currentColor;
+  opacity: 0;
+  font-size: 120px;
+  line-height: 1;
+  z-index: 1;
+  pointer-events: none;
+  transition:
+    opacity 0.16s ease,
+    left 0.25s ease,
+    transform 0.25s ease;
+}
+
+.btn:hover .btn__chevron {
+  opacity: 1;
+  left: calc(100% - 12px);
+  transform: translate(calc(-100% + 55px), -50%);
+}

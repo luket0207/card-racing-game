@@ -47,6 +47,8 @@
 
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAnglesRight } from "@fortawesome/free-solid-svg-icons";
 import "./button.scss";
 
 export const BUTTON_VARIANT = Object.freeze({
@@ -136,7 +138,16 @@ const Button = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const content = (() => {
-    if (!isImageVariant) return children || "Button";
+    if (!isImageVariant) {
+      return (
+        <>
+          <span className="btn__label">{children || "Button"}</span>
+          <span className="btn__chevron" aria-hidden="true">
+            <FontAwesomeIcon icon={faAnglesRight} />
+          </span>
+        </>
+      );
+    }
 
     const shouldShowHover = !!hoverImage && isHovered && !disabled;
     const imgToShow = shouldShowHover ? hoverImage : image;

@@ -23,6 +23,15 @@ const HowToPlay = () => {
         </section>
 
         <section className="how-to-play__section">
+          <h2>Quick Race</h2>
+          <p>
+            Quick Race skips setup and creates a fully randomized race for you. The theme, racers,
+            and decks are generated automatically with standard class coins. Auto draw starts off
+            so you can step through the race manually or enable it when you are ready.
+          </p>
+        </section>
+
+        <section className="how-to-play__section">
           <h2>Betting Mode</h2>
           <p>
             Betting Mode creates a full AI race. Choose a theme at the start of the run and place

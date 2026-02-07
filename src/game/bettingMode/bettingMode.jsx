@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCoins, faStar } from "@fortawesome/free-solid-svg-icons";
+import { Dropdown } from "primereact/dropdown";
+import { InputNumber } from "primereact/inputnumber";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
@@ -142,6 +144,28 @@ const BettingMode = () => {
   const [betSecondId, setBetSecondId] = useState("player2");
   const [stake, setStake] = useState(100);
   const [betError, setBetError] = useState("");
+
+  const ThemePicker = ({ value }) => {
+    const [localValue, setLocalValue] = useState(value ?? null);
+
+    useEffect(() => {
+      setLocalValue(value ?? null);
+    }, [value]);
+
+    return (
+      <Dropdown
+        className="betting-mode__themeSelect"
+        value={localValue}
+        options={themes.map((theme) => ({ label: theme.name, value: theme.id }))}
+        placeholder="Select a theme"
+        onChange={(e) => {
+          setLocalValue(e.value);
+          setPendingThemeId(e.value);
+          pendingThemeRef.current = e.value;
+        }}
+      />
+    );
+  };
   const betTypeLabels = useMemo(
     () => BET_TYPES.reduce((acc, bet) => ({ ...acc, [bet.id]: bet.label }), {}),
     []
@@ -434,20 +458,7 @@ const BettingMode = () => {
               ? "Pick a theme and choose whether to continue or start a new run."
               : "Pick a theme to start your betting run."}
           </p>
-          <select
-            className="betting-mode__themeSelect"
-            defaultValue={pendingThemeId}
-            onChange={(e) => {
-              setPendingThemeId(e.target.value);
-              pendingThemeRef.current = e.target.value;
-            }}
-          >
-            {themes.map((theme) => (
-              <option key={theme.id} value={theme.id}>
-                {theme.name}
-              </option>
-            ))}
-          </select>
+          <ThemePicker value={pendingThemeId} />
           <div className="betting-mode__themeActions">
             {betting.active === true && (
               <Button
@@ -579,85 +590,92 @@ const BettingMode = () => {
           <section className="betting-mode__bets">
             <h2>Place Bets</h2>
             <div className="betting-mode__betRow">
-              <select value={betType} onChange={(e) => setBetType(e.target.value)}>
-                {BET_TYPES.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.label}
-                  </option>
-                ))}
-              </select>
-              <div
-                className={`betting-mode__betTarget${
-                  betType === "forecast" ? " betting-mode__betTarget--forecast" : ""
-                }`}
-              >
+              <div className="betting-mode__field">
+                <span className="betting-mode__fieldLabel">Bet Type</span>
+                <Dropdown
+                  value={betType}
+                  options={BET_TYPES.map((b) => ({ label: b.label, value: b.id }))}
+                  onChange={(e) => setBetType(e.value)}
+                />
+              </div>
+              <div className="betting-mode__field betting-mode__field--target">
+                <span className="betting-mode__fieldLabel">
+                  {betType === "forecast" ? "Selections" : "Racer"}
+                </span>
+                <div
+                  className={`betting-mode__betTarget${
+                    betType === "forecast" ? " betting-mode__betTarget--forecast" : ""
+                  }`}
+                >
                   {["outright", "eachway"].includes(betType) && (
-                    <select value={betRacerId} onChange={(e) => setBetRacerId(e.target.value)}>
-                      {currentRace.racers.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </select>
+                    <Dropdown
+                      value={betRacerId}
+                      options={currentRace.racers.map((r) => ({ label: r.name, value: r.id }))}
+                      onChange={(e) => setBetRacerId(e.value)}
+                    />
                   )}
                   {betType === "forecast" && (
                     <>
-                      <select value={betFirstId} onChange={(e) => setBetFirstId(e.target.value)}>
-                        {currentRace.racers.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            1st {r.name}
-                          </option>
-                        ))}
-                      </select>
-                      <select value={betSecondId} onChange={(e) => setBetSecondId(e.target.value)}>
-                        {currentRace.racers.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            2nd {r.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Dropdown
+                        value={betFirstId}
+                        options={currentRace.racers.map((r) => ({
+                          label: `1st ${r.name}`,
+                          value: r.id,
+                        }))}
+                        onChange={(e) => setBetFirstId(e.value)}
+                      />
+                      <Dropdown
+                        value={betSecondId}
+                        options={currentRace.racers.map((r) => ({
+                          label: `2nd ${r.name}`,
+                          value: r.id,
+                        }))}
+                        onChange={(e) => setBetSecondId(e.value)}
+                      />
                     </>
                   )}
                 </div>
-              <input
-                type="number"
-                min={minBet}
-                max={maxStake}
-                value={stake}
-                onChange={(e) => setStake(Number(e.target.value))}
-              />
-            <div className="betting-mode__odds">
-              {betType === "forecast" ? (
-                <span>
-                  Odds {selectedOdds[0][0]}/{selectedOdds[0][1]} + {selectedOdds[1][0]}/
-                  {selectedOdds[1][1]}
-                </span>
-              ) : (
-                <span>
-                  Odds {selectedOdds[0]}/{selectedOdds[1]}
-                </span>
-              )}
-            </div>
-            <div className="betting-mode__odds betting-mode__returns">
-              Return {potentialReturn}g
-            </div>
-            <Button
-                variant={BUTTON_VARIANT.PRIMARY}
-                onClick={handleAddBet}
-                disabled={
-                  gold <= 0 ||
-                  betCost > gold ||
-                  stake < minBet ||
-                  !!betsByType[betType] ||
-                  ((betType === "fast" || betType === "slow") && hasPastPostBet)
-                }
-              >
-                {betsByType[betType]
-                  ? "Bet Already Placed"
-                  : (betType === "fast" || betType === "slow") && hasPastPostBet
-                    ? "Past The Post Already Placed"
-                    : "Add Bet"}
-              </Button>
+              </div>
+              <div className="betting-mode__field betting-mode__betActionPod">
+                <div className="betting-mode__field">
+                  <span className="betting-mode__fieldLabel">Stake</span>
+                  <InputNumber
+                    value={stake}
+                    min={minBet}
+                    max={maxStake}
+                    useGrouping={false}
+                    onValueChange={(e) => setStake(Number(e.value))}
+                  />
+                </div>
+                <div className="betting-mode__betSummary">
+                  <span className="betting-mode__betSummaryText">
+                    at{" "}
+                    <strong>
+                      {betType === "forecast"
+                        ? `${selectedOdds[0][0]}/${selectedOdds[0][1]} + ${selectedOdds[1][0]}/${selectedOdds[1][1]}`
+                        : `${selectedOdds[0]}/${selectedOdds[1]}`}
+                    </strong>{" "}
+                    will return <strong>{potentialReturn}g</strong>
+                  </span>
+                </div>
+                <Button
+                  variant={BUTTON_VARIANT.PRIMARY}
+                  onClick={handleAddBet}
+                  disabled={
+                    gold <= 0 ||
+                    betCost > gold ||
+                    stake < minBet ||
+                    !!betsByType[betType] ||
+                    ((betType === "fast" || betType === "slow") && hasPastPostBet)
+                  }
+                >
+                  {betsByType[betType]
+                    ? "Bet Already Placed"
+                    : (betType === "fast" || betType === "slow") && hasPastPostBet
+                      ? "Past The Post Already Placed"
+                      : "Place Bet"}
+                </Button>
+              </div>
             </div>
 
             <div className="betting-mode__betHint">
@@ -674,6 +692,45 @@ const BettingMode = () => {
                     <span className="betting-mode__betType">
                       {betTypeLabels[b.type] ?? b.type}
                     </span>
+                    <span className="betting-mode__betIconStack">
+                      {b.racerId ? (
+                        <Piece
+                          label={currentRace.racers.find((r) => r.id === b.racerId)?.name}
+                          color={currentRace.racers.find((r) => r.id === b.racerId)?.color}
+                          playerId={b.racerId}
+                          status={[]}
+                          image={currentRace.racers.find((r) => r.id === b.racerId)?.image}
+                          icon={currentRace.racers.find((r) => r.id === b.racerId)?.icon}
+                          size={activeTheme?.iconSize ?? "small"}
+                        />
+                      ) : b.type === "forecast" ? (
+                        <>
+                          <Piece
+                            label={currentRace.racers.find((r) => r.id === b.firstId)?.name}
+                            color={currentRace.racers.find((r) => r.id === b.firstId)?.color}
+                            playerId={b.firstId}
+                            status={[]}
+                            image={currentRace.racers.find((r) => r.id === b.firstId)?.image}
+                            icon={currentRace.racers.find((r) => r.id === b.firstId)?.icon}
+                            size={activeTheme?.iconSize ?? "small"}
+                          />
+                          <Piece
+                            label={currentRace.racers.find((r) => r.id === b.secondId)?.name}
+                            color={currentRace.racers.find((r) => r.id === b.secondId)?.color}
+                            playerId={b.secondId}
+                            status={[]}
+                            image={currentRace.racers.find((r) => r.id === b.secondId)?.image}
+                            icon={currentRace.racers.find((r) => r.id === b.secondId)?.icon}
+                            size={activeTheme?.iconSize ?? "small"}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <span className="betting-mode__betIconSpacer" aria-hidden="true" />
+                          <span className="betting-mode__betIconSpacer" aria-hidden="true" />
+                        </>
+                      )}
+                    </span>
                     <span className="betting-mode__betTargetLabel">
                       <span className="betting-mode__betTargetText">
                         {b.type === "forecast"
@@ -683,40 +740,6 @@ const BettingMode = () => {
                           : b.racerId
                             ? currentRace.racers.find((r) => r.id === b.racerId)?.name
                             : ""}
-                      </span>
-                      <span className="betting-mode__betIconStack">
-                        {b.racerId ? (
-                          <Piece
-                            label={currentRace.racers.find((r) => r.id === b.racerId)?.name}
-                            color={currentRace.racers.find((r) => r.id === b.racerId)?.color}
-                            playerId={b.racerId}
-                            status={[]}
-                            image={currentRace.racers.find((r) => r.id === b.racerId)?.image}
-                            icon={currentRace.racers.find((r) => r.id === b.racerId)?.icon}
-                            size={activeTheme?.iconSize ?? "small"}
-                          />
-                        ) : b.type === "forecast" ? (
-                          <>
-                            <Piece
-                              label={currentRace.racers.find((r) => r.id === b.firstId)?.name}
-                              color={currentRace.racers.find((r) => r.id === b.firstId)?.color}
-                              playerId={b.firstId}
-                              status={[]}
-                              image={currentRace.racers.find((r) => r.id === b.firstId)?.image}
-                              icon={currentRace.racers.find((r) => r.id === b.firstId)?.icon}
-                              size={activeTheme?.iconSize ?? "small"}
-                            />
-                            <Piece
-                              label={currentRace.racers.find((r) => r.id === b.secondId)?.name}
-                              color={currentRace.racers.find((r) => r.id === b.secondId)?.color}
-                              playerId={b.secondId}
-                              status={[]}
-                              image={currentRace.racers.find((r) => r.id === b.secondId)?.image}
-                              icon={currentRace.racers.find((r) => r.id === b.secondId)?.icon}
-                              size={activeTheme?.iconSize ?? "small"}
-                            />
-                          </>
-                        ) : null}
                       </span>
                     </span>
                     <span className="betting-mode__betOdds">
@@ -750,7 +773,7 @@ const BettingMode = () => {
             </div>
 
             <Button
-              variant={BUTTON_VARIANT.SECONDARY}
+              variant={BUTTON_VARIANT.PRIMARY}
               onClick={handleStartRace}
               disabled={bets.length === 0}
             >

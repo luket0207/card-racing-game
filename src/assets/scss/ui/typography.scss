@@ -3,8 +3,10 @@
 /* Typography system */
 
 
+@import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
+
 /* Primary font */
-$fontPrimary: "Geom", system-ui, -apple-system, BlinkMacSystemFont,
+$fontPrimary: "Audiowide", system-ui, -apple-system, BlinkMacSystemFont,
   "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
 /* Base document text */
@@ -105,6 +107,28 @@ textarea,
 select {
   font-family: inherit;
   font-size: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+select,
+option,
+optgroup {
+  font-family: $fontPrimary !important;
+  font-size: inherit;
+}
+
+/* PrimeReact dropdown typography (panel is portaled to body) */
+.p-dropdown,
+.p-dropdown-label,
+.p-dropdown-item,
+.p-dropdown-panel,
+.p-dropdown-items {
+  font-family: $fontPrimary !important;
 }
 
 /* Code / debug text (optional but useful for engines) */

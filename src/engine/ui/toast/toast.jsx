@@ -188,7 +188,17 @@ export const ToastProvider = ({ children }) => {
 export const useToast = () => {
   const ctx = useContext(ToastContext);
   if (!ctx) {
-    throw new Error("[useToast] Must be used within <ToastProvider>.");
+    return {
+      toasts: [],
+      log: [],
+      showToast: () => null,
+      player1: () => null,
+      player2: () => null,
+      player3: () => null,
+      player4: () => null,
+      dismissToast: () => null,
+      clearLog: () => null,
+    };
   }
   return ctx;
 };

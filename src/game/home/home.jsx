@@ -49,22 +49,30 @@ const Home = () => {
   return (
     <div className="home">
       <div className="home_content">
-        <h1>Racing Game</h1>
-        <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuickRace}>
-          Quick Race
-        </Button>
-        <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
-          Single Race
-        </Button>
-        <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
-          Betting Mode
-        </Button>
-        <Button variant={BUTTON_VARIANT.TERTIARY} to="/how-to-play">
-          How To Play
-        </Button>
-        <Button variant={BUTTON_VARIANT.TERTIARY} to="/deck-selection?mode=export">
-          Just Select a Deck
-        </Button>
+        <div className="home__title">
+          <h1>Racing</h1>
+        </div>
+        <div className="home__pod">
+          <div className="home__podTitle">Game Modes</div>
+          <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuickRace}>
+            Quick Race
+          </Button>
+          <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
+            Single Race
+          </Button>
+          <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
+            Betting Mode
+          </Button>
+        </div>
+        <div className="home__pod home__pod--secondary">
+          <div className="home__podTitle">Tools</div>
+          <Button variant={BUTTON_VARIANT.TERTIARY} to="/how-to-play">
+            How To Play
+          </Button>
+          <Button variant={BUTTON_VARIANT.TERTIARY} to="/deck-selection?mode=export">
+            Build a Deck
+          </Button>
+        </div>
       </div>
     </div>
   );

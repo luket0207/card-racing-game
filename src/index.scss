@@ -2,7 +2,7 @@
 
 /* Any global resets or app-level styles below */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: $fontPrimary;
   line-height: 1.5;
   font-weight: 400;
 
@@ -22,6 +22,36 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* PrimeReact portal typography overrides (dropdown panels render in body) */
+body,
+.p-component,
+.p-component * {
+  font-family: $fontPrimary !important;
+}
+
+.p-dropdown-panel,
+.p-dropdown-items,
+.p-dropdown-item,
+.p-dropdown-label {
+  font-family: $fontPrimary !important;
+}
+
+.p-dropdown-label,
+.p-dropdown .p-placeholder {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* Ensure PrimeReact overlays appear above custom modals */
+.p-dropdown-panel,
+.p-overlaypanel,
+.p-tooltip,
+.p-datepicker,
+.p-dialog,
+.p-fileupload {
+  z-index: 10001 !important;
 }
 
 @media (prefers-color-scheme: light) {

@@ -9,7 +9,8 @@
   gap: 0.5rem;
   position: relative;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-  min-height: 240px;
+  min-height: 260px;
+  align-items: flex-start;
 
   &__header,
   &__footer {

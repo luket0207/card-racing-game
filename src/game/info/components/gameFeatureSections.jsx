@@ -5,6 +5,7 @@ import { useGame } from "../../../engine/gameContext/gameContext";
 
 import { Dropdown } from "primereact/dropdown";
 import { Slider } from "primereact/slider";
+import { FileUpload } from "primereact/fileupload";
 
 import { saveGameToTxt, loadGameFromTxtFile } from "../../../engine/utils/saveGame/saveGame";
 import { createTimer } from "../../../engine/utils/timer/timer";
@@ -183,8 +184,6 @@ const GameContextColoursExample = () => {
 
 const SaveLoadExample = () => {
   const { gameState, setGameValue, loadGameState } = useGame();
-  const fileInputRef = useRef(null);
-
   const [status, setStatus] = useState("");
 
   const top = gameState.ui.top;
@@ -200,14 +199,7 @@ const SaveLoadExample = () => {
     }
   };
 
-  const handleOpenFilePicker = () => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.value = "";
-    fileInputRef.current.click();
-  };
-
-  const handleFileChosen = async (e) => {
-    const file = e.target.files && e.target.files[0];
+  const handleFileChosen = async (file) => {
     if (!file) return;
 
     try {
@@ -282,16 +274,13 @@ const SaveLoadExample = () => {
             Save (Download TXT)
           </Button>
 
-          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleOpenFilePicker}>
-            Load (Choose TXT)
-          </Button>
-
-          <input
-            ref={fileInputRef}
-            className="info__hiddenFileInput"
-            type="file"
+          <FileUpload
+            mode="basic"
+            chooseLabel="Load (Choose TXT)"
             accept=".txt,text/plain"
-            onChange={handleFileChosen}
+            customUpload
+            onSelect={(e) => handleFileChosen(e.files?.[0])}
+            uploadHandler={() => {}}
           />
         </div>
 

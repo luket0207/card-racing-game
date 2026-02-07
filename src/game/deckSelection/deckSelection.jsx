@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
+import { FileUpload } from "primereact/fileupload";
 import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
 import "./deckSelection.scss";
@@ -17,6 +18,7 @@ const PLAYER_LIST = [
 const DeckSelection = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const fileUploadRef = useRef(null);
   const isExportMode = useMemo(() => {
     const params = new URLSearchParams(location.search);
     return params.get("mode") === "export";
@@ -182,11 +184,23 @@ const DeckSelection = () => {
     (playerId) => {
       setDecks((prev) => {
         if (confirmed[playerId]) return prev;
-        const deck = buildRandomDeck();
-        return { ...prev, [playerId]: deck ?? [] };
+        const current = prev[playerId] ?? [];
+        if (current.length >= 16) return prev;
+
+        const filled = [...current];
+        let attempts = 0;
+        while (filled.length < 16 && attempts < 8000) {
+          attempts += 1;
+          const card = cards[Math.floor(Math.random() * cards.length)];
+          if (!card) continue;
+          if (!canAffordCard(filled, card)) continue;
+          filled.push(card.id);
+        }
+
+        return { ...prev, [playerId]: filled };
       });
     },
-    [buildRandomDeck, confirmed]
+    [canAffordCard, confirmed]
   );
 
   const clearDeck = useCallback(
@@ -258,9 +272,8 @@ const DeckSelection = () => {
     URL.revokeObjectURL(url);
   }, [activeConfirmed, activeDeck, activeDeckFull]);
 
-  const handleImportDeck = useCallback(
-    (event) => {
-      const file = event.target.files?.[0];
+  const handleImportDeckFile = useCallback(
+    (file) => {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
@@ -277,9 +290,17 @@ const DeckSelection = () => {
         }
       };
       reader.readAsText(file);
-      event.target.value = "";
     },
     [activePlayerId, validateDeck]
+  );
+
+  const handleImportDeck = useCallback(
+    (event) => {
+      const file = event.target.files?.[0];
+      handleImportDeckFile(file);
+      event.target.value = "";
+    },
+    [handleImportDeckFile]
   );
 
   return (
@@ -296,108 +317,117 @@ const DeckSelection = () => {
 
       <div className="deck-selection__layout">
         <section className="deck-selection__players">
-          <div className="deck-selection__playersHeader">
-            <h2>Players</h2>
-            <div className="deck-selection__playersHint">Current: {activePlayerName}</div>
-          </div>
-
-          <div className="deck-selection__playerStatus">
-            {activePlayerId && (
-              <div className="deck-selection__playerRow deck-selection__playerRow--active">
-                <span>{activePlayerName}</span>
-                <span>
-                  {(decks[activePlayerId] ?? []).length}/16
-                  {confirmed[activePlayerId] ? " (OK)" : ""}
-                </span>
+          <div className="deck-selection__leftGrid">
+            <div className="deck-selection__leftControls">
+              <div className="deck-selection__playersHeader">
+                <h2>Players</h2>
+                <div className="deck-selection__playersHint">Current: {activePlayerName}</div>
               </div>
-            )}
-          </div>
 
-          <div className="deck-selection__confirm">
-            {isExportMode ? (
-              <Button
-                variant={BUTTON_VARIANT.PRIMARY}
-                onClick={handleExportDeck}
-                disabled={!activeDeckFull || activeConfirmed}
-              >
-                Download Deck (.txt)
-              </Button>
-            ) : (
-              <Button
-                variant={BUTTON_VARIANT.PRIMARY}
-                onClick={confirmDeck}
-                disabled={!activeDeckFull || activeConfirmed}
-              >
-                {activePlayerIndex === humanRacers.length - 1 ? "Confirm Deck" : "Confirm & Next"}
-              </Button>
-            )}
-          </div>
-
-          <div className="deck-selection__deckActions">
-            <Button
-              variant={BUTTON_VARIANT.SECONDARY}
-              onClick={() => randomizeDeck(activePlayerId)}
-              disabled={activeConfirmed}
-            >
-              Randomize Deck
-            </Button>
-            <Button
-              variant={BUTTON_VARIANT.TERTIARY}
-              onClick={() => clearDeck(activePlayerId)}
-              disabled={activeConfirmed}
-            >
-              Clear Deck
-            </Button>
-            {!isExportMode && (
-              <label className="deck-selection__upload">
-                <input
-                  type="file"
-                  accept=".txt"
-                  onChange={handleImportDeck}
-                  disabled={activeConfirmed}
-                />
-                Upload Deck (.txt)
-              </label>
-            )}
-          </div>
-
-          <div className="deck-selection__deckList">
-            {activeDeck.length === 0 && (
-              <div className="deck-selection__empty">No cards selected yet.</div>
-            )}
-            {activeDeck.map((cardId, index) => {
-              const card = cards.find((c) => c.id === cardId);
-              return (
-                <div key={`${cardId}-${index}`} className="deck-selection__deckItem">
-                  <div>
-                    <div className="deck-selection__deckTitle">{card?.name ?? cardId}</div>
-                    <div className="deck-selection__deckMeta">
-                      {card?.class ?? "Unknown"} - {cardId} - Cost {card?.cost ?? 0}
-                    </div>
+              <div className="deck-selection__playerStatus">
+                {activePlayerId && (
+                  <div className="deck-selection__playerRow deck-selection__playerRow--active">
+                    <span>{activePlayerName}</span>
+                    <span>
+                      {(decks[activePlayerId] ?? []).length}/16
+                      {confirmed[activePlayerId] ? " (OK)" : ""}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    className="deck-selection__removeBtn"
-                    onClick={() => removeCard(index)}
-                    disabled={activeConfirmed}
-                  >
-                    Remove
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          {!isExportMode && (
-            <div className="deck-selection__start">
-              <div>
-                {isReady ? "All decks ready." : "Each player needs 16 cards to start."}
+                )}
               </div>
-              <Button variant={BUTTON_VARIANT.PRIMARY} onClick={startRace} disabled={!isReady}>
-                Start Race
-              </Button>
+
+              <div className="deck-selection__confirm">
+                {isExportMode ? (
+                  <Button
+                    variant={BUTTON_VARIANT.PRIMARY}
+                    onClick={handleExportDeck}
+                    disabled={!activeDeckFull || activeConfirmed}
+                  >
+                    Download Deck (.txt)
+                  </Button>
+                ) : (
+                  <Button
+                    variant={BUTTON_VARIANT.PRIMARY}
+                    onClick={confirmDeck}
+                    disabled={!activeDeckFull || activeConfirmed}
+                  >
+                    {activePlayerIndex === humanRacers.length - 1 ? "Confirm Deck" : "Confirm & Next"}
+                  </Button>
+                )}
+              </div>
+
+              <div className="deck-selection__deckActions">
+                <Button
+                  variant={BUTTON_VARIANT.SECONDARY}
+                  onClick={() => randomizeDeck(activePlayerId)}
+                  disabled={activeConfirmed}
+                >
+                  Randomize Deck
+                </Button>
+                <Button
+                  variant={BUTTON_VARIANT.TERTIARY}
+                  onClick={() => clearDeck(activePlayerId)}
+                  disabled={activeConfirmed}
+                >
+                  Clear Deck
+                </Button>
+                {!isExportMode && (
+                  <FileUpload
+                    ref={fileUploadRef}
+                    className="deck-selection__upload"
+                    mode="basic"
+                    chooseLabel="Upload Deck (.txt)"
+                    accept=".txt"
+                    customUpload
+                    disabled={activeConfirmed}
+                    onSelect={(e) => {
+                      handleImportDeckFile(e.files?.[0]);
+                      fileUploadRef.current?.clear();
+                    }}
+                    uploadHandler={() => {}}
+                  />
+                )}
+              </div>
+
+              {!isExportMode && (
+                <div className="deck-selection__start">
+                  <div>
+                    {isReady ? "All decks ready." : "Each player needs 16 cards to start."}
+                  </div>
+                  <Button variant={BUTTON_VARIANT.PRIMARY} onClick={startRace} disabled={!isReady}>
+                    Start Race
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
+
+            <div className="deck-selection__deckList">
+              {activeDeck.length === 0 && (
+                <div className="deck-selection__empty">No cards selected yet.</div>
+              )}
+              {activeDeck.map((cardId, index) => {
+                const card = cards.find((c) => c.id === cardId);
+                return (
+                  <div key={`${cardId}-${index}`} className="deck-selection__deckItem">
+                    <div>
+                      <div className="deck-selection__deckTitle">{card?.name ?? cardId}</div>
+                      <div className="deck-selection__deckMeta">
+                        {card?.class ?? "Unknown"} - {cardId} - Cost {card?.cost ?? 0}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="deck-selection__removeBtn"
+                      onClick={() => removeCard(index)}
+                      disabled={activeConfirmed}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
         <section className="deck-selection__cards">
