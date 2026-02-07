@@ -1,18 +1,20 @@
 @use "../../../../assets/scss/ui/import" as *;
 
 .details {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 18px;
-  padding: 1.5rem 1.5rem 0.25rem;
+  padding: 1.5rem;
   display: grid;
-  grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 0.9fr) minmax(220px, 1fr) minmax(260px, 1.2fr);
+  grid-template-columns: minmax(220px, 1.2fr) minmax(220px, 1.2fr) minmax(220px, 1fr) minmax(
+      260px,
+      1.2fr
+    );
   grid-template-areas:
-    "leader leader class cardSlot"
-    "header counts counts cardSlot"
-    "actions auto card cardSlot"
-    "winner winner winner winner";
-  align-items: start;
-  gap: 1.25rem;
+    "counts counts class cardSlot"
+    "leader leader auto cardSlot"
+    "leader leader actions cardSlot";
+  align-items: flex-end;
+  gap: 1rem;
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.18),
     inset 0 0 0 1px rgba(255, 255, 255, 0.6);
@@ -23,26 +25,6 @@
 
   &__class {
     grid-area: class;
-  }
-
-  &__header {
-    grid-area: header;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 1rem;
-    justify-content: space-between;
-
-    h2 {
-      margin-bottom: 0.25rem;
-      font-size: 1.4rem;
-      color: #333;
-    }
-
-    p {
-      font-size: 0.9rem;
-      color: rgba(0, 0, 0, 0.6);
-    }
   }
 
   &__counts {
@@ -71,36 +53,6 @@
     }
   }
 
-  &__card {
-    grid-area: card;
-    background: linear-gradient(135deg, #f1f3f5, #ffffff);
-    border-radius: 16px;
-    padding: 1rem 1.2rem;
-    display: grid;
-    gap: 0.35rem;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    min-height: 85px;
-  }
-
-  &__label {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.5);
-    font-weight: 700;
-  }
-
-  &__draw {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-  }
-
-  &__reshuffle {
-    font-size: 0.85rem;
-    color: rgba(0, 0, 0, 0.55);
-  }
-
   &__actions {
     grid-area: actions;
     display: grid;
@@ -111,6 +63,10 @@
     grid-area: auto;
     display: grid;
     gap: 0.4rem;
+
+    .p-slider {
+      background: #a3a3a3;
+    }
   }
 
   &__autoRow {
@@ -136,23 +92,13 @@
     color: rgba(0, 0, 0, 0.7);
   }
 
-  &__winnerBanner {
-    grid-area: winner;
-    background: linear-gradient(120deg, #115752, #2e7d64);
-    color: $lightText;
-    padding: 0.6rem 0.9rem;
-    border-radius: 12px;
-    font-weight: 600;
-    text-align: center;
-  }
-
   &__cardSlot {
     grid-area: cardSlot;
-    min-height: 215px;
+    min-height: 240px;
   }
 
   &__cardPlaceholder {
-    min-height: 215px;
+    min-height: 240px;
   }
 }
 
@@ -162,17 +108,10 @@
     grid-template-areas:
       "leader"
       "class"
-      "header"
       "counts"
       "actions"
       "auto"
-      "card"
-      "cardSlot"
-      "winner";
-
-    &__header {
-      flex-direction: column;
-    }
+      "cardSlot";
 
     &__counts {
       grid-template-columns: repeat(2, minmax(0, 1fr));

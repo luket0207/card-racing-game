@@ -8,7 +8,6 @@ const Details = ({
   drawPileCount,
   discardCount,
   lastDraw,
-  winner,
   onDraw,
   autoDelayDefault = 0,
   turnCount = 0,
@@ -28,14 +27,14 @@ const Details = ({
   }, [autoDelay]);
 
   useEffect(() => {
-    if (!autoDelay || winner) return undefined;
+    if (!autoDelay) return undefined;
 
     const interval = setInterval(() => {
       onDraw({ source: "auto", delaySec: autoDelay });
     }, autoDelay * 1000);
 
     return () => clearInterval(interval);
-  }, [autoDelay, onDraw, winner]);
+  }, [autoDelay, onDraw]);
 
   useEffect(() => {
     if (!manualCooldown) return undefined;
@@ -78,13 +77,6 @@ const Details = ({
         </div>
       </div>
 
-      <div className="details__header">
-        <div>
-          <h2>Race Deck</h2>
-          <p>Combined deck built from each player deck.</p>
-        </div>
-      </div>
-
       <div className="details__counts">
         <div>
           <span>Draw Pile</span>
@@ -108,7 +100,6 @@ const Details = ({
         <Button
           variant={BUTTON_VARIANT.PRIMARY}
           onClick={() => {
-            if (winner) return;
             if (autoDelay > 0) {
               setAutoDelay(0);
               return;
@@ -117,7 +108,7 @@ const Details = ({
             setManualCooldown(true);
             onDraw({ source: "manual" });
           }}
-          disabled={!!winner || (autoDelay === 0 && manualCooldown)}
+          disabled={autoDelay === 0 && manualCooldown}
         >
           {autoDelay > 0 ? "Pause Auto Draw" : "Draw Next Card"}
         </Button>
@@ -135,18 +126,11 @@ const Details = ({
             max={3}
             step={0.3}
             onChange={(event) => setAutoDelay(event.value ?? 0)}
-            disabled={!!winner}
+            disabled={false}
           />
           <span className="details__autoValue">{autoDelayLabel}</span>
         </div>
       </div>
-
-      <div className="details__card">
-        <div className="details__label">Latest Draw</div>
-        <div className="details__draw">{lastDrawText}</div>
-        {lastDraw?.reshuffled && <div className="details__reshuffle">Discard pile reshuffled.</div>}
-      </div>
-
       <div className="details__cardSlot">
         {lastDraw ? (
           <CardDisplay
@@ -163,7 +147,6 @@ const Details = ({
         )}
       </div>
 
-      {winner && <div className="details__winnerBanner">{winner.name} wins!</div>}
     </section>
   );
 };
