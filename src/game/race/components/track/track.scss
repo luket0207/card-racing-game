@@ -4,49 +4,11 @@
   display: grid;
   gap: 1rem;
 
-  &__meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    color: $lightText;
-  }
-
-  &__start {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    display: grid;
-    gap: 0.5rem;
-    min-width: 180px;
-  }
-
-  &__startLabel {
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-  }
-
-  &__pieceRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  &__finish {
-    font-weight: 600;
-    font-size: 0.9rem;
-    background: rgba(0, 0, 0, 0.25);
-    padding: 0.5rem 0.9rem;
-    border-radius: 999px;
-  }
-
   &__grid {
-    display: grid;
-    grid-template-columns: repeat(8, auto);
-    gap: 0.5rem;
-    justify-content: flex-start;
+    position: relative;
+    width: 750px;
+    height: 520px;
+    margin: 0 auto;
   }
 
   &__board {
@@ -68,12 +30,13 @@
   }
 
   &__tile {
-    position: relative;
+    position: absolute;
+    transform: translate(-50%, -50%);
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
     border-radius: 12px;
     padding: 0.4rem;
-    height: 80px;
-    width: 80px;
+    height: 70px;
+    width: 70px;
     box-shadow:
       0 12px 24px rgba(0, 0, 0, 0.15),
       inset 0 0 0 1px rgba(255, 255, 255, 0.4);
@@ -81,8 +44,23 @@
     align-content: space-between;
   }
 
-  &__tile--finish {
+  &__tile--start {
     background: linear-gradient(135deg, #fff3bf, #ffd43b);
+  }
+
+  &__tile--finish {
+    background-color: #111111;
+    background-image:
+      linear-gradient(45deg, #ffffff 25%, transparent 25%),
+      linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #ffffff 75%),
+      linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+    background-size: 20px 20px;
+    background-position:
+      0 0,
+      0 10px,
+      10px -10px,
+      -10px 0px;
   }
 
   &__tileNumber {
@@ -96,16 +74,25 @@
     gap: 0.35rem;
     flex-wrap: wrap;
   }
+
+  &__startMarker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 900px) {
   .race-track {
     &__grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      height: 400px;
     }
 
     &__tile {
-      min-height: 60px;
+      height: 56px;
+      width: 56px;
     }
   }
 }

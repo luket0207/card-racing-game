@@ -1,6 +1,51 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Piece from "../piece/piece";
 import "./track.scss";
+
+const buildTrackPositions = (count) => {
+  if (count <= 0) return [];
+  const topY = 14;
+  const bottomY = 86;
+  const centerY = (topY + bottomY) / 2;
+  const radius = (bottomY - topY) / 2;
+  const leftX = 10;
+  const rightX = Math.min(90, leftX + radius * 2);
+  const straightLen = rightX - leftX;
+  const arcLen = Math.PI * radius;
+  const totalLen = straightLen * 2 + arcLen * 2;
+
+  const getPosByS = (s) => {
+    if (s < straightLen) {
+      return { x: leftX + s, y: topY };
+    }
+    if (s < straightLen + arcLen) {
+      const t = (s - straightLen) / arcLen;
+      const angle = (-90 + 180 * t) * (Math.PI / 180);
+      return {
+        x: rightX + Math.cos(angle) * radius,
+        y: centerY + Math.sin(angle) * radius,
+      };
+    }
+    if (s < straightLen + arcLen + straightLen) {
+      const t = (s - straightLen - arcLen) / straightLen;
+      return { x: rightX - t * straightLen, y: bottomY };
+    }
+    const t = (s - straightLen - arcLen - straightLen) / arcLen;
+    const angle = (90 + 180 * t) * (Math.PI / 180);
+    return {
+      x: leftX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+    };
+  };
+
+  const positions = Array.from({ length: count }, (_, i) => {
+    const s = (i / count) * totalLen;
+    return getPosByS(s);
+  });
+
+  positions.startPoint = getPosByS(totalLen - totalLen / count / 2);
+  return positions;
+};
 
 const Track = ({
   tiles,
@@ -55,44 +100,56 @@ const Track = ({
   }, [onMeasure, tiles]);
 
   const playersAtStart = players.filter((player) => player.position === 0);
+  const positions = useMemo(() => buildTrackPositions(tiles.length), [tiles.length]);
+
+  const startPos = useMemo(() => positions.startPoint ?? null, [positions]);
 
   return (
     <div className="race-track">
-      <div className="race-track__meta">
-        <div className="race-track__start">
-          <div className="race-track__startLabel">Start</div>
-          <div className="race-track__pieceRow" ref={startRef}>
-            {showPieces &&
-              playersAtStart.map((player) => (
-                <Piece
-                  key={player.id}
-                  label={player.short}
-                  color={player.color}
-                  playerId={player.id}
-                  status={player.status}
-                  image={player.image}
-                  icon={player.icon}
-                  size={pieceSize}
-                />
-              ))}
-          </div>
-        </div>
-      </div>
-
       <div className="race-track__board" ref={boardRef}>
         <div className="race-track__grid">
-          {tiles.map((tile) => {
+          {startPos && (
+            <div
+              className="race-track__startMarker"
+              ref={startRef}
+              style={{ left: `${startPos.x}%`, top: `${startPos.y}%` }}
+            >
+              {showPieces &&
+                playersAtStart.map((player) => (
+                  <Piece
+                    key={player.id}
+                    label={player.short}
+                    color={player.color}
+                    playerId={player.id}
+                    status={player.status}
+                    image={player.image}
+                    icon={player.icon}
+                    size={pieceSize}
+                  />
+                ))}
+            </div>
+          )}
+          {tiles.map((tile, index) => {
             const playersOnTile = players.filter((player) => player.position === tile);
+            const pos = positions[index];
 
             return (
               <div
                 key={`tile-${tile}`}
                 className={`race-track__tile${
-                  tile === finishTile ? " race-track__tile--finish" : ""
-                }`}
+                  tile === 1 ? " race-track__tile--start" : ""
+                }${tile === finishTile ? " race-track__tile--finish" : ""}`}
                 ref={(node) => {
                   if (node) tileRefs.current[tile] = node;
                 }}
+                style={
+                  pos
+                    ? {
+                        left: `${pos.x}%`,
+                        top: `${pos.y}%`,
+                      }
+                    : undefined
+                }
               >
                 <div className="race-track__tileNumber">{tile}</div>
                 {showPieces && (
