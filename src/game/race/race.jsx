@@ -22,6 +22,18 @@ const calcPayout = (stake, odds) => {
   return Math.round(stake * (decimal + 1));
 };
 
+const calcForecastPayout = (stake, oddsA, oddsB) => {
+  const toDecimal = (odds) => {
+    const [num, denom] = odds;
+    return denom === 0 ? 0 : num / denom;
+  };
+  const decA = toDecimal(oddsA);
+  const decB = toDecimal(oddsB);
+  const [small, large] = decA <= decB ? [oddsA, oddsB] : [oddsB, oddsA];
+  const firstLeg = calcPayout(stake, small);
+  return calcPayout(firstLeg, large);
+};
+
 const Race = () => {
   const {
     players,
@@ -204,6 +216,14 @@ const Race = () => {
         odds = oddsByRacer.get(bet.racerId) ?? [1, 1];
         label = `Each Way: ${racerName}`;
         won = !!bet.racerId && (bet.racerId === winnerId || bet.racerId === secondId);
+      } else if (bet.type === "forecast") {
+        const first = bet.firstId;
+        const second = bet.secondId;
+        const firstName = standings.find((p) => p.id === first)?.name ?? "Racer";
+        const secondName = standings.find((p) => p.id === second)?.name ?? "Racer";
+        odds = bet.odds ?? [[1, 1], [1, 1]];
+        label = `Forecast: ${firstName} / ${secondName}`;
+        won = !!first && !!second && first === winnerId && second === secondId;
       } else if (PAST_POST_BETS[bet.type]) {
         const config = PAST_POST_BETS[bet.type];
         odds = bet.odds ?? [1, 1];
@@ -215,7 +235,9 @@ const Race = () => {
           ? (bet.stake ?? 0) / 2
           : bet.stake ?? 0;
       const basePayout = won
-        ? calcPayout(payoutBase, odds) * (bet.type === "eachway" ? 2 : 1)
+        ? bet.type === "forecast"
+          ? calcForecastPayout(payoutBase, odds[0] ?? [1, 1], odds[1] ?? [1, 1])
+          : calcPayout(payoutBase, odds) * (bet.type === "eachway" ? 2 : 1)
         : 0;
       return {
         ...bet,
@@ -443,7 +465,10 @@ const Race = () => {
                       : null;
                     const odds = bet.odds ?? [1, 1];
                     const stakeBase = bet.type === "eachway" ? (bet.stake ?? 0) / 2 : bet.stake ?? 0;
-                    const potentialWin = calcPayout(stakeBase, odds) * (bet.type === "eachway" ? 2 : 1);
+                    const potentialWin =
+                      bet.type === "forecast"
+                        ? calcForecastPayout(stakeBase, odds[0] ?? [1, 1], odds[1] ?? [1, 1])
+                        : calcPayout(stakeBase, odds) * (bet.type === "eachway" ? 2 : 1);
                     return (
                       <div key={bet.id} className="race__betsItem">
                         <span className="race__betsType">
@@ -453,28 +478,59 @@ const Race = () => {
                               ? "Past The Post Slow"
                               : bet.type}
                         </span>
-                        <span className="race__betsTarget">
-                          {target ? (
-                            <>
-                              <span className="race__betsPiece">
-                                <Piece
-                                  label={target.short}
-                                  color={target.color}
-                                  playerId={target.id}
-                                  status={target.status}
-                                  image={target.image}
-                                  icon={target.icon}
-                                  size={pieceSize}
-                                />
-                              </span>
-                              {target.name}
-                            </>
-                          ) : (
-                            "Race"
-                          )}
-                        </span>
+                      <span className="race__betsTarget">
+                        {bet.type === "forecast" ? (
+                          <>
+                            <span className="race__betsPiece">
+                              <Piece
+                                label={players.find((p) => p.id === bet.firstId)?.short}
+                                color={players.find((p) => p.id === bet.firstId)?.color}
+                                playerId={bet.firstId}
+                                status={players.find((p) => p.id === bet.firstId)?.status}
+                                image={players.find((p) => p.id === bet.firstId)?.image}
+                                icon={players.find((p) => p.id === bet.firstId)?.icon}
+                                size={pieceSize}
+                              />
+                            </span>
+                            <span className="race__betsPiece">
+                              <Piece
+                                label={players.find((p) => p.id === bet.secondId)?.short}
+                                color={players.find((p) => p.id === bet.secondId)?.color}
+                                playerId={bet.secondId}
+                                status={players.find((p) => p.id === bet.secondId)?.status}
+                                image={players.find((p) => p.id === bet.secondId)?.image}
+                                icon={players.find((p) => p.id === bet.secondId)?.icon}
+                                size={pieceSize}
+                              />
+                            </span>
+                            1st {players.find((p) => p.id === bet.firstId)?.name ?? "Racer"} - 2nd{" "}
+                            {players.find((p) => p.id === bet.secondId)?.name ?? "Racer"}
+                          </>
+                        ) : target ? (
+                          <>
+                            <span className="race__betsPiece">
+                              <Piece
+                                label={target.short}
+                                color={target.color}
+                                playerId={target.id}
+                                status={target.status}
+                                image={target.image}
+                                icon={target.icon}
+                                size={pieceSize}
+                              />
+                            </span>
+                            {target.name}
+                          </>
+                        ) : (
+                          "Race"
+                        )}
+                      </span>
                         <span className="race__betsOdds">
-                          Odds {odds[0]}/{odds[1]}
+                          {bet.type === "forecast"
+                            ? `Odds ${odds[0]?.[0] ?? 1}/${odds[0]?.[1] ?? 1} + ${odds[1]?.[0] ?? 1}/${
+                                odds[1]?.[1] ?? 1
+                              }`
+                            : `Odds ${odds[0]}/${odds[1]}`}
                         </span>
                         <span className="race__betsStake">{bet.stake}g</span>
                         <span className="race__betsWin">Win {potentialWin}g</span>

@@ -14,6 +14,7 @@ import "./bettingMode.scss";
 const BET_TYPES = [
   { id: "outright", label: "Outright (Winner)" },
   { id: "eachway", label: "Each Way (1st or 2nd)" },
+  { id: "forecast", label: "Forecast (1st & 2nd)" },
   { id: "fast", label: "Past The Post Fast (<=200 turns)" },
   { id: "slow", label: "Past The Post Slow (>200 turns)" },
 ];
@@ -64,6 +65,24 @@ const buildOdds = (racers) => {
 
     return { ...r, odds, decimalOdds: decimal };
   });
+};
+
+const calcPayout = (stake, odds) => {
+  const [num, denom] = odds;
+  const decimal = denom === 0 ? 0 : num / denom;
+  return Math.round(stake * (decimal + 1));
+};
+
+const calcForecastPayout = (stake, oddsA, oddsB) => {
+  const toDecimal = (odds) => {
+    const [num, denom] = odds;
+    return denom === 0 ? 0 : num / denom;
+  };
+  const decA = toDecimal(oddsA);
+  const decB = toDecimal(oddsB);
+  const [small, large] = decA <= decB ? [oddsA, oddsB] : [oddsB, oddsA];
+  const firstLeg = calcPayout(stake, small);
+  return calcPayout(firstLeg, large);
 };
 
 const buildPastPostOdds = (racers) => {
@@ -119,6 +138,8 @@ const BettingMode = () => {
 
   const [betType, setBetType] = useState("outright");
   const [betRacerId, setBetRacerId] = useState("player1");
+  const [betFirstId, setBetFirstId] = useState("player1");
+  const [betSecondId, setBetSecondId] = useState("player2");
   const [stake, setStake] = useState(100);
   const [betError, setBetError] = useState("");
   const betTypeLabels = useMemo(
@@ -214,21 +235,48 @@ const BettingMode = () => {
       const racer = currentRace?.racers?.find((r) => r.id === betRacerId);
       return racer?.odds ?? [1, 1];
     }
+    if (betType === "forecast") {
+      const first = currentRace?.racers?.find((r) => r.id === betFirstId);
+      const second = currentRace?.racers?.find((r) => r.id === betSecondId);
+      return [first?.odds ?? [1, 1], second?.odds ?? [1, 1]];
+    }
     if (betType === "fast") return pastPostOdds.fast;
     if (betType === "slow") return pastPostOdds.slow;
     return [1, 1];
-  }, [betRacerId, betType, currentRace, pastPostOdds]);
+  }, [betRacerId, betFirstId, betSecondId, betType, currentRace, pastPostOdds]);
+
+  const forecastLabel = useMemo(() => {
+    if (!currentRace) return "1st Racer - 2nd Racer";
+    const firstName = currentRace.racers.find((r) => r.id === betFirstId)?.name ?? "Racer";
+    const secondName = currentRace.racers.find((r) => r.id === betSecondId)?.name ?? "Racer";
+    return `1st ${firstName} - 2nd ${secondName}`;
+  }, [betFirstId, betSecondId, currentRace]);
+
+  const potentialReturn = useMemo(() => {
+    const stakeBase = betType === "eachway" ? stake / 2 : stake;
+    if (betType === "forecast") {
+      const oddsA = selectedOdds[0] ?? [1, 1];
+      const oddsB = selectedOdds[1] ?? [1, 1];
+      return calcForecastPayout(stakeBase, oddsA, oddsB);
+    }
+    if (betType === "fast" || betType === "slow" || betType === "outright" || betType === "eachway") {
+      return calcPayout(stakeBase, selectedOdds ?? [1, 1]) * (betType === "eachway" ? 2 : 1);
+    }
+    return 0;
+  }, [betType, selectedOdds, stake]);
   const hasBets = bets.length > 0;
 
   useEffect(() => {
     if (currentRace?.racers?.length) {
       setBetRacerId(currentRace.racers[0].id);
+      setBetFirstId(currentRace.racers[0].id);
+      setBetSecondId(currentRace.racers[1]?.id ?? currentRace.racers[0].id);
     }
   }, [currentRace?.racers]);
 
   useEffect(() => {
     setBetError("");
-  }, [betType, betRacerId, stake]);
+  }, [betType, betRacerId, betFirstId, betSecondId, stake]);
 
   const handleAddBet = useCallback(() => {
     if (!currentRace) return;
@@ -264,6 +312,8 @@ const BettingMode = () => {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       type: betType,
       racerId: ["outright", "eachway"].includes(betType) ? betRacerId : null,
+      firstId: betType === "forecast" ? betFirstId : null,
+      secondId: betType === "forecast" ? betSecondId : null,
       stake: amount,
       cost,
       odds,
@@ -536,15 +586,39 @@ const BettingMode = () => {
                   </option>
                 ))}
               </select>
-              {["outright", "eachway"].includes(betType) && (
-                <select value={betRacerId} onChange={(e) => setBetRacerId(e.target.value)}>
-                  {currentRace.racers.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+              <div
+                className={`betting-mode__betTarget${
+                  betType === "forecast" ? " betting-mode__betTarget--forecast" : ""
+                }`}
+              >
+                  {["outright", "eachway"].includes(betType) && (
+                    <select value={betRacerId} onChange={(e) => setBetRacerId(e.target.value)}>
+                      {currentRace.racers.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {betType === "forecast" && (
+                    <>
+                      <select value={betFirstId} onChange={(e) => setBetFirstId(e.target.value)}>
+                        {currentRace.racers.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            1st {r.name}
+                          </option>
+                        ))}
+                      </select>
+                      <select value={betSecondId} onChange={(e) => setBetSecondId(e.target.value)}>
+                        {currentRace.racers.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            2nd {r.name}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </div>
               <input
                 type="number"
                 min={minBet}
@@ -552,10 +626,22 @@ const BettingMode = () => {
                 value={stake}
                 onChange={(e) => setStake(Number(e.target.value))}
               />
-              <div className="betting-mode__odds">
-                Odds {selectedOdds[0]}/{selectedOdds[1]}
-              </div>
-              <Button
+            <div className="betting-mode__odds">
+              {betType === "forecast" ? (
+                <span>
+                  Odds {selectedOdds[0][0]}/{selectedOdds[0][1]} + {selectedOdds[1][0]}/
+                  {selectedOdds[1][1]}
+                </span>
+              ) : (
+                <span>
+                  Odds {selectedOdds[0]}/{selectedOdds[1]}
+                </span>
+              )}
+            </div>
+            <div className="betting-mode__odds betting-mode__returns">
+              Return {potentialReturn}g
+            </div>
+            <Button
                 variant={BUTTON_VARIANT.PRIMARY}
                 onClick={handleAddBet}
                 disabled={
@@ -585,18 +671,78 @@ const BettingMode = () => {
               ) : (
                 bets.map((b) => (
                   <div key={b.id} className="betting-mode__betItem">
-                    <span>{betTypeLabels[b.type] ?? b.type}</span>
-                    <span>
-                      {b.racerId
-                        ? currentRace.racers.find((r) => r.id === b.racerId)?.name
-                        : "Race"}
+                    <span className="betting-mode__betType">
+                      {betTypeLabels[b.type] ?? b.type}
                     </span>
-                    <span>{b.stake}g</span>
+                    <span className="betting-mode__betTargetLabel">
+                      <span className="betting-mode__betTargetText">
+                        {b.type === "forecast"
+                          ? `1st ${currentRace.racers.find((r) => r.id === b.firstId)?.name ?? "Racer"} - 2nd ${
+                              currentRace.racers.find((r) => r.id === b.secondId)?.name ?? "Racer"
+                            }`
+                          : b.racerId
+                            ? currentRace.racers.find((r) => r.id === b.racerId)?.name
+                            : ""}
+                      </span>
+                      <span className="betting-mode__betIconStack">
+                        {b.racerId ? (
+                          <Piece
+                            label={currentRace.racers.find((r) => r.id === b.racerId)?.name}
+                            color={currentRace.racers.find((r) => r.id === b.racerId)?.color}
+                            playerId={b.racerId}
+                            status={[]}
+                            image={currentRace.racers.find((r) => r.id === b.racerId)?.image}
+                            icon={currentRace.racers.find((r) => r.id === b.racerId)?.icon}
+                            size={activeTheme?.iconSize ?? "small"}
+                          />
+                        ) : b.type === "forecast" ? (
+                          <>
+                            <Piece
+                              label={currentRace.racers.find((r) => r.id === b.firstId)?.name}
+                              color={currentRace.racers.find((r) => r.id === b.firstId)?.color}
+                              playerId={b.firstId}
+                              status={[]}
+                              image={currentRace.racers.find((r) => r.id === b.firstId)?.image}
+                              icon={currentRace.racers.find((r) => r.id === b.firstId)?.icon}
+                              size={activeTheme?.iconSize ?? "small"}
+                            />
+                            <Piece
+                              label={currentRace.racers.find((r) => r.id === b.secondId)?.name}
+                              color={currentRace.racers.find((r) => r.id === b.secondId)?.color}
+                              playerId={b.secondId}
+                              status={[]}
+                              image={currentRace.racers.find((r) => r.id === b.secondId)?.image}
+                              icon={currentRace.racers.find((r) => r.id === b.secondId)?.icon}
+                              size={activeTheme?.iconSize ?? "small"}
+                            />
+                          </>
+                        ) : null}
+                      </span>
+                    </span>
+                    <span className="betting-mode__betOdds">
+                      {b.type === "forecast"
+                        ? `Odds ${b.odds?.[0]?.[0] ?? 1}/${b.odds?.[0]?.[1] ?? 1} + ${b.odds?.[1]?.[0] ?? 1}/${
+                            b.odds?.[1]?.[1] ?? 1
+                          }`
+                        : `Odds ${b.odds?.[0] ?? 1}/${b.odds?.[1] ?? 1}`}
+                    </span>
+                    <span className="betting-mode__betReturn">
+                      {(() => {
+                        const stakeBase = b.type === "eachway" ? b.stake / 2 : b.stake;
+                        const payout =
+                          b.type === "forecast"
+                            ? calcForecastPayout(stakeBase, b.odds?.[0] ?? [1, 1], b.odds?.[1] ?? [1, 1])
+                            : b.type === "fast" || b.type === "slow" || b.type === "outright" || b.type === "eachway"
+                              ? calcPayout(stakeBase, b.odds ?? [1, 1]) * (b.type === "eachway" ? 2 : 1)
+                              : 0;
+                        return `A ${b.stake}g bet will return ${payout}g`;
+                      })()}
+                    </span>
                     <Button
                       variant={BUTTON_VARIANT.TERTIARY}
                       onClick={() => handleRemoveBet(b.id)}
                     >
-                      Cancel
+                      Remove
                     </Button>
                   </div>
                 ))

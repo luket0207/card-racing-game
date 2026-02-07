@@ -217,7 +217,7 @@
 
 .betting-mode__betRow {
   display: grid;
-  grid-template-columns: 1fr 1fr 120px auto auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(240px, 1.6fr) 120px auto auto auto;
   gap: 0.6rem;
   align-items: center;
 
@@ -231,9 +231,24 @@
   }
 }
 
+.betting-mode__betTarget {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.betting-mode__betTarget--forecast {
+  grid-template-columns: 1fr 1fr;
+}
+
 .betting-mode__odds {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.7);
+}
+
+.betting-mode__returns {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
 }
 
 .betting-mode__betHint {
@@ -253,7 +268,7 @@
 
 .betting-mode__betItem {
   display: grid;
-  grid-template-columns: minmax(140px, 1.2fr) minmax(120px, 1fr) minmax(80px, auto) minmax(80px, auto);
+  grid-template-columns: 180px minmax(220px, 1.4fr) 140px minmax(180px, 1.2fr) 100px;
   gap: 0.6rem;
   padding: 0.45rem 0.6rem;
   border-radius: 10px;
@@ -265,6 +280,49 @@
 
 .betting-mode__betItem span {
   line-height: 1.1rem;
+}
+
+.betting-mode__betItem > * {
+  min-width: 0;
+}
+
+.betting-mode__betType,
+.betting-mode__betOdds,
+.betting-mode__betReturn {
+  white-space: nowrap;
+}
+
+.betting-mode__betTargetLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.betting-mode__betIconStack {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+}
+
+.betting-mode__betTargetText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.betting-mode__betIconStack > * {
+  flex: 0 0 auto;
+}
+
+.betting-mode__betItem button {
+  justify-self: end;
+}
+
+.betting-mode__betReturn {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .betting-mode__empty {
