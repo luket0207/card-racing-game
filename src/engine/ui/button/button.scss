@@ -1,4 +1,5 @@
 @use "../../../assets/scss/ui/import" as *;
+@use "sass:color";
 
 .btn {
   display: inline-flex;
@@ -37,7 +38,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(127, 195, 255, 0.9);
+    outline: 2px solid rgba($primaryBackground, 0.9);
     outline-offset: 2px;
   }
 
@@ -48,7 +49,7 @@
     inset: 0;
     pointer-events: none;
     opacity: 0;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent);
+    background: linear-gradient(90deg, rgba($secondaryForeground, 0.22), transparent);
     transition: opacity 0.12s ease;
     z-index: 0;
   }
@@ -96,12 +97,16 @@
   }
 
   &--primary {
-    background: linear-gradient(135deg, #7fc3ff, #4f96ff);
+    background: linear-gradient(
+      135deg,
+      color.adjust($primaryBackground, $lightness: 6%),
+      color.adjust($primaryBackground, $lightness: -8%)
+    );
     color: $primaryForeground;
     border: none;
     box-shadow:
-      0 12px 26px rgba(20, 40, 80, 0.45),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+      0 10px 22px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba($secondaryForeground, 0.04);
 
     /* Keep text colour stable across link pseudo-states */
     &::before {
@@ -117,12 +122,16 @@
   }
 
   &--secondary {
-    background: linear-gradient(135deg, #2b333c, #1f262d);
+    background: linear-gradient(
+      135deg,
+      color.adjust($secondaryBackground, $lightness: 6%),
+      color.adjust($secondaryBackground, $lightness: -6%)
+    );
     color: $secondaryForeground;
     border: none;
     box-shadow:
       0 10px 22px rgba(0, 0, 0, 0.45),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      inset 0 0 0 1px rgba($secondaryForeground, 0.04);
 
     &::before {
       background: linear-gradient(90deg, $primaryBackground, transparent);
@@ -138,11 +147,18 @@
   }
 
   &--tertiary {
-    background: linear-gradient(135deg, #f1f5f9, #d9e4f2);
+    background: linear-gradient(
+      135deg,
+      color.adjust($tertiaryBackground, $lightness: 2%),
+      color.adjust($tertiaryBackground, $lightness: -6%)
+    );
     color: $tertiaryForeground;
 
     /* Optional: a subtle border so it still reads as a button */
     border: none;
+    box-shadow:
+      0 10px 22px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba($secondaryForeground, 0.04);
 
     &::before {
       background: linear-gradient(90deg, $primaryBackground, transparent);

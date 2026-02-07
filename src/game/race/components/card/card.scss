@@ -59,31 +59,31 @@
 
   &[data-class="Red"] {
     .race-card__class {
-      background: #ff6b6b;
+      background: $class-red;
     }
   }
 
   &[data-class="Blue"] {
     .race-card__class {
-      background: #4dabf7;
+      background: $class-blue;
     }
   }
 
   &[data-class="Green"] {
     .race-card__class {
-      background: #63e6be;
+      background: $class-green;
     }
   }
 
   &[data-class="Yellow"] {
     .race-card__class {
-      background: #ffd43b;
+      background: $class-yellow;
     }
   }
 
   &[data-class="Orange"] {
     .race-card__class {
-      background: #ff922b;
+      background: $class-orange;
     }
   }
 }

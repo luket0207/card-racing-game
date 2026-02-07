@@ -28,6 +28,12 @@
   }
 }
 
+.deck-selection__headerActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .deck-selection__layout {
   display: grid;
   grid-template-columns: 610px 1fr;
@@ -83,6 +89,11 @@
   gap: 0.5rem;
 }
 
+.deck-selection__playerNav {
+  display: grid;
+  gap: 0.6rem;
+}
+
 .deck-selection__playerRow {
   display: flex;
   justify-content: space-between;
@@ -99,6 +110,27 @@
 .deck-selection__deckActions {
   display: grid;
   gap: 0.6rem;
+}
+
+.deck-selection__btnLoading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deck-selection__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: $secondaryForeground;
+  animation: deck-selection-spin 0.8s linear infinite;
+}
+
+@keyframes deck-selection-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .deck-selection__upload {
@@ -177,7 +209,7 @@
   padding: 1.5rem;
   display: grid;
   gap: 1rem;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto 1fr;
   min-height: 0;
 }
 
@@ -230,23 +262,23 @@
 }
 
 .deck-selection__currencySeg--red {
-  background: #ff6b6b;
+  background: $class-red;
 }
 
 .deck-selection__currencySeg--blue {
-  background: #4dabf7;
+  background: $class-blue;
 }
 
 .deck-selection__currencySeg--green {
-  background: #63e6be;
+  background: $class-green;
 }
 
 .deck-selection__currencySeg--yellow {
-  background: #ffd43b;
+  background: $class-yellow;
 }
 
 .deck-selection__currencySeg--orange {
-  background: #ffa94d;
+  background: $class-orange;
 }
 
 
@@ -254,6 +286,49 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: rgba(245, 247, 250, 0.85);
+}
+
+.deck-selection__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+}
+
+.deck-selection__filterGroup {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.deck-selection__filterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(245, 247, 250, 0.7);
+}
+
+.deck-selection__filterActions {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.deck-selection__filterList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.5rem;
+}
+
+.deck-selection__filterItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
   color: rgba(245, 247, 250, 0.85);
 }
 
@@ -276,61 +351,63 @@
   gap: 0.5rem;
   border: 1px solid rgba(245, 247, 250, 0.08);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+
+  h3 {
+    margin-top: 1rem;
+  }
+
+  p {
+    font-size: 14px;
+    margin-bottom: 1.6rem;
+  }
+}
+
+.deck-selection__cardHeader {
+  margin: -0.9rem -0.9rem 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px 12px 0px 0px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.deck-selection__cardHeader--red {
+  background: $class-red;
+  color: #1b1b1b;
+}
+
+.deck-selection__cardHeader--blue {
+  background: $class-blue;
+  color: #0b1117;
+}
+
+.deck-selection__cardHeader--green {
+  background: $class-green;
+  color: #0b1117;
+}
+
+.deck-selection__cardHeader--yellow {
+  background: $class-yellow;
+  color: #0b1117;
+}
+
+.deck-selection__cardHeader--orange {
+  background: $class-orange;
+  color: #1b1b1b;
 }
 
 .deck-selection__cardCost {
   font-weight: 600;
   font-size: 0.85rem;
   color: rgba(245, 247, 250, 0.7);
-}
-
-.deck-selection__cardTop {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-}
-
-.deck-selection__badge {
-  padding: 0.2rem 0.5rem;
-  border-radius: 999px;
-  font-weight: 700;
-  color: $primaryForeground;
-  background: rgba(155, 193, 231, 0.9);
-}
-
-.deck-selection__badge--red {
-  background: #ff6b6b;
-}
-
-.deck-selection__badge--blue {
-  background: #4dabf7;
-}
-
-.deck-selection__badge--green {
-  background: #63e6be;
-}
-
-.deck-selection__badge--yellow {
-  background: #ffd43b;
-}
-
-.deck-selection__badge--orange {
-  background: #ffa94d;
-}
-
-.deck-selection__cardId {
-  font-weight: 700;
+  margin-top: auto;
 }
 
 .deck-selection__addBtn {
-  border: none;
-  border-radius: 8px;
-  background: $primaryBackground;
-  color: $primaryForeground;
-  padding: 0.45rem 0.7rem;
-  cursor: pointer;
-  font-weight: 600;
-  margin-top: auto;
+  width: 100%;
+  justify-content: center;
 }
 
 .deck-selection__addBtn:disabled {

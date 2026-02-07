@@ -376,17 +376,17 @@
 }
 
 .info__toastLogBadge--player1 {
-  background: #ff6b6b;
+  background: $class-red;
 }
 .info__toastLogBadge--player2 {
-  background: #4dabf7;
+  background: $class-blue;
 }
 .info__toastLogBadge--player3 {
-  background: #63e6be;
+  background: $class-green;
   color: #0b2f2a;
 }
 .info__toastLogBadge--player4 {
-  background: #ffd43b;
+  background: $class-yellow;
   color: #1d1d1d;
 }
 

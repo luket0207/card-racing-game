@@ -30,7 +30,7 @@ const themes = [
     pieces: [
       { id: "car-red", name: "Red", color: "#ff6b6b", type: "icon", icon: faCarSide },
       { id: "car-blue", name: "Blue", color: "#2890e6", type: "icon", icon: faCarSide },
-      { id: "car-green", name: "Green", color: "#63e6be", type: "icon", icon: faTruckPickup },
+      { id: "car-green", name: "Green", color: "#0f9c27", type: "icon", icon: faTruckPickup },
       { id: "car-yellow", name: "Yellow", color: "#ffd43b", type: "icon", icon: faTruckPickup },
       { id: "car-orange", name: "Orange", color: "#ffa94d", type: "icon", icon: faTruck },
       { id: "car-purple", name: "Purple", color: "#b197fc", type: "icon", icon: faTruck },

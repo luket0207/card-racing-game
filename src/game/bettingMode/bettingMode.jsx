@@ -527,7 +527,6 @@ const BettingMode = () => {
             </span>
             <span className="betting-mode__goldValue">{gold}</span>
           </div>
-          <div className="betting-mode__raceInfo">Race {raceIndex} / 10</div>
         </div>
         <div className="betting-mode__headerActions">
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
@@ -548,7 +547,7 @@ const BettingMode = () => {
         currentRace && (
         <div className="betting-mode__layout">
           <section className="betting-mode__racers">
-            <h2>Racers</h2>
+            <h1>Race {raceIndex} / 10</h1>
             <div className="betting-mode__favouriteHint">
               <span className="betting-mode__favouriteIcon" aria-hidden="true">
                 <FontAwesomeIcon icon={faStar} />

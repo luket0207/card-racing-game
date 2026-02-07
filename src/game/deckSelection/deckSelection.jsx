@@ -3,7 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
+import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
 import { FileUpload } from "primereact/fileupload";
+import { Checkbox } from "primereact/checkbox";
 import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
 import "./deckSelection.scss";
@@ -25,6 +27,7 @@ const DeckSelection = () => {
   }, [location.search]);
   const { gameState, setGameState } = useGame();
   const { clearLog } = useToast();
+  const { openModal, closeModal } = useModal();
   const racers = useMemo(() => {
     if (isExportMode) {
       return [
@@ -69,12 +72,21 @@ const DeckSelection = () => {
       return acc;
     }, {})
   );
+  const decksRef = useRef(decks);
+  useEffect(() => {
+    decksRef.current = decks;
+  }, [decks]);
   const [confirmed, setConfirmed] = useState(() =>
     racers.reduce((acc, player) => {
       acc[player.id] = player.type !== "human";
       return acc;
     }, {})
   );
+  const [selectedClasses, setSelectedClasses] = useState(
+    ["Red", "Blue", "Green", "Yellow", "Orange"]
+  );
+  const [selectedCosts, setSelectedCosts] = useState([1, 2, 3]);
+  const [randomizingPlayerId, setRandomizingPlayerId] = useState(null);
 
   const activeDeck = decks[activePlayerId] ?? [];
 
@@ -182,11 +194,14 @@ const DeckSelection = () => {
 
   const randomizeDeck = useCallback(
     (playerId) => {
-      setDecks((prev) => {
-        if (confirmed[playerId]) return prev;
-        const current = prev[playerId] ?? [];
-        if (current.length >= 16) return prev;
+      if (confirmed[playerId]) return;
+      const current = decksRef.current[playerId] ?? [];
+      if (current.length >= 16) return;
 
+      setRandomizingPlayerId(playerId);
+
+      let finalDeck = null;
+      for (let retry = 0; retry < 10; retry += 1) {
         const filled = [...current];
         let attempts = 0;
         while (filled.length < 16 && attempts < 8000) {
@@ -196,17 +211,38 @@ const DeckSelection = () => {
           if (!canAffordCard(filled, card)) continue;
           filled.push(card.id);
         }
+        if (filled.length === 16) {
+          finalDeck = filled;
+          break;
+        }
+      }
 
-        return { ...prev, [playerId]: filled };
-      });
+      if (!finalDeck) {
+        setRandomizingPlayerId(null);
+        openModal({
+          modalTitle: "Cannot Randomize Deck",
+          modalContent: (
+            <div>
+              There are not enough coins left to fill the deck to 16 cards. Remove some cards or
+              clear the deck and try again.
+            </div>
+          ),
+          buttons: MODAL_BUTTONS.OK,
+        });
+        return;
+      }
+
+      setDecks((prev) => ({ ...prev, [playerId]: finalDeck }));
+      setRandomizingPlayerId(null);
     },
-    [canAffordCard, confirmed]
+    [canAffordCard, confirmed, openModal]
   );
 
   const clearDeck = useCallback(
     (playerId) => {
       setDecks((prev) => {
         if (confirmed[playerId]) return prev;
+        decksRef.current = { ...prev, [playerId]: [] };
         return { ...prev, [playerId]: [] };
       });
     },
@@ -221,8 +257,23 @@ const DeckSelection = () => {
   const activeDeckFull = activeDeck.length === 16;
   const activeConfirmed = confirmed[activePlayerId];
 
+  const filteredCards = useMemo(() => {
+    return cards.filter((card) => {
+      const cls = card.class;
+      const cost = card.cost;
+      const classOk = selectedClasses.includes(cls);
+      const costOk = selectedCosts.includes(cost);
+      return classOk && costOk;
+    });
+  }, [selectedClasses, selectedCosts]);
+
   const startRace = useCallback(() => {
-    if (!isReady) return;
+    const isLastHuman = activePlayerIndex === humanRacers.length - 1;
+    if (isLastHuman) {
+      if (!activeDeckFull) return;
+    } else if (!isReady) {
+      return;
+    }
     if (isExportMode) return;
     const withAiDecks = { ...decks };
     racers.forEach((r) => {
@@ -240,7 +291,43 @@ const DeckSelection = () => {
     }));
     clearLog();
     navigate("/race");
-  }, [activeTheme?.id, buildRandomDeck, clearLog, decks, isExportMode, isReady, navigate, racers, setGameState]);
+  }, [
+    activeDeckFull,
+    activePlayerIndex,
+    activeTheme?.id,
+    buildRandomDeck,
+    clearLog,
+    decks,
+    humanRacers.length,
+    isExportMode,
+    isReady,
+    navigate,
+    racers,
+    setGameState,
+  ]);
+
+  const handleBackToSetup = useCallback(() => {
+    openModal({
+      modalTitle: "Return to Race Setup",
+      modalContent: (
+        <div>You will lose the decks you have selected if you go back to race setup.</div>
+      ),
+      buttons: MODAL_BUTTONS.YES_NO,
+      onYes: () => {
+        closeModal();
+        navigate("/race-setup");
+      },
+      onNo: () => closeModal(),
+    });
+  }, [closeModal, navigate, openModal]);
+
+  const goToPrevPlayer = useCallback(() => {
+    setActivePlayerIndex((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const goToNextPlayer = useCallback(() => {
+    setActivePlayerIndex((prev) => Math.min(prev + 1, humanRacers.length - 1));
+  }, [humanRacers.length]);
 
   const confirmDeck = useCallback(() => {
     if (!activeDeckFull || activeConfirmed) return;
@@ -310,9 +397,16 @@ const DeckSelection = () => {
           <h1>Deck Selection</h1>
           <p>Build 16-card decks for each player. Spend up to 5 coins per class.</p>
         </div>
-        <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
-          Back Home
-        </Button>
+        <div className="deck-selection__headerActions">
+          {!isExportMode && (
+            <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleBackToSetup}>
+              Back to Setup
+            </Button>
+          )}
+          <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
+            Back Home
+          </Button>
+        </div>
       </header>
 
       <div className="deck-selection__layout">
@@ -336,6 +430,25 @@ const DeckSelection = () => {
                 )}
               </div>
 
+              {!isExportMode && humanRacers.length > 1 && (
+                <div className="deck-selection__playerNav">
+                  <Button
+                    variant={BUTTON_VARIANT.TERTIARY}
+                    onClick={goToPrevPlayer}
+                    disabled={activePlayerIndex === 0}
+                  >
+                    Previous Player
+                  </Button>
+                  <Button
+                    variant={BUTTON_VARIANT.TERTIARY}
+                    onClick={goToNextPlayer}
+                    disabled={activePlayerIndex >= humanRacers.length - 1}
+                  >
+                    Next Player
+                  </Button>
+                </div>
+              )}
+
               <div className="deck-selection__confirm">
                 {isExportMode ? (
                   <Button
@@ -345,24 +458,31 @@ const DeckSelection = () => {
                   >
                     Download Deck (.txt)
                   </Button>
-                ) : (
+                ) : activePlayerIndex < humanRacers.length - 1 ? (
                   <Button
                     variant={BUTTON_VARIANT.PRIMARY}
                     onClick={confirmDeck}
                     disabled={!activeDeckFull || activeConfirmed}
                   >
-                    {activePlayerIndex === humanRacers.length - 1 ? "Confirm Deck" : "Confirm & Next"}
+                    Confirm & Next
                   </Button>
-                )}
+                ) : null}
               </div>
 
               <div className="deck-selection__deckActions">
                 <Button
                   variant={BUTTON_VARIANT.SECONDARY}
                   onClick={() => randomizeDeck(activePlayerId)}
-                  disabled={activeConfirmed}
+                  disabled={activeConfirmed || randomizingPlayerId === activePlayerId}
                 >
-                  Randomize Deck
+                  {randomizingPlayerId === activePlayerId ? (
+                    <span className="deck-selection__btnLoading">
+                      <span className="deck-selection__spinner" aria-hidden="true" />
+                      Randomizing...
+                    </span>
+                  ) : (
+                    "Randomize Deck"
+                  )}
                 </Button>
                 <Button
                   variant={BUTTON_VARIANT.TERTIARY}
@@ -389,12 +509,16 @@ const DeckSelection = () => {
                 )}
               </div>
 
-              {!isExportMode && (
+              {!isExportMode && activePlayerIndex === humanRacers.length - 1 && (
                 <div className="deck-selection__start">
                   <div>
-                    {isReady ? "All decks ready." : "Each player needs 16 cards to start."}
+                    {activeDeckFull ? "Deck ready to start." : "Select 16 cards to start."}
                   </div>
-                  <Button variant={BUTTON_VARIANT.PRIMARY} onClick={startRace} disabled={!isReady}>
+                  <Button
+                    variant={BUTTON_VARIANT.PRIMARY}
+                    onClick={startRace}
+                    disabled={!activeDeckFull}
+                  >
                     Start Race
                   </Button>
                 </div>
@@ -453,29 +577,93 @@ const DeckSelection = () => {
             <span>{activeDeck.length}/16 selected</span>
           </div>
 
+          <div className="deck-selection__filters">
+            <div className="deck-selection__filterGroup">
+              <div className="deck-selection__filterHeader">
+                <span>Class</span>
+                <div className="deck-selection__filterActions">
+                  <Button
+                    variant={BUTTON_VARIANT.TERTIARY}
+                    onClick={() => setSelectedClasses(["Red", "Blue", "Green", "Yellow", "Orange"])}
+                  >
+                    Select All
+                  </Button>
+                  <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => setSelectedClasses([])}>
+                    Clear
+                  </Button>
+                </div>
+              </div>
+              <div className="deck-selection__filterList">
+                {["Red", "Blue", "Green", "Yellow", "Orange"].map((cls) => (
+                  <label key={cls} className="deck-selection__filterItem">
+                    <Checkbox
+                      inputId={`filter-class-${cls}`}
+                      checked={selectedClasses.includes(cls)}
+                      onChange={(e) => {
+                        setSelectedClasses((prev) =>
+                          e.checked ? [...prev, cls] : prev.filter((val) => val !== cls)
+                        );
+                      }}
+                    />
+                    <span>{cls}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="deck-selection__filterGroup">
+              <div className="deck-selection__filterHeader">
+                <span>Cost</span>
+                <div className="deck-selection__filterActions">
+                  <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => setSelectedCosts([1, 2, 3])}>
+                    Select All
+                  </Button>
+                  <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => setSelectedCosts([])}>
+                    Clear
+                  </Button>
+                </div>
+              </div>
+              <div className="deck-selection__filterList">
+                {[1, 2, 3].map((cost) => (
+                  <label key={cost} className="deck-selection__filterItem">
+                    <Checkbox
+                      inputId={`filter-cost-${cost}`}
+                      checked={selectedCosts.includes(cost)}
+                      onChange={(e) => {
+                        setSelectedCosts((prev) =>
+                          e.checked ? [...prev, cost] : prev.filter((val) => val !== cost)
+                        );
+                      }}
+                    />
+                    <span>{cost}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="deck-selection__cardGrid">
-            {cards.map((card) => {
+            {filteredCards.map((card) => {
               const isFull = activeDeck.length >= 16;
               const affordable = canAffordCard(activeDeck, card);
               return (
                 <div key={card.id} className="deck-selection__card">
-                  <div className="deck-selection__cardTop">
-                    <span className={`deck-selection__badge deck-selection__badge--${card.class.toLowerCase()}`}>
-                      {card.class}
-                    </span>
-                    <span className="deck-selection__cardId">{card.id}</span>
+                  <div
+                    className={`deck-selection__cardHeader deck-selection__cardHeader--${card.class.toLowerCase()}`}
+                  >
+                    {card.class}
                   </div>
                   <h3>{card.name}</h3>
                   <p>{card.text}</p>
                   <div className="deck-selection__cardCost">Cost: {card.cost}</div>
-                  <button
-                    type="button"
+                  <Button
+                    variant={BUTTON_VARIANT.PRIMARY}
                     className="deck-selection__addBtn"
                     disabled={isFull || activeConfirmed || !affordable}
                     onClick={() => addCard(card.id)}
                   >
                     {isFull ? "Deck Full" : !affordable ? "No Coins" : "Add"}
-                  </button>
+                  </Button>
                 </div>
               );
             })}

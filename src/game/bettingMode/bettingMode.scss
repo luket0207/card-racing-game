@@ -349,7 +349,7 @@
 
 .betting-mode__betItem {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) minmax(150px, 1fr) minmax(240px, 2fr) minmax(160px, 1fr) 150px;
+  grid-template-columns: minmax(140px, 1fr) minmax(150px, 1fr) minmax(240px, 2fr) minmax(160px, 1fr) 220px;
   grid-template-areas:
     "type icons target target action"
     "odds icons return return action";

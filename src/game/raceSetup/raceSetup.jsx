@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
+import Piece from "../race/components/piece/piece";
 import { useGame } from "../../engine/gameContext/gameContext";
 import themes from "../../assets/gameContent/themes";
 import "./raceSetup.scss";
@@ -222,26 +223,38 @@ const RaceSetup = () => {
 
             <div className="race-setup__field">
               <label>Piece</label>
-              <Dropdown
-                value={racer.pieceId}
-                options={(activeTheme?.pieces ?? []).map((piece) => ({
-                  label: piece.name,
-                  value: piece.id,
-                }))}
-                onChange={(e) => {
-                  const piece = activeTheme?.pieces?.find((p) => p.id === e.value);
-                  if (!piece) return;
-                  const name = activeTheme?.nameStyle === "fixed" ? piece.name : racer.name;
-                  updateRacer(index, {
-                    pieceId: piece.id,
-                    color: piece.color,
-                    image: piece.image ?? null,
-                    icon: piece.icon ?? null,
-                    name,
-                  });
-                }}
-              />
-              <div className="race-setup__colorSwatch" style={{ background: racer.color }} />
+              <div className="race-setup__pieceRow">
+                <div className="race-setup__piecePreview">
+                  <Piece
+                    label={racer.name}
+                    color={racer.color}
+                    playerId={racer.id}
+                    status={[]}
+                    image={racer.image}
+                    icon={racer.icon}
+                    size={activeTheme?.iconSize ?? "small"}
+                  />
+                </div>
+                <Dropdown
+                  value={racer.pieceId}
+                  options={(activeTheme?.pieces ?? []).map((piece) => ({
+                    label: piece.name,
+                    value: piece.id,
+                  }))}
+                  onChange={(e) => {
+                    const piece = activeTheme?.pieces?.find((p) => p.id === e.value);
+                    if (!piece) return;
+                    const name = activeTheme?.nameStyle === "fixed" ? piece.name : racer.name;
+                    updateRacer(index, {
+                      pieceId: piece.id,
+                      color: piece.color,
+                      image: piece.image ?? null,
+                      icon: piece.icon ?? null,
+                      name,
+                    });
+                  }}
+                />
+              </div>
             </div>
           </div>
         ))}

@@ -95,24 +95,24 @@
 }
 
 .race__classBanner[data-class="Red"] {
-  background: linear-gradient(120deg, rgba(255, 107, 107, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(120deg, rgba($class-red, 0.4), rgba(0, 0, 0, 0.25));
 }
 
 .race__classBanner[data-class="Blue"] {
-  background: linear-gradient(120deg, rgba(77, 171, 247, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(120deg, rgba($class-blue, 0.4), rgba(0, 0, 0, 0.25));
 }
 
 .race__classBanner[data-class="Green"] {
-  background: linear-gradient(120deg, rgba(99, 230, 190, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(120deg, rgba($class-green, 0.4), rgba(0, 0, 0, 0.25));
 }
 
 .race__classBanner[data-class="Yellow"] {
-  background: linear-gradient(120deg, rgba(255, 212, 59, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(120deg, rgba($class-yellow, 0.4), rgba(0, 0, 0, 0.25));
   color: $lightText;
 }
 
 .race__classBanner[data-class="Orange"] {
-  background: linear-gradient(120deg, rgba(255, 146, 43, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(120deg, rgba($class-orange, 0.4), rgba(0, 0, 0, 0.25));
 }
 
 .race__sidePanel {
@@ -273,22 +273,22 @@
 }
 
 .race__logBadge--player1 {
-  background: #ff6b6b;
+  background: $class-red;
   color: #1b1b1b;
 }
 
 .race__logBadge--player2 {
-  background: #4dabf7;
+  background: $class-blue;
   color: #102038;
 }
 
 .race__logBadge--player3 {
-  background: #63e6be;
+  background: $class-green;
   color: #0b2f2a;
 }
 
 .race__logBadge--player4 {
-  background: #ffd43b;
+  background: $class-yellow;
   color: #1d1d1d;
 }
 

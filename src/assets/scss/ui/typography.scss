@@ -4,6 +4,7 @@
 
 
 @import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap");
 
 /* Primary font */
 $fontPrimary: "Audiowide", system-ui, -apple-system, BlinkMacSystemFont,
@@ -59,11 +60,14 @@ p {
   margin: 0;
   font-size: 1rem;
   line-height: 1.6;
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 /* Links */
 a {
-  font-family: $fontPrimary;
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   font-size: 1rem;
   color: $links;
   text-decoration: none;
@@ -109,16 +113,25 @@ select {
   font-size: inherit;
 }
 
+/* Ensure all buttons keep the primary display font */
+button,
+.btn,
+.p-button {
+  font-family: $fontPrimary !important;
+}
+
 input::placeholder,
 textarea::placeholder {
-  font-family: inherit;
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   font-size: inherit;
 }
 
 select,
 option,
 optgroup {
-  font-family: $fontPrimary !important;
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
   font-size: inherit;
 }
 
@@ -128,7 +141,8 @@ optgroup {
 .p-dropdown-item,
 .p-dropdown-panel,
 .p-dropdown-items {
-  font-family: $fontPrimary !important;
+  font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace !important;
 }
 
 /* Code / debug text (optional but useful for engines) */
