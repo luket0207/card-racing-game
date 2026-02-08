@@ -4,10 +4,9 @@ const DAY_LABELS = Object.freeze({
   normal: "Normal",
   race: "Race",
   event: "Event",
-  miniGame: "Mini Game",
 });
 
-const Calendar = ({ calendar, dayIndex, monthNames }) => {
+const Calendar = ({ calendar, dayIndex, monthNames, races }) => {
   const safeDay = Math.max(0, Math.min(dayIndex ?? 0, (calendar?.length ?? 1) - 1));
   const monthIndex = Math.floor(safeDay / 28);
   const monthStart = monthIndex * 28;
@@ -26,6 +25,10 @@ const Calendar = ({ calendar, dayIndex, monthNames }) => {
         {monthDays.map((day, idx) => {
           const absoluteDay = monthStart + idx;
           const type = day?.type ?? "normal";
+          const raceName =
+            type === "race" && day?.raceDayIndex != null
+              ? races?.[day.raceDayIndex - 1]?.name
+              : null;
           return (
             <div
               key={`day-${absoluteDay}`}
@@ -34,7 +37,9 @@ const Calendar = ({ calendar, dayIndex, monthNames }) => {
               }`}
             >
               <div className="campaign-calendar__dayNumber">{idx + 1}</div>
-              <div className="campaign-calendar__dayType">{DAY_LABELS[type] ?? "Normal"}</div>
+              {raceName ? (
+                <div className="campaign-calendar__dayType">{raceName}</div>
+              ) : null}
             </div>
           );
         })}

@@ -1,0 +1,15 @@
+@use "../../../assets/scss/ui/import" as *;
+
+.loading-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 3px solid rgba(245, 247, 250, 0.2);
+  border-top-color: $secondaryForeground;
+  animation: spinner-rotate 0.9s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

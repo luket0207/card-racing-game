@@ -1,3 +1,6 @@
+import themes from "../../../assets/gameContent/themes";
+import events from "../../../assets/gameContent/events";
+
 const MONTH_NAMES = [
   "January",
   "February",
@@ -17,10 +20,34 @@ const DAY_TYPES = Object.freeze({
   NORMAL: "normal",
   RACE: "race",
   EVENT: "event",
-  MINI: "miniGame",
 });
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+const RARITY_WEIGHTS = [
+  { rarity: "Common", weight: 55 },
+  { rarity: "Uncommon", weight: 33 },
+  { rarity: "Rare", weight: 10 },
+  { rarity: "Very Rare", weight: 2 },
+];
+
+const pickRarity = () => {
+  const total = RARITY_WEIGHTS.reduce((sum, item) => sum + item.weight, 0);
+  let roll = Math.random() * total;
+  for (const item of RARITY_WEIGHTS) {
+    roll -= item.weight;
+    if (roll <= 0) return item.rarity;
+  }
+  return RARITY_WEIGHTS[0].rarity;
+};
+
+const buildEventPool = () =>
+  events.reduce((acc, event) => {
+    const rarity = event.rarity ?? "Common";
+    if (!acc[rarity]) acc[rarity] = [];
+    acc[rarity].push(event);
+    return acc;
+  }, {});
 
 const shuffle = (arr) => {
   const copy = [...arr];
@@ -51,9 +78,18 @@ const pickRaceDaysForWeek = (weekStart, existingRaceDays, forbiddenDays = new Se
   return races;
 };
 
-export const buildCampaignCalendar = () => {
+export const buildCampaignCalendar = ({ themeId, playerPieceId }) => {
   const shuffledMonths = shuffle(MONTH_NAMES);
   const monthNames = shuffledMonths.slice(0, 3);
+  const eventPool = buildEventPool();
+  const theme = themes.find((t) => t.id === themeId) ?? themes[0];
+  const pieces = theme?.pieces ?? [];
+  const playerPiece = pieces.find((piece) => piece.id === playerPieceId);
+  const pooledNames = theme?.namePool ?? [];
+  const eventNamePool =
+    theme?.nameStyle === "pooled"
+      ? pooledNames.filter((name) => name !== playerPiece?.name)
+      : pieces.filter((piece) => piece.id !== playerPieceId).map((piece) => piece.name);
 
   const totalDays = 28 * 3;
   const calendar = Array.from({ length: totalDays }, () => ({
@@ -117,46 +153,45 @@ export const buildCampaignCalendar = () => {
       });
     }
 
-    // Events: 50% chance, one per week.
-    if (Math.random() < 0.5) {
-      const nonRaceDays = Array.from({ length: 7 }, (_, idx) => weekStart + idx).filter(
-        (day) => calendar[day].type === DAY_TYPES.NORMAL
-      );
-      if (nonRaceDays.length > 0) {
-        const day = pickRandom(nonRaceDays);
-        calendar[day].type = DAY_TYPES.EVENT;
-      }
-    }
-
-    // Mini games: 25% chance, one per week.
-    if (Math.random() < 0.25) {
-      const nonRaceDays = Array.from({ length: 7 }, (_, idx) => weekStart + idx).filter(
-        (day) => calendar[day].type === DAY_TYPES.NORMAL
-      );
-      if (nonRaceDays.length > 0) {
-        const day = pickRandom(nonRaceDays);
-        calendar[day].type = DAY_TYPES.MINI;
-      }
-    }
   }
 
-  // Ensure each month has at least one event or mini game.
+  // Events are distributed per month: 1-5 events, max 2 per week.
   for (let monthIndex = 0; monthIndex < 3; monthIndex += 1) {
     const monthStart = monthIndex * 28;
-    const monthEnd = monthStart + 28;
-    const monthDays = calendar.slice(monthStart, monthEnd);
-    const hasSpecial = monthDays.some(
-      (day) => day.type === DAY_TYPES.EVENT || day.type === DAY_TYPES.MINI
-    );
+    const eventsTarget = 1 + Math.floor(Math.random() * 5);
+    const eventsPerWeek = [0, 0, 0, 0];
+    let remaining = eventsTarget;
+    let safety = 200;
 
-    if (!hasSpecial) {
-      const candidates = Array.from({ length: 28 }, (_, idx) => monthStart + idx).filter(
+    while (remaining > 0 && safety > 0) {
+      safety -= 1;
+      const weekOffset = Math.floor(Math.random() * 4);
+      if (eventsPerWeek[weekOffset] >= 2) continue;
+
+      const weekStart = monthStart + weekOffset * 7;
+      const candidates = Array.from({ length: 7 }, (_, idx) => weekStart + idx).filter(
         (day) => calendar[day].type === DAY_TYPES.NORMAL
       );
-      if (candidates.length > 0) {
-        const day = pickRandom(candidates);
-        calendar[day].type = Math.random() < 0.5 ? DAY_TYPES.EVENT : DAY_TYPES.MINI;
-      }
+      if (candidates.length === 0) continue;
+
+      const day = pickRandom(candidates);
+      const rarity = pickRarity();
+      const options = eventPool[rarity] ?? eventPool.Common ?? events;
+      const event = pickRandom(options);
+      const fallbackPool =
+        theme?.nameStyle === "pooled"
+          ? pooledNames
+          : pieces.map((piece) => piece.name);
+      const namePool = eventNamePool.length ? eventNamePool : fallbackPool;
+      const name = pickRandom(namePool);
+      calendar[day] = {
+        ...calendar[day],
+        type: DAY_TYPES.EVENT,
+        eventId: event?.id ?? null,
+        eventPieceName: name ?? "A rival",
+      };
+      eventsPerWeek[weekOffset] += 1;
+      remaining -= 1;
     }
   }
 

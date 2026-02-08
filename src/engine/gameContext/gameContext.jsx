@@ -59,6 +59,7 @@ export const DEFAULT_GAME_STATE = Object.freeze({
     calendar: [],
     day: 0,
     monthNames: [],
+    races: [],
   },
   gameState: {
     shuffledDeck: [],
