@@ -71,6 +71,13 @@ const Race = () => {
   const campaign = gameState?.campaign ?? {};
   const isBetting = betting.active === true;
   const isCampaignRace = campaign.active && !!campaign.activeRace;
+  const humanIds = useMemo(
+    () =>
+      (gameState?.racers ?? [])
+        .filter((r) => r.type === "human")
+        .map((r) => r.id),
+    [gameState?.racers]
+  );
   const modalKeyRef = useRef(null);
   const bettingFinishRef = useRef(null);
   const campaignFinishRef = useRef(null);
@@ -559,128 +566,15 @@ const Race = () => {
             totalLaps={totalLaps}
             standings={standings}
             raceClass={raceClass}
+            log={log}
+            onClearLog={clearLog}
+            isBetting={isBetting}
+            bettingBets={bettingBets}
+            players={players}
+            pieceSize={pieceSize}
+            humanIds={humanIds}
           />
         </aside>
-        <section className="race__bottomRow">
-          <section className="race__log">
-            <div className="race__logHeader">
-              <h2>Race Log</h2>
-              <button type="button" className="race__logClear" onClick={clearLog}>
-                Clear
-              </button>
-            </div>
-            <div className="race__logList" role="log" aria-label="Race event log">
-              {log.length === 0 ? (
-                <div className="race__logEmpty">No events yet.</div>
-              ) : (
-                log.map((entry) => (
-                  <div key={entry.id} className="race__logItem">
-                    <span
-                      className="race__logBadge"
-                      style={entry.color ? { background: entry.color, color: "#1b1b1b" } : undefined}
-                    >
-                      {entry.type.replace("player", "P")}
-                    </span>
-                    <span className="race__logText">{entry.message}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
-          {isBetting && (
-            <section className="race__bets">
-              <div className="race__betsHeader">
-                <h2>Active Bets</h2>
-                <span>{bettingBets.length}</span>
-              </div>
-              <div className="race__betsList">
-                {bettingBets.length === 0 ? (
-                  <div className="race__betsEmpty">No bets placed.</div>
-                ) : (
-                  bettingBets.map((bet) => {
-                    const target = bet.racerId
-                      ? players.find((p) => p.id === bet.racerId)
-                      : null;
-                    const odds = bet.odds ?? [1, 1];
-                    const stakeBase = bet.type === "eachway" ? (bet.stake ?? 0) / 2 : bet.stake ?? 0;
-                    const potentialWin =
-                      bet.type === "forecast"
-                        ? calcForecastPayout(stakeBase, odds[0] ?? [1, 1], odds[1] ?? [1, 1])
-                        : calcPayout(stakeBase, odds) * (bet.type === "eachway" ? 2 : 1);
-                    return (
-                      <div key={bet.id} className="race__betsItem">
-                        <span className="race__betsType">
-                          {bet.type === "fast"
-                            ? "Past The Post Fast"
-                            : bet.type === "slow"
-                              ? "Past The Post Slow"
-                              : bet.type}
-                        </span>
-                      <span className="race__betsTarget">
-                        {bet.type === "forecast" ? (
-                          <>
-                            <span className="race__betsPiece">
-                              <Piece
-                                label={players.find((p) => p.id === bet.firstId)?.short}
-                                color={players.find((p) => p.id === bet.firstId)?.color}
-                                playerId={bet.firstId}
-                                status={players.find((p) => p.id === bet.firstId)?.status}
-                                image={players.find((p) => p.id === bet.firstId)?.image}
-                                icon={players.find((p) => p.id === bet.firstId)?.icon}
-                                size={pieceSize}
-                              />
-                            </span>
-                            <span className="race__betsPiece">
-                              <Piece
-                                label={players.find((p) => p.id === bet.secondId)?.short}
-                                color={players.find((p) => p.id === bet.secondId)?.color}
-                                playerId={bet.secondId}
-                                status={players.find((p) => p.id === bet.secondId)?.status}
-                                image={players.find((p) => p.id === bet.secondId)?.image}
-                                icon={players.find((p) => p.id === bet.secondId)?.icon}
-                                size={pieceSize}
-                              />
-                            </span>
-                            1st {players.find((p) => p.id === bet.firstId)?.name ?? "Racer"} - 2nd{" "}
-                            {players.find((p) => p.id === bet.secondId)?.name ?? "Racer"}
-                          </>
-                        ) : target ? (
-                          <>
-                            <span className="race__betsPiece">
-                              <Piece
-                                label={target.short}
-                                color={target.color}
-                                playerId={target.id}
-                                status={target.status}
-                                image={target.image}
-                                icon={target.icon}
-                                size={pieceSize}
-                              />
-                            </span>
-                            {target.name}
-                          </>
-                        ) : (
-                          "Race"
-                        )}
-                      </span>
-                        <span className="race__betsOdds">
-                          {bet.type === "forecast"
-                            ? `Odds ${odds[0]?.[0] ?? 1}/${odds[0]?.[1] ?? 1} + ${odds[1]?.[0] ?? 1}/${
-                                odds[1]?.[1] ?? 1
-                              }`
-                            : `Odds ${odds[0]}/${odds[1]}`}
-                        </span>
-                        <span className="race__betsStake">{bet.stake}g</span>
-                        <span className="race__betsWin">Win {potentialWin}g</span>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </section>
-          )}
-        </section>
       </div>
     </div>
   );

@@ -470,6 +470,21 @@ const DeckSelection = () => {
     });
   }, [closeModal, navigate, openModal]);
 
+  const handleCampaignCancel = useCallback(() => {
+    openModal({
+      modalTitle: "Cancel Changes",
+      modalContent: (
+        <div>Are you sure you want to go back without saving the changes to your deck?</div>
+      ),
+      buttons: MODAL_BUTTONS.YES_NO,
+      onYes: () => {
+        closeModal();
+        navigate("/campaign");
+      },
+      onNo: () => closeModal(),
+    });
+  }, [closeModal, navigate, openModal]);
+
   const goToPrevPlayer = useCallback(() => {
     setActivePlayerIndex((prev) => Math.max(0, prev - 1));
   }, []);
@@ -569,9 +584,19 @@ const DeckSelection = () => {
               Back to Setup
             </Button>
           )}
-          <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
-            Back Home
-          </Button>
+          {isCampaignMode ? (
+            <Button
+              variant={BUTTON_VARIANT.TERTIARY}
+              onClick={handleCampaignCancel}
+              disabled={(gameState?.campaign?.deck ?? []).length !== 16}
+            >
+              Back to Campaign
+            </Button>
+          ) : (
+            <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
+              Back Home
+            </Button>
+          )}
         </div>
       </header>
 
@@ -691,23 +716,7 @@ const DeckSelection = () => {
                 <div className="deck-selection__campaignActions">
                   <Button
                     variant={BUTTON_VARIANT.TERTIARY}
-                    onClick={() => {
-                      openModal({
-                        modalTitle: "Cancel Changes",
-                        modalContent: (
-                          <div>
-                            Are you sure you want to go back without saving the changes to your
-                            deck?
-                          </div>
-                        ),
-                        buttons: MODAL_BUTTONS.YES_NO,
-                        onYes: () => {
-                          closeModal();
-                          navigate("/campaign");
-                        },
-                        onNo: () => closeModal(),
-                      });
-                    }}
+                    onClick={handleCampaignCancel}
                     disabled={(gameState?.campaign?.deck ?? []).length !== 16}
                   >
                     Cancel

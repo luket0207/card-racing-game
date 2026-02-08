@@ -12,10 +12,10 @@
       1.2fr
     );
   grid-template-areas:
-    "counts counts class cardSlot"
+    "counts counts log class"
     "leader leader auto cardSlot"
-    "leader leader actions cardSlot";
-  align-items: flex-end;
+    "leader leader actions cardSlot"
+    "activeBets activeBets BLANK cardSlot";
   gap: 1rem;
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.35),
@@ -61,6 +61,64 @@
     gap: 0.75rem;
   }
 
+  &__activeBets {
+    grid-area: activeBets;
+    display: grid;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 0.6rem;
+  }
+
+  &__betsHeader {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(245, 247, 250, 0.6);
+  }
+
+  &__betsList {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  &__betsItem {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr 1fr 0.6fr 0.8fr;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: rgba(245, 247, 250, 0.85);
+  }
+
+  &__betsType {
+    text-transform: capitalize;
+  }
+
+  &__betsTarget {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  &__betsPiece {
+    display: inline-flex;
+  }
+
+  &__betsOdds,
+  &__betsStake,
+  &__betsWin {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  &__betsEmpty {
+    font-size: 0.8rem;
+    color: rgba(245, 247, 250, 0.6);
+  }
+
   &__auto {
     grid-area: auto;
     display: grid;
@@ -102,6 +160,76 @@
   &__cardPlaceholder {
     min-height: 260px;
   }
+
+  &__log {
+    grid-area: log;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.details__logModal {
+  display: grid;
+  gap: 0.75rem;
+  color: #111;
+}
+
+.details__logHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.details__logClear {
+  background: none;
+  border: none;
+  color: $secondaryForeground;
+  cursor: pointer;
+}
+
+.details__logList {
+  max-height: 500px;
+  overflow: auto;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.details__logItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.details__logBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.details__logText {
+  color: rgba(245, 247, 250, 0.8);
+}
+
+.details__logEmpty {
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.race__leaderPlayerTag {
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(245, 247, 250, 0.9);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
@@ -111,8 +239,10 @@
       "leader"
       "class"
       "counts"
+      "activeBets"
       "actions"
       "auto"
+      "log"
       "cardSlot";
 
     &__counts {
