@@ -1,23 +1,39 @@
 /* UI Colour Variables */
 
+:root {
+  --siteBackground: #1f262d;
+  --primaryBackground: #b0d4f8;
+  --secondaryBackground: #2b333c;
+  --tertiaryBackground: #f1f5f9;
+  --primaryForeground: #0b1117;
+  --secondaryForeground: #f5f7fa;
+  --tertiaryForeground: #1f262d;
+  --textOnPrimaryBackground: #0b1117;
+  --textOnSecondaryBackground: #f5f7fa;
+  --textOnTertiaryBackground: #1f262d;
+  --links: #39a2ff;
+}
+
 /* Site Background */
-$siteBackground: #1f262d; // dark slate
+$siteBackground: var(--siteBackground);
 
 /* Backgrounds */
-$primaryBackground: #b0d4f8;    // light blue accent
-$secondaryBackground: #2b333c;  // slate surface
-$tertiaryBackground: #f1f5f9;   // smoky white
+$primaryBackground: var(--primaryBackground);
+$secondaryBackground: var(--secondaryBackground);
+$tertiaryBackground: var(--tertiaryBackground);
 
 /* Foregrounds */
-$primaryForeground: #0b1117;    // dark text on light blue
-$secondaryForeground: #f5f7fa;  // light text on slate
-$tertiaryForeground: #1f262d;   // dark slate text on smoky white
+$textOnPrimaryBackground: var(--textOnPrimaryBackground);
+$textOnSecondaryBackground: var(--textOnSecondaryBackground);
+$textOnTertiaryBackground: var(--textOnTertiaryBackground);
+
+/* Foregrounds (aliases for backwards compatibility) */
+$primaryForeground: $textOnPrimaryBackground;
+$secondaryForeground: $textOnSecondaryBackground;
+$tertiaryForeground: $textOnTertiaryBackground;
 
 /* Text */
-
-$darkText: #1f262d; // dark slate
-$lightText: #f5f7fa;
-$links: #39a2ff;
+$links: var(--links);
 
 /* Class colours */
 $class-red: #ff6b6b;
@@ -25,3 +41,4 @@ $class-blue: #1f5bbb;
 $class-green: #1a8b17;
 $class-yellow: #f7d24d;
 $class-orange: #bb6f1e;
+

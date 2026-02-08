@@ -15,6 +15,7 @@ console.log(gameState.ui.top);
 const GameContext = createContext(null);
 
 export const DEFAULT_GAME_STATE = Object.freeze({
+  themeId: "cars",
   player1: {
     racer: null,
     deck: [],
@@ -40,7 +41,7 @@ export const DEFAULT_GAME_STATE = Object.freeze({
     active: false,
     gold: 500,
     raceIndex: 1,
-    themeId: "dots",
+    themeId: "cars",
     currentRace: null,
     bets: [],
     lastResult: null,

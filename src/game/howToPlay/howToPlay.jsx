@@ -3,8 +3,8 @@ import "./howToPlay.scss";
 
 const HowToPlay = () => {
   return (
-    <div className="how-to-play">
-      <div className="how-to-play__content">
+    <div className="how-to-play site-background-colour secondary-text-colour">
+      <div className="how-to-play__content primary-background-colour primary-text-colour">
         <header className="how-to-play__header">
           <h1>How to Play</h1>
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
@@ -12,7 +12,7 @@ const HowToPlay = () => {
           </Button>
         </header>
 
-        <section className="how-to-play__section">
+        <section className="how-to-play__section secondary-background-colour secondary-text-colour">
           <h2>Single Race</h2>
           <p>
             Use Race Setup to choose the theme, number of racers, human players, names, and laps.
@@ -22,7 +22,7 @@ const HowToPlay = () => {
           </p>
         </section>
 
-        <section className="how-to-play__section">
+        <section className="how-to-play__section secondary-background-colour secondary-text-colour">
           <h2>Quick Race</h2>
           <p>
             Quick Race skips setup and creates a fully randomized race for you. The theme, racers,
@@ -31,7 +31,7 @@ const HowToPlay = () => {
           </p>
         </section>
 
-        <section className="how-to-play__section how-to-play__section--campaign">
+        <section className="how-to-play__section how-to-play__section--campaign secondary-background-colour secondary-text-colour">
           <h2>Campaign Mode</h2>
           <p>
             Campaign Mode is a 12-week calendar where you develop one persistent deck over time.
@@ -54,7 +54,7 @@ const HowToPlay = () => {
           </p>
         </section>
 
-        <section className="how-to-play__section">
+        <section className="how-to-play__section secondary-background-colour secondary-text-colour">
           <h2>Betting Mode</h2>
           <p>
             Betting Mode creates a full AI race. Choose a theme at the start of the run and place
@@ -68,7 +68,7 @@ const HowToPlay = () => {
           </p>
         </section>
 
-        <section className="how-to-play__section">
+        <section className="how-to-play__section secondary-background-colour secondary-text-colour">
           <h2>Just Build a Deck</h2>
           <p>
             Use Just Build a Deck to create a single 16-card deck and export it as a .txt file. Send

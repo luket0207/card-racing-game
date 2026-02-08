@@ -323,6 +323,7 @@ const Race = () => {
                 variant={BUTTON_VARIANT.TERTIARY}
                 onClick={() => {
                   closeModal();
+                  setGameState((prev) => ({ ...prev, themeId: "cars" }));
                   navigate("/");
                 }}
               >
@@ -481,16 +482,17 @@ const Race = () => {
           <div className="race__winnerModalActions">
             <Button
               variant={BUTTON_VARIANT.PRIMARY}
-              onClick={() => {
-                closeModal();
-                if (endGame) {
-                  setGameState((prev) => ({
-                    ...prev,
-                    betting: {
-                      active: false,
-                      gold: 500,
-                      raceIndex: 1,
-                      themeId: prev.betting?.themeId ?? "cars",
+                onClick={() => {
+                  closeModal();
+                  if (endGame) {
+                    setGameState((prev) => ({
+                      ...prev,
+                      themeId: "cars",
+                      betting: {
+                        active: false,
+                        gold: 500,
+                        raceIndex: 1,
+                        themeId: prev.betting?.themeId ?? "cars",
                       currentRace: null,
                       bets: [],
                       lastResult: null,

@@ -7,7 +7,7 @@
   max-width: 100%;
   justify-content: center;
   align-items: center;
-  border: 1px solid rgba(245, 247, 250, 0.15);
+  border: 1px solid color-mix(in srgb, $textOnSecondaryBackground 15%, transparent);
   border-radius: 6px;
   overflow: hidden;
   box-sizing: border-box;
@@ -17,7 +17,7 @@
   display: block;
   box-sizing: border-box;
   border-right-style: solid;
-  border-right-color: rgba(15, 17, 23, 0.9);
+  border-right-color: color-mix(in srgb, $secondaryBackground 90%, transparent);
 }
 
 .coin-bar__seg:last-child {

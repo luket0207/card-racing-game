@@ -3,7 +3,7 @@
 .end-campaign {
   display: grid;
   gap: 0.75rem;
-  color: $darkText;
+  color: \$textOnTertiaryBackground;
 }
 
 .end-campaign h2 {
@@ -14,3 +14,4 @@
   margin: 0;
   color: rgba(31, 38, 45, 0.75);
 }
+

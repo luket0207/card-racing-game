@@ -7,19 +7,23 @@
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at top, rgba(155, 193, 231, 0.18), transparent 55%),
+    radial-gradient(
+      circle at top,
+      color-mix(in srgb, $primaryBackground 18%, transparent),
+      transparent 55%
+    ),
     linear-gradient(135deg, $siteBackground, $secondaryBackground);
   color: $secondaryForeground;
 }
 
 .campaign-event__card {
   min-width: 720px;
-  background: rgba(15, 17, 23, 0.8);
+  background: color-mix(in srgb, $secondaryBackground 80%, transparent);
   border-radius: 16px;
   padding: 2rem;
   display: grid;
   gap: 0.6rem;
-  border: 1px solid rgba(245, 247, 250, 0.08);
+  border: 1px solid color-mix(in srgb, $textOnSecondaryBackground 8%, transparent);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
   min-height: 470px;
   align-items: flex-start;
@@ -63,11 +67,11 @@
 }
 
 .campaign-event__choice {
-  background: rgba(31, 38, 45, 0.8);
+  background: color-mix(in srgb, $secondaryBackground 80%, transparent);
   border-radius: 10px;
   padding: 1.3rem;
   text-align: center;
-  border: 1px solid rgba(245, 247, 250, 0.08);
+  border: 1px solid color-mix(in srgb, $textOnSecondaryBackground 8%, transparent);
   color: $secondaryForeground;
   font-size: 0.95rem;
   cursor: pointer;
@@ -83,8 +87,8 @@
 
 .campaign-event__choice:hover {
   transform: translateY(-2px);
-  border-color: rgba(245, 247, 250, 0.35);
-  background: rgba(45, 54, 66, 0.85);
+  border-color: color-mix(in srgb, $textOnSecondaryBackground 35%, transparent);
+  background: color-mix(in srgb, $secondaryBackground 85%, transparent);
 }
 
 .campaign-event__choice:disabled {
@@ -96,7 +100,7 @@
 .campaign-event__result {
   padding: 0.8rem 1rem;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.35);
+  background: color-mix(in srgb, $secondaryBackground 35%, transparent);
   min-height: 52px;
 }
 
@@ -104,3 +108,4 @@
   display: grid;
   gap: 0.6rem;
 }
+

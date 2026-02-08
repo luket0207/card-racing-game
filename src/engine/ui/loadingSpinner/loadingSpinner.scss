@@ -3,7 +3,7 @@
 .loading-spinner {
   display: inline-block;
   border-radius: 50%;
-  border: 3px solid rgba(245, 247, 250, 0.2);
+  border: 3px solid color-mix(in srgb, $textOnSecondaryBackground 20%, transparent);
   border-top-color: $secondaryForeground;
   animation: spinner-rotate 0.9s linear infinite;
 }
@@ -13,3 +13,4 @@
     transform: rotate(360deg);
   }
 }
+

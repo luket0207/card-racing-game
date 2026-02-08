@@ -1,10 +1,10 @@
 @use "../../../../assets/scss/ui/import" as *;
 
 .race-card {
-  background: linear-gradient(160deg, #ffffff, #f1f3f5);
+  background: $tertiaryBackground;
   border-radius: 16px;
   padding: 1rem 1.2rem;
-  border: 4px solid rgba(0, 0, 0, 0.08);
+  border: 10px solid rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -13,10 +13,9 @@
   min-height: 260px;
   align-items: flex-start;
 
-  &__header,
-  &__footer {
+  &__header {
     display: flex;
-    justify-content: space-between;
+    width: 100%;
     gap: 0.5rem;
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -29,21 +28,27 @@
   }
 
   &__class {
-    height: 12px;
-    width: 12px;
-    border-radius: 999px;
-    background: rgba(17, 87, 82, 0.1);
+    width: 100%;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, $tertiaryBackground 90%, transparent);
     border: 2px solid rgba(0, 0, 0, 0.15);
+    font-weight: 700;
+    text-align: center;
+    color: #ffffff;
   }
 
   &__title {
     font-size: 1.1rem;
-    color: $darkText;
+    color: $tertiaryForeground;
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
   }
 
   &__text {
-    font-size: 0.9rem;
-    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.8rem;
+    color: $tertiaryForeground
   }
 
   &__owner {
@@ -79,6 +84,7 @@
   &[data-class="Yellow"] {
     .race-card__class {
       background: $class-yellow;
+      color: #1b1b1b;
     }
   }
 
@@ -88,3 +94,4 @@
     }
   }
 }
+

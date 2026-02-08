@@ -143,9 +143,9 @@ const Details = ({
   };
 
   return (
-    <section className="details">
+    <section className="details primary-background-colour primary-text-colour">
       <div className="details__leader">
-        <div className="race__leaderBanner">
+        <div className="race__leaderBanner secondary-background-colour secondary-text-colour">
           {standings.length > 0 ? (
             <div className="race__leaderList">
               {standings.map((player, index) => (
@@ -176,33 +176,36 @@ const Details = ({
         </div>
       </div>
       <div className="details__class">
-        <div className="race__classBanner" data-class={raceClass ?? "Unclassed"}>
+        <div
+          className="race__classBanner secondary-background-colour secondary-text-colour"
+          data-class={raceClass ?? "Unclassed"}
+        >
           <span className="race__classLabel">Race Class</span>
           <span className="race__classValue">{raceClass ?? "Unclassed"}</span>
         </div>
       </div>
 
       <div className="details__counts">
-        <div>
+        <div className="details__countItem secondary-background-colour secondary-text-colour">
           <span>Draw Pile</span>
           <strong>{drawPileCount}</strong>
         </div>
-        <div>
+        <div className="details__countItem secondary-background-colour secondary-text-colour">
           <span>Discard</span>
           <strong>{discardCount}</strong>
         </div>
-        <div>
+        <div className="details__countItem secondary-background-colour secondary-text-colour">
           <span>Turns Drawn</span>
           <strong>{turnCount}</strong>
         </div>
-        <div>
+        <div className="details__countItem secondary-background-colour secondary-text-colour">
           <span>Laps</span>
           <strong>{totalLaps}</strong>
         </div>
       </div>
 
       {isBetting && (
-        <div className="details__activeBets">
+        <div className="details__activeBets tertiary-background-colour tertiary-text-colour">
           <div className="details__betsHeader">
             <span>Active Bets</span>
             <strong>{bettingBets.length}</strong>
@@ -248,7 +251,7 @@ const Details = ({
         </div>
       )}
 
-      <div className="details__actions">
+      <div className="details__actions secondary-background-colour secondary-text-colour">
         {showAutoStart && (
           <Button
             variant={BUTTON_VARIANT.SECONDARY}

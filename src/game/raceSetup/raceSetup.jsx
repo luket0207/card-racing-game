@@ -144,7 +144,7 @@ const RaceSetup = () => {
   }, [activeRacers, activeTheme?.id, navigate, setGameState]);
 
   return (
-    <div className="race-setup">
+    <div className="race-setup site-background-colour secondary-text-colour">
       <header className="race-setup__header">
         <div>
           <h1>Race Setup</h1>
@@ -155,8 +155,8 @@ const RaceSetup = () => {
         </Button>
       </header>
 
-      <div className="race-setup__controls">
-        <div className="race-setup__control">
+      <div className="race-setup__controls primary-background-colour primary-text-colour">
+        <div className="race-setup__control secondary-background-colour secondary-text-colour">
           <label htmlFor="theme-select">Theme</label>
           <Dropdown
             id="theme-select"
@@ -165,7 +165,7 @@ const RaceSetup = () => {
             onChange={(e) => handleThemeChange(e.value)}
           />
         </div>
-        <div className="race-setup__control">
+        <div className="race-setup__control secondary-background-colour secondary-text-colour">
           <label htmlFor="racer-count">Racers</label>
           <Dropdown
             id="racer-count"
@@ -175,7 +175,7 @@ const RaceSetup = () => {
           />
         </div>
 
-        <div className="race-setup__control">
+        <div className="race-setup__control secondary-background-colour secondary-text-colour">
           <label htmlFor="human-count">Human Players</label>
           <Dropdown
             id="human-count"
@@ -188,7 +188,7 @@ const RaceSetup = () => {
           />
         </div>
 
-        <div className="race-setup__control">
+        <div className="race-setup__control secondary-background-colour secondary-text-colour">
           <label htmlFor="lap-count">Laps</label>
           <Dropdown
             id="lap-count"
@@ -204,7 +204,7 @@ const RaceSetup = () => {
 
       <div className="race-setup__grid">
         {activeRacers.map((racer, index) => (
-          <div key={racer.id} className="race-setup__card">
+          <div key={racer.id} className="race-setup__card secondary-background-colour secondary-text-colour">
             <div className="race-setup__cardHeader">
               <span>{racer.id.toUpperCase()}</span>
               <span className={racer.type === "human" ? "is-human" : "is-ai"}>
@@ -224,7 +224,7 @@ const RaceSetup = () => {
             <div className="race-setup__field">
               <label>Piece</label>
               <div className="race-setup__pieceRow">
-                <div className="race-setup__piecePreview">
+                <div className="race-setup__piecePreview tertiary-background-colour tertiary-text-colour">
                   <Piece
                     label={racer.name}
                     color={racer.color}

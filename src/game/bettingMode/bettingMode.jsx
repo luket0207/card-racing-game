@@ -409,6 +409,7 @@ const BettingMode = () => {
   const handleResetBetting = useCallback(() => {
     setGameState((prev) => ({
       ...prev,
+      themeId: "cars",
       betting: {
         active: false,
         gold: 500,

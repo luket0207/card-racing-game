@@ -1,5 +1,4 @@
 @use "../../../assets/scss/ui/import" as *;
-@use "sass:color";
 
 .btn {
   display: inline-flex;
@@ -38,7 +37,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid rgba($primaryBackground, 0.9);
+    outline: 2px solid color-mix(in srgb, var(--button-primary) 90%, transparent);
     outline-offset: 2px;
   }
 
@@ -49,7 +48,11 @@
     inset: 0;
     pointer-events: none;
     opacity: 0;
-    background: linear-gradient(90deg, rgba($secondaryForeground, 0.22), transparent);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--secondaryForeground) 22%, transparent),
+      transparent
+    );
     transition: opacity 0.12s ease;
     z-index: 0;
   }
@@ -99,42 +102,36 @@
   &--primary {
     background: linear-gradient(
       135deg,
-      color.adjust($primaryBackground, $lightness: 6%),
-      color.adjust($primaryBackground, $lightness: -8%)
+      color-mix(in srgb, var(--button-primary) 94%, white),
+      color-mix(in srgb, var(--button-primary) 92%, black)
     );
-    color: $primaryForeground;
+    color: var(--button-primary-text);
     border: none;
-    box-shadow:
-      0 10px 22px rgba(0, 0, 0, 0.45),
-      inset 0 0 0 1px rgba($secondaryForeground, 0.04);
 
     /* Keep text colour stable across link pseudo-states */
     &::before {
-      background: linear-gradient(90deg, $secondaryForeground, transparent);
+      background: linear-gradient(90deg, var(--button-secondary), transparent);
     }
 
     &:visited,
     &:hover,
     &:active,
     &:focus {
-      color: $primaryForeground;
+      color: var(--button-primary-text);
     }
   }
 
   &--secondary {
     background: linear-gradient(
       135deg,
-      color.adjust($secondaryBackground, $lightness: 6%),
-      color.adjust($secondaryBackground, $lightness: -6%)
+      color-mix(in srgb, var(--button-secondary) 94%, white),
+      color-mix(in srgb, var(--button-secondary) 94%, black)
     );
-    color: $secondaryForeground;
+    color: var(--button-secondary-text);
     border: none;
-    box-shadow:
-      0 10px 22px rgba(0, 0, 0, 0.45),
-      inset 0 0 0 1px rgba($secondaryForeground, 0.04);
 
     &::before {
-      background: linear-gradient(90deg, $primaryBackground, transparent);
+      background: linear-gradient(90deg, var(--button-primary), transparent);
     }
 
     /* Keep text colour stable across link pseudo-states */
@@ -142,26 +139,24 @@
     &:hover,
     &:active,
     &:focus {
-      color: $secondaryForeground;
+      color: var(--button-secondary-text);
     }
   }
 
   &--tertiary {
     background: linear-gradient(
       135deg,
-      color.adjust($tertiaryBackground, $lightness: 2%),
-      color.adjust($tertiaryBackground, $lightness: -6%)
+      color-mix(in srgb, var(--button-tertiary) 98%, white),
+      color-mix(in srgb, var(--button-tertiary) 94%, black)
     );
-    color: $tertiaryForeground;
+    color: var(--button-tertiary-text);
 
     /* Optional: a subtle border so it still reads as a button */
     border: none;
-    box-shadow:
-      0 10px 22px rgba(0, 0, 0, 0.45),
-      inset 0 0 0 1px rgba($secondaryForeground, 0.04);
+  
 
     &::before {
-      background: linear-gradient(90deg, $primaryBackground, transparent);
+      background: linear-gradient(90deg, var(--button-primary), transparent);
     }
 
     /* Keep text colour stable across link pseudo-states */
@@ -169,7 +164,7 @@
     &:hover,
     &:active,
     &:focus {
-      color: $tertiaryForeground;
+      color: var(--button-tertiary-text);
     }
   }
 
@@ -259,10 +254,11 @@ button.btn:disabled {
   position: absolute;
   left: 12px;
   top: 50%;
-  transform: translate(0, -54%);
+  transform: translate(0, -48%);
+  font-family: monospace;
   color: currentColor;
   opacity: 0;
-  font-size: 120px;
+  font-size: 180px;
   line-height: 1;
   z-index: 1;
   pointer-events: none;
@@ -274,6 +270,7 @@ button.btn:disabled {
 
 .btn:hover .btn__chevron {
   opacity: 1;
-  left: calc(100% - 12px);
-  transform: translate(calc(-100% + 55px), -50%);
+  left: 100%;
+  transform: translate(calc(-100% + 70px), -48%);
+  width: 200px;
 }

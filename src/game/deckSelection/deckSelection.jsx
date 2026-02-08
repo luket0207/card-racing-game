@@ -455,21 +455,6 @@ const DeckSelection = () => {
     setGameState,
   ]);
 
-  const handleBackToSetup = useCallback(() => {
-    openModal({
-      modalTitle: "Return to Race Setup",
-      modalContent: (
-        <div>You will lose the decks you have selected if you go back to race setup.</div>
-      ),
-      buttons: MODAL_BUTTONS.YES_NO,
-      onYes: () => {
-        closeModal();
-        navigate("/race-setup");
-      },
-      onNo: () => closeModal(),
-    });
-  }, [closeModal, navigate, openModal]);
-
   const handleCampaignCancel = useCallback(() => {
     openModal({
       modalTitle: "Cancel Changes",
@@ -579,11 +564,6 @@ const DeckSelection = () => {
           </div>
         )}
         <div className="deck-selection__headerActions">
-          {!isExportMode && !isCampaignMode && (
-            <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleBackToSetup}>
-              Back to Setup
-            </Button>
-          )}
           {isCampaignMode ? (
             <Button
               variant={BUTTON_VARIANT.TERTIARY}

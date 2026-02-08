@@ -19,7 +19,7 @@
   user-select: none;
 
   border: 1px solid rgba(0, 0, 0, 0.18);
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, $tertiaryBackground 90%, transparent);
 
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -29,7 +29,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.65);
+    outline: 2px solid color-mix(in srgb, $textOnTertiaryBackground 65%, transparent);
     outline-offset: 2px;
   }
 }
@@ -167,8 +167,8 @@
 }
 
 .tooltipBubble--info {
-  background: #ffffff;
-  color: $darkText;
+  background: $tertiaryBackground;
+  color: \$textOnTertiaryBackground;
 }
 
 /* Theme-mapped types (use global SCSS variables) */
@@ -186,4 +186,5 @@
   background: $tertiaryBackground;
   color: $tertiaryForeground;
 }
+
 

@@ -67,7 +67,7 @@
   text-align: left;
 
   border: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in srgb, $tertiaryBackground 15%, transparent);
   color: $secondaryForeground;
 
   border-radius: 10px;
@@ -80,7 +80,7 @@
     transform 0.06s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: color-mix(in srgb, $tertiaryBackground 25%, transparent);
   }
 
   &:active {
@@ -91,7 +91,7 @@
 .info__navFooter {
   margin-top: 1rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: 1px solid color-mix(in srgb, $textOnTertiaryBackground 75%, transparent);
 }
 
 .info__navTitle--small {
@@ -135,7 +135,7 @@
 
 .info__sectionHeader {
   padding: 1rem 1rem 0.75rem;
-  background: rgba(0, 0, 0, 0.15);
+  background: color-mix(in srgb, $secondaryBackground 15%, transparent);
 }
 
 .info__sectionTitle {
@@ -212,7 +212,7 @@
   border-radius: 10px;
   padding: 0.9rem;
 
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, $tertiaryBackground 12%, transparent);
   color: $primaryForeground;
 
   display: flex;
@@ -320,7 +320,7 @@
   margin-top: 1rem;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.18);
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, $tertiaryBackground 92%, transparent);
   padding: 0.9rem;
   padding-bottom: 1.2rem;
 }
@@ -349,7 +349,7 @@
 
 .info__toastLogEmpty {
   opacity: 0.8;
-  color: $darkText;
+  color: \$textOnTertiaryBackground;
 }
 
 .info__toastLogItem {
@@ -360,7 +360,7 @@
 
   border-radius: 10px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.04);
+  background: color-mix(in srgb, $secondaryBackground 4%, transparent);
 }
 
 .info__toastLogBadge {
@@ -617,7 +617,7 @@
 
   font-size: 1.3rem;
   font-weight: 700;
-  background: #ffffff;
+  background: $tertiaryBackground;
 }
 
 .info__timerDone {
@@ -691,7 +691,7 @@
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.18);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-  background: #ffffff;
+  background: $tertiaryBackground;
   padding: 0.9rem;
   display: grid;
   gap: 0.6rem;
@@ -759,4 +759,6 @@
     grid-template-columns: 1fr;
   }
 }
+
+
 

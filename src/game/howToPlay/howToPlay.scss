@@ -9,19 +9,16 @@
   display: flex;
   justify-content: center;
   padding: 3rem clamp(1.5rem, 4vw, 4rem);
-  color: $lightText;
+  color: inherit;
 }
 
 .how-to-play__content {
   width: min(960px, 100%);
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    rgba(20, 26, 32, 0.92);
   border-radius: 16px;
   padding: clamp(1.5rem, 3vw, 2.5rem);
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.45),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   display: grid;
   gap: 1.5rem;
 }
@@ -34,7 +31,6 @@
 
   h1 {
     margin: 0;
-    color: #f5f7fa;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -50,7 +46,6 @@
 
   p {
     margin: 0;
-    color: rgba(245, 247, 250, 0.75);
     line-height: 1.6;
   }
 }
@@ -69,3 +64,5 @@
     align-items: flex-start;
   }
 }
+
+

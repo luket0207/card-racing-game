@@ -7,7 +7,7 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color: color-mix(in srgb, $textOnSecondaryBackground 87%, transparent);
   background-color: $siteBackground;
 
   font-synthesis: none;
@@ -22,6 +22,39 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* Theme surface + text utility classes */
+.site-background-colour {
+  background-color: $siteBackground;
+}
+
+.primary-background-colour {
+  background-color: $primaryBackground;
+}
+
+.secondary-background-colour {
+  background-color: $secondaryBackground;
+}
+
+.tertiary-background-colour {
+  background-color: $tertiaryBackground;
+}
+
+.site-text-colour {
+  color: $textOnSecondaryBackground;
+}
+
+.primary-text-colour {
+  color: $textOnPrimaryBackground;
+}
+
+.secondary-text-colour {
+  color: $textOnSecondaryBackground;
+}
+
+.tertiary-text-colour {
+  color: $textOnTertiaryBackground;
 }
 
 /* PrimeReact portal typography overrides (dropdown panels render in body) */
@@ -56,14 +89,14 @@ body,
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: $primaryForeground;
+    background-color: $tertiaryBackground;
   }
   a:hover {
-    color: #747bff;
+    color: $links;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: $tertiaryBackground;
   }
 }
 

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import themes from "../../assets/gameContent/themes";
@@ -10,6 +11,10 @@ const Home = () => {
   const navigate = useNavigate();
   const { setGameState } = useGame();
   const { clearLog } = useToast();
+
+  useEffect(() => {
+    setGameState((prev) => ({ ...prev, themeId: "cars" }));
+  }, [setGameState]);
 
   const handleQuickRace = () => {
     const theme = themes[Math.floor(Math.random() * themes.length)] ?? themes[0];
@@ -47,12 +52,12 @@ const Home = () => {
   };
 
   return (
-    <div className="home">
-      <div className="home_content">
+    <div className="home site-background-colour secondary-text-colour">
+      <div className="home_content primary-background-colour primary-text-colour">
         <div className="home__title">
           <h1>Racing</h1>
         </div>
-        <div className="home__pod">
+        <div className="home__pod secondary-background-colour secondary-text-colour">
           <div className="home__podTitle">Game Modes</div>
           <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuickRace}>
             Quick Race
@@ -67,7 +72,7 @@ const Home = () => {
             Betting Mode
           </Button>
         </div>
-        <div className="home__pod home__pod--secondary">
+        <div className="home__pod home__pod--secondary secondary-background-colour secondary-text-colour">
           <div className="home__podTitle">Tools</div>
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/how-to-play">
             How To Play

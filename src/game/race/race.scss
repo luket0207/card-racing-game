@@ -2,28 +2,29 @@
 
 .race {
   min-height: 100vh;
-  padding: 1rem clamp(1rem, 4vw, 4rem) 0px;
-  color: $lightText;
+  padding: 1rem 1rem 0px;
+  color: \$textOnSecondaryBackground;
   width: calc(100vw - 380px);
 }
 
 .race__layout {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   align-items: flex-start;
 }
 
 
 .race__trackPanel {
   order: 2;
-  background: var(--track-bg, rgba(255, 255, 255, 0.08));
-  border-radius: 24px;
+  background: var(--track-bg, color-mix(in srgb, $textOnTertiaryBackground 92%, transparent));
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   gap: 0;
   width: 100%;
+  height: 500px;
 }
 
 .race-track {
@@ -39,8 +40,8 @@
   height: 60px;
   align-self: start;
   width: 100%;
-  background: rgba(0, 0, 0, 0.25);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, $secondaryBackground 25%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, $textOnTertiaryBackground 92%, transparent);
 }
 
 .race__leaderBanner {
@@ -50,8 +51,8 @@
   padding: 1.2rem;
   min-height: 60px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.35);
-  color: $lightText;
+  background: color-mix(in srgb, $secondaryBackground 35%, transparent);
+  color: \$textOnSecondaryBackground;
   font-weight: 600;
 }
 
@@ -66,7 +67,7 @@
   grid-template-columns: 40px 1fr auto;
   gap: 0.6rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: $secondaryForeground;
 }
 
 .race__leaderName {
@@ -86,7 +87,6 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .race__classValue {
@@ -95,24 +95,44 @@
 }
 
 .race__classBanner[data-class="Red"] {
-  background: linear-gradient(120deg, rgba($class-red, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(
+    120deg,
+    rgba($class-red, 0.4),
+    color-mix(in srgb, $secondaryBackground 25%, transparent)
+  );
 }
 
 .race__classBanner[data-class="Blue"] {
-  background: linear-gradient(120deg, rgba($class-blue, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(
+    120deg,
+    rgba($class-blue, 0.4),
+    color-mix(in srgb, $secondaryBackground 25%, transparent)
+  );
 }
 
 .race__classBanner[data-class="Green"] {
-  background: linear-gradient(120deg, rgba($class-green, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(
+    120deg,
+    rgba($class-green, 0.4),
+    color-mix(in srgb, $secondaryBackground 25%, transparent)
+  );
 }
 
 .race__classBanner[data-class="Yellow"] {
-  background: linear-gradient(120deg, rgba($class-yellow, 0.4), rgba(0, 0, 0, 0.25));
-  color: $lightText;
+  background: linear-gradient(
+    120deg,
+    rgba($class-yellow, 0.4),
+    color-mix(in srgb, $secondaryBackground 25%, transparent)
+  );
+  color: \$textOnSecondaryBackground;
 }
 
 .race__classBanner[data-class="Orange"] {
-  background: linear-gradient(120deg, rgba($class-orange, 0.4), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(
+    120deg,
+    rgba($class-orange, 0.4),
+    color-mix(in srgb, $secondaryBackground 25%, transparent)
+  );
 }
 
 .race__sidePanel {
@@ -140,7 +160,7 @@
 }
 
 .race__bets {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, $tertiaryBackground 10%, transparent);
   border-radius: 18px;
   padding: 1.1rem;
   display: grid;
@@ -158,7 +178,7 @@
 
   span {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
   }
 }
 
@@ -169,7 +189,7 @@
 
 .race__betsEmpty {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
 }
 
 .race__betsItem {
@@ -177,7 +197,7 @@
   grid-template-columns: 1.2fr 1.4fr auto auto auto;
   gap: 0.6rem;
   align-items: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: color-mix(in srgb, $secondaryBackground 20%, transparent);
   border-radius: 12px;
   padding: 0.5rem 0.6rem;
   font-size: 0.85rem;
@@ -191,7 +211,7 @@
 .race__betsTarget {
   display: inline-flex;
   align-items: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: color-mix(in srgb, $textOnSecondaryBackground 80%, transparent);
 }
 
 .race__betsStake {
@@ -201,7 +221,7 @@
 .race__betsOdds,
 .race__betsWin {
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, $textOnSecondaryBackground 85%, transparent);
 }
 
 .race__betsPiece {
@@ -211,7 +231,7 @@
 }
 
 .race__log {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, $tertiaryBackground 10%, transparent);
   border-radius: 18px;
   padding: 1.1rem;
   display: grid;
@@ -230,8 +250,8 @@
 
 .race__logClear {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: $lightText;
+  border: 1px solid color-mix(in srgb, $textOnTertiaryBackground 70%, transparent);
+  color: \$textOnSecondaryBackground;
   border-radius: 999px;
   padding: 0.25rem 0.7rem;
   font-size: 0.75rem;
@@ -248,7 +268,7 @@
 
 .race__logEmpty {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
 }
 
 .race__logItem {
@@ -256,7 +276,7 @@
   grid-template-columns: auto 1fr;
   gap: 0.6rem;
   align-items: start;
-  background: rgba(0, 0, 0, 0.2);
+  background: color-mix(in srgb, $secondaryBackground 20%, transparent);
   border-radius: 12px;
   padding: 0.5rem 0.6rem;
 }
@@ -267,7 +287,7 @@
   padding: 0.2rem 0.5rem;
   border-radius: 999px;
   color: #1b1b1b;
-  background: #ffffff;
+  background: $tertiaryBackground;
   min-width: 34px;
   text-align: center;
 }
@@ -294,7 +314,7 @@
 
 .race__logText {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, $textOnTertiaryBackground 15%, transparent);
   line-height: 1.2rem;
 }
 
@@ -306,7 +326,7 @@
 .race__winnerModalText {
   font-size: 1.1rem;
   font-weight: 600;
-  color: $darkText;
+  color: \$textOnTertiaryBackground;
 }
 
 .race__bettingOutcome {
@@ -339,7 +359,7 @@
   gap: 0.4rem;
   padding: 0.5rem 0.8rem;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.04);
+  background: color-mix(in srgb, $tertiaryBackground 90%, transparent);
 }
 
 .race__bettingRow {
@@ -369,3 +389,5 @@
 
 @media (max-width: 720px) {
 }
+
+

@@ -13,6 +13,33 @@
 
   &__board {
     position: relative;
+    isolation: isolate;
+  }
+
+  &__board::before,
+  &__board::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    pointer-events: none;
+  }
+
+  &__board::before {
+    background-image: var(--track-bg-image, none);
+    background-size: cover;
+    background-position: 50% center;
+    z-index: 0;
+  }
+
+  &__board::after {
+    background: var(--track-bg-overlay, transparent);
+    z-index: 1;
+  }
+
+  &__board > * {
+    position: relative;
+    z-index: 2;
   }
 
   &__overlay {
@@ -32,7 +59,7 @@
   &__tile {
     position: absolute;
     transform: translate(-50%, -50%);
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+    background: linear-gradient(145deg, color-mix(in srgb, $textOnTertiaryBackground 10%, transparent), color-mix(in srgb, $textOnTertiaryBackground 40%, transparent));
     border-radius: 12px;
     padding: 0.4rem;
     height: 70px;
@@ -66,7 +93,7 @@
   &__tileNumber {
     font-weight: 700;
     font-size: 0.8rem;
-    color: $darkText;
+    color: \$textOnTertiaryBackground;
   }
 
   &__pieces {
@@ -96,3 +123,5 @@
     }
   }
 }
+
+

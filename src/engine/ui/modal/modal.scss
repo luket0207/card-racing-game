@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, $siteBackground 50%, transparent);
   padding: 1rem;
 }
 
@@ -18,8 +18,8 @@
   border-radius: 12px;
   overflow: hidden;
 
-  background: #ffffff;
-  color: #111827;
+  background: $tertiaryBackground;
+  color: $tertiaryForeground;
 
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.28),
@@ -57,7 +57,7 @@
   transition: transform 0.12s ease, background-color 0.12s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.14);
+    background-color: color-mix(in srgb, $tertiaryBackground 14%, transparent);
     transform: translateY(-1px);
   }
 
