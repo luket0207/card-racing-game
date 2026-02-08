@@ -6,6 +6,7 @@ import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
 import { DEFAULT_GAME_STATE, useGame } from "../../engine/gameContext/gameContext";
 import themes from "../../assets/gameContent/themes";
+import cards from "../../assets/gameContent/cards";
 import events from "../../assets/gameContent/events";
 import Calendar from "./components/calendar/calendar";
 import EndCampaignModal from "./components/endCampaignModal/endCampaignModal";
@@ -22,15 +23,25 @@ const DEFAULT_CAMPAIGN = {
   themeId: "cars",
   pieceId: "",
   difficulty: "normal",
-  coinArray: [5, 5, 5, 5, 5],
+  coinArray: { Red: 3, Blue: 3, Green: 3, Yellow: 3, Orange: 3 },
   deck: [],
   library: [],
   goldCoins: 0,
+  points: 0,
   results: [],
   calendar: [],
   day: 0,
   monthNames: [],
   races: [],
+};
+
+const COST1_LIBRARY = cards.filter((card) => card.cost === 1).map((card) => card.id);
+
+const buildStartingCoinArray = () => {
+  const base = { Red: 3, Blue: 3, Green: 3, Yellow: 3, Orange: 3 };
+  const keys = Object.keys(base);
+  const boosted = keys[Math.floor(Math.random() * keys.length)];
+  return { ...base, [boosted]: 4 };
 };
 
 const CampaignHome = () => {
@@ -111,6 +122,11 @@ const CampaignHome = () => {
       monthNames,
       day: 0,
       races,
+      library: COST1_LIBRARY,
+      deck: [],
+      coinArray: buildStartingCoinArray(),
+      goldCoins: 2000,
+      points: 0,
     };
 
     sessionStorage.setItem("campaignActive", "1");
@@ -225,6 +241,16 @@ const CampaignHome = () => {
             <h1>Campaign Mode</h1>
             <p>Choose your racer and prepare for a 12-week calendar.</p>
           </div>
+          <div className="campaign-home__stats">
+            <div>
+              <span>Gold</span>
+              <strong>{campaign.goldCoins ?? 0}</strong>
+            </div>
+            <div>
+              <span>Points</span>
+              <strong>{campaign.points ?? 0}</strong>
+            </div>
+          </div>
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
             Back Home
           </Button>
@@ -310,6 +336,16 @@ const CampaignHome = () => {
           <h1>Campaign Calendar</h1>
           <p>Current day: {currentDayType}</p>
         </div>
+        <div className="campaign-home__stats">
+          <div>
+            <span>Gold</span>
+            <strong>{campaign.goldCoins ?? 0}</strong>
+          </div>
+          <div>
+            <span>Points</span>
+            <strong>{campaign.points ?? 0}</strong>
+          </div>
+        </div>
         <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
           Back Home
         </Button>
@@ -385,9 +421,16 @@ const CampaignHome = () => {
         <Button
           variant={BUTTON_VARIANT.PRIMARY}
           onClick={handleNextDay}
-          disabled={isGeneratingRace}
+          disabled={isGeneratingRace || (campaign.day === 0 && (campaign.deck?.length ?? 0) !== 16)}
         >
           {campaign.day >= (campaign.calendar?.length ?? 1) - 1 ? "End Campaign" : "Next Day"}
+        </Button>
+        <Button
+          variant={BUTTON_VARIANT.SECONDARY}
+          onClick={() => navigate("/deck-selection?mode=campaign")}
+          disabled={isGeneratingRace}
+        >
+          Edit Deck
         </Button>
         <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleQuit} disabled={isGeneratingRace}>
           Quit

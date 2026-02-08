@@ -24,6 +24,33 @@
   }
 }
 
+.campaign-home__stats {
+  display: inline-flex;
+  gap: 1rem;
+  background: rgba(15, 17, 23, 0.7);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(245, 247, 250, 0.08);
+
+  div {
+    display: grid;
+    gap: 0.2rem;
+    text-align: right;
+  }
+
+  span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(245, 247, 250, 0.6);
+  }
+
+  strong {
+    font-size: 1.05rem;
+    color: $secondaryForeground;
+  }
+}
+
 .campaign-home__setup {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

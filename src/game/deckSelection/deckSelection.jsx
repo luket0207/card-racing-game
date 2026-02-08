@@ -6,6 +6,8 @@ import { useToast } from "../../engine/ui/toast/toast";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
 import { FileUpload } from "primereact/fileupload";
 import { Checkbox } from "primereact/checkbox";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCoins } from "@fortawesome/free-solid-svg-icons";
 import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
 import "./deckSelection.scss";
@@ -25,10 +27,26 @@ const DeckSelection = () => {
     const params = new URLSearchParams(location.search);
     return params.get("mode") === "export";
   }, [location.search]);
+  const isCampaignMode = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("mode") === "campaign";
+  }, [location.search]);
   const { gameState, setGameState } = useGame();
   const { clearLog } = useToast();
   const { openModal, closeModal } = useModal();
   const racers = useMemo(() => {
+    if (isCampaignMode) {
+      return [
+        {
+          id: "player1",
+          name: gameState?.campaign?.playerName || "Player",
+          type: "human",
+          color:
+            themes.find((t) => t.id === gameState?.campaign?.themeId)?.pieces?.[0]?.color ??
+            "#ffffff",
+        },
+      ];
+    }
     if (isExportMode) {
       return [
         {
@@ -49,18 +67,33 @@ const DeckSelection = () => {
             color: themes[0]?.pieces?.[idx % (themes[0]?.pieces?.length ?? 1)]?.color ?? "#ffffff",
           }));
     return list;
-  }, [gameState?.racers, isExportMode]);
+  }, [
+    gameState?.campaign?.playerName,
+    gameState?.campaign?.themeId,
+    gameState?.racers,
+    isCampaignMode,
+    isExportMode,
+  ]);
   const activeTheme = useMemo(
-    () => themes.find((t) => t.id === gameState?.themeId) ?? themes[0],
-    [gameState?.themeId]
+    () =>
+      themes.find(
+        (t) => t.id === (isCampaignMode ? gameState?.campaign?.themeId : gameState?.themeId)
+      ) ?? themes[0],
+    [gameState?.campaign?.themeId, gameState?.themeId, isCampaignMode]
   );
 
   useEffect(() => {
     if (isExportMode) return;
+    if (isCampaignMode) {
+      if (!gameState?.campaign?.active) {
+        navigate("/");
+      }
+      return;
+    }
     if (!Array.isArray(gameState?.racers) || gameState.racers.length === 0) {
       navigate("/");
     }
-  }, [gameState, isExportMode, navigate]);
+  }, [gameState, isCampaignMode, isExportMode, navigate]);
 
   const humanRacers = useMemo(() => racers.filter((r) => r.type === "human"), [racers]);
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
@@ -82,10 +115,15 @@ const DeckSelection = () => {
       return acc;
     }, {})
   );
-  const [selectedClasses, setSelectedClasses] = useState(
-    ["Red", "Blue", "Green", "Yellow", "Orange"]
-  );
+  const [selectedClasses, setSelectedClasses] = useState([
+    "Red",
+    "Blue",
+    "Green",
+    "Yellow",
+    "Orange",
+  ]);
   const [selectedCosts, setSelectedCosts] = useState([1, 2, 3]);
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
   const [randomizingPlayerId, setRandomizingPlayerId] = useState(null);
 
   const activeDeck = decks[activePlayerId] ?? [];
@@ -107,23 +145,52 @@ const DeckSelection = () => {
 
   const activeSpend = useMemo(() => getSpendByClass(activeDeck), [activeDeck, getSpendByClass]);
 
+  useEffect(() => {
+    if (!isCampaignMode) return;
+    setDecks((prev) => ({
+      ...prev,
+      [activePlayerId]: gameState?.campaign?.deck ?? [],
+    }));
+    setConfirmed((prev) => ({ ...prev, [activePlayerId]: false }));
+  }, [activePlayerId, gameState?.campaign?.deck, isCampaignMode]);
+
+  const campaignLimits = useMemo(() => {
+    if (!isCampaignMode) return null;
+    const arr = gameState?.campaign?.coinArray ?? {};
+    return {
+      Red: arr.Red ?? 0,
+      Blue: arr.Blue ?? 0,
+      Green: arr.Green ?? 0,
+      Yellow: arr.Yellow ?? 0,
+      Orange: arr.Orange ?? 0,
+    };
+  }, [gameState?.campaign?.coinArray, isCampaignMode]);
+
+  const campaignGold = gameState?.campaign?.goldCoins ?? 0;
+  const campaignPoints = gameState?.campaign?.points ?? 0;
+  const campaignLibrary = gameState?.campaign?.library ?? [];
+
   const canAffordCard = useCallback(
     (deck, card) => {
       const spend = getSpendByClass(deck);
       const next = (spend[card.class] ?? 0) + (card.cost ?? 0);
-      return next <= 5;
+      const limit = isCampaignMode ? (campaignLimits?.[card.class] ?? 0) : 5;
+      return next <= limit;
     },
-    [getSpendByClass]
+    [campaignLimits, getSpendByClass, isCampaignMode]
   );
 
   const buildRandomDeck = useCallback(() => {
-    const cost3Cards = cards.filter((card) => card.cost === 3);
+    const availableCards = isCampaignMode
+      ? cards.filter((card) => (gameState?.campaign?.library ?? []).includes(card.id))
+      : cards;
+    const cost3Cards = availableCards.filter((card) => card.cost === 3);
     const buildDeck = (enforceCost3) => {
       const target = Math.floor(Math.random() * 3) + 2; // 2-4
       const deck = [];
       let attempts = 0;
 
-      if (enforceCost3) {
+      if (enforceCost3 && !isCampaignMode) {
         while (deck.length < target && attempts < 2000) {
           attempts += 1;
           const card = cost3Cards[Math.floor(Math.random() * cost3Cards.length)];
@@ -139,7 +206,7 @@ const DeckSelection = () => {
       attempts = 0;
       while (deck.length < 16 && attempts < 8000) {
         attempts += 1;
-        const card = cards[Math.floor(Math.random() * cards.length)];
+        const card = availableCards[Math.floor(Math.random() * availableCards.length)];
         if (!card) continue;
         if (!canAffordCard(deck, card)) continue;
         deck.push(card.id);
@@ -160,7 +227,49 @@ const DeckSelection = () => {
       }
     }
     return deck ?? [];
-  }, [canAffordCard]);
+  }, [canAffordCard, gameState?.campaign?.library, isCampaignMode]);
+
+  const buildCampaignFill = useCallback(
+    (baseDeck) => {
+      const availableCards = cards.filter((card) =>
+        (gameState?.campaign?.library ?? []).includes(card.id)
+      );
+      const remainingByClass = { ...(campaignLimits ?? {}) };
+      const spend = getSpendByClass(baseDeck);
+      Object.keys(remainingByClass).forEach((cls) => {
+        remainingByClass[cls] = Math.max(0, (remainingByClass[cls] ?? 0) - (spend[cls] ?? 0));
+      });
+
+      const slotsLeft = 16 - baseDeck.length;
+      const remainingTotal = Object.values(remainingByClass).reduce((sum, val) => sum + val, 0);
+      if (remainingTotal < slotsLeft) return null;
+
+      const deck = [...baseDeck];
+      let safety = 6000;
+      while (deck.length < 16 && safety > 0) {
+        safety -= 1;
+        const classes = Object.keys(remainingByClass).filter((cls) => remainingByClass[cls] > 0);
+        if (classes.length === 0) break;
+        const cls = classes[Math.floor(Math.random() * classes.length)];
+        const candidates = availableCards.filter((card) => card.class === cls);
+        if (candidates.length === 0) {
+          remainingByClass[cls] = 0;
+          continue;
+        }
+        const card = candidates[Math.floor(Math.random() * candidates.length)];
+        if (!card) continue;
+        if (!canAffordCard(deck, card)) {
+          remainingByClass[cls] = Math.max(0, remainingByClass[cls] - 1);
+          continue;
+        }
+        deck.push(card.id);
+        remainingByClass[cls] -= card.cost ?? 1;
+      }
+
+      return deck.length === 16 ? deck : null;
+    },
+    [campaignLimits, canAffordCard, gameState?.campaign?.library, getSpendByClass]
+  );
 
   const addCard = useCallback(
     (cardId) => {
@@ -170,11 +279,12 @@ const DeckSelection = () => {
         if (current.length >= 16) return prev;
         const card = cards.find((c) => c.id === cardId);
         if (!card) return prev;
+        if (isCampaignMode && !(gameState?.campaign?.library ?? []).includes(cardId)) return prev;
         if (!canAffordCard(current, card)) return prev;
         return { ...prev, [activePlayerId]: [...current, cardId] };
       });
     },
-    [activePlayerId, confirmed, canAffordCard]
+    [activePlayerId, confirmed, canAffordCard, gameState?.campaign?.library, isCampaignMode]
   );
 
   const removeCard = useCallback(
@@ -201,19 +311,26 @@ const DeckSelection = () => {
       setRandomizingPlayerId(playerId);
 
       let finalDeck = null;
-      for (let retry = 0; retry < 10; retry += 1) {
-        const filled = [...current];
-        let attempts = 0;
-        while (filled.length < 16 && attempts < 8000) {
-          attempts += 1;
-          const card = cards[Math.floor(Math.random() * cards.length)];
-          if (!card) continue;
-          if (!canAffordCard(filled, card)) continue;
-          filled.push(card.id);
+      if (isCampaignMode) {
+        for (let retry = 0; retry < 10; retry += 1) {
+          finalDeck = buildCampaignFill(current);
+          if (finalDeck) break;
         }
-        if (filled.length === 16) {
-          finalDeck = filled;
-          break;
+      } else {
+        for (let retry = 0; retry < 10; retry += 1) {
+          const filled = [...current];
+          let attempts = 0;
+          while (filled.length < 16 && attempts < 8000) {
+            attempts += 1;
+            const card = cards[Math.floor(Math.random() * cards.length)];
+            if (!card) continue;
+            if (!canAffordCard(filled, card)) continue;
+            filled.push(card.id);
+          }
+          if (filled.length === 16) {
+            finalDeck = filled;
+            break;
+          }
         }
       }
 
@@ -235,7 +352,7 @@ const DeckSelection = () => {
       setDecks((prev) => ({ ...prev, [playerId]: finalDeck }));
       setRandomizingPlayerId(null);
     },
-    [canAffordCard, confirmed, openModal]
+    [buildCampaignFill, canAffordCard, confirmed, isCampaignMode, openModal]
   );
 
   const clearDeck = useCallback(
@@ -263,11 +380,41 @@ const DeckSelection = () => {
       const cost = card.cost;
       const classOk = selectedClasses.includes(cls);
       const costOk = selectedCosts.includes(cost);
-      return classOk && costOk;
+      const availableOk =
+        !isCampaignMode ||
+        !showOnlyAvailable ||
+        campaignLibrary.includes(card.id);
+      return classOk && costOk && availableOk;
     });
-  }, [selectedClasses, selectedCosts]);
+  }, [
+    campaignLibrary,
+    isCampaignMode,
+    selectedClasses,
+    selectedCosts,
+    showOnlyAvailable,
+  ]);
+
+  const purchaseCard = useCallback(
+    (card) => {
+      const cost = card.cost === 2 ? 250 : card.cost === 3 ? 1000 : 0;
+      if (cost <= 0) return;
+      if (campaignGold < cost) return;
+      if (campaignLibrary.includes(card.id)) return;
+      setGameState((prev) => ({
+        ...prev,
+        campaign: {
+          ...prev.campaign,
+          goldCoins: (prev.campaign?.goldCoins ?? 0) - cost,
+          points: (prev.campaign?.points ?? 0) + cost,
+          library: [...(prev.campaign?.library ?? []), card.id],
+        },
+      }));
+    },
+    [campaignGold, campaignLibrary, setGameState]
+  );
 
   const startRace = useCallback(() => {
+    if (isCampaignMode) return;
     const isLastHuman = activePlayerIndex === humanRacers.length - 1;
     if (isLastHuman) {
       if (!activeDeckFull) return;
@@ -299,6 +446,7 @@ const DeckSelection = () => {
     clearLog,
     decks,
     humanRacers.length,
+    isCampaignMode,
     isExportMode,
     isReady,
     navigate,
@@ -330,10 +478,11 @@ const DeckSelection = () => {
   }, [humanRacers.length]);
 
   const confirmDeck = useCallback(() => {
+    if (isCampaignMode) return;
     if (!activeDeckFull || activeConfirmed) return;
     setConfirmed((prev) => ({ ...prev, [activePlayerId]: true }));
     setActivePlayerIndex((prev) => Math.min(prev + 1, humanRacers.length - 1));
-  }, [activeConfirmed, activeDeckFull, activePlayerId, humanRacers.length]);
+  }, [activeConfirmed, activeDeckFull, activePlayerId, humanRacers.length, isCampaignMode]);
 
   const validateDeck = useCallback(
     (deck) => {
@@ -395,10 +544,26 @@ const DeckSelection = () => {
       <header className="deck-selection__header">
         <div>
           <h1>Deck Selection</h1>
-          <p>Build 16-card decks for each player. Spend up to 5 coins per class.</p>
+          <p>
+            {isCampaignMode
+              ? "Build your 16-card campaign deck. Only cards in your library can be used."
+              : "Build 16-card decks for each player. Spend up to 5 coins per class."}
+          </p>
         </div>
+        {isCampaignMode && (
+          <div className="deck-selection__stats">
+            <div>
+              <span>Gold</span>
+              <strong>{campaignGold}</strong>
+            </div>
+            <div>
+              <span>Points</span>
+              <strong>{campaignPoints}</strong>
+            </div>
+          </div>
+        )}
         <div className="deck-selection__headerActions">
-          {!isExportMode && (
+          {!isExportMode && !isCampaignMode && (
             <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleBackToSetup}>
               Back to Setup
             </Button>
@@ -430,7 +595,7 @@ const DeckSelection = () => {
                 )}
               </div>
 
-              {!isExportMode && humanRacers.length > 1 && (
+              {!isExportMode && !isCampaignMode && humanRacers.length > 1 && (
                 <div className="deck-selection__playerNav">
                   <Button
                     variant={BUTTON_VARIANT.TERTIARY}
@@ -458,7 +623,7 @@ const DeckSelection = () => {
                   >
                     Download Deck (.txt)
                   </Button>
-                ) : activePlayerIndex < humanRacers.length - 1 ? (
+                ) : !isCampaignMode && activePlayerIndex < humanRacers.length - 1 ? (
                   <Button
                     variant={BUTTON_VARIANT.PRIMARY}
                     onClick={confirmDeck}
@@ -491,7 +656,7 @@ const DeckSelection = () => {
                 >
                   Clear Deck
                 </Button>
-                {!isExportMode && (
+                {!isExportMode && !isCampaignMode && (
                   <FileUpload
                     ref={fileUploadRef}
                     className="deck-selection__upload"
@@ -509,17 +674,68 @@ const DeckSelection = () => {
                 )}
               </div>
 
-              {!isExportMode && activePlayerIndex === humanRacers.length - 1 && (
+              {!isExportMode && !isCampaignMode && activePlayerIndex === humanRacers.length - 1 && (
                 <div className="deck-selection__start">
-                  <div>
-                    {activeDeckFull ? "Deck ready to start." : "Select 16 cards to start."}
-                  </div>
+                  <div>{activeDeckFull ? "Deck ready to start." : "Select 16 cards to start."}</div>
                   <Button
                     variant={BUTTON_VARIANT.PRIMARY}
                     onClick={startRace}
                     disabled={!activeDeckFull}
                   >
                     Start Race
+                  </Button>
+                </div>
+              )}
+              {isCampaignMode && (
+                <div className="deck-selection__campaignActions">
+                  <Button
+                    variant={BUTTON_VARIANT.TERTIARY}
+                    onClick={() => {
+                      openModal({
+                        modalTitle: "Cancel Changes",
+                        modalContent: (
+                          <div>
+                            Are you sure you want to go back without saving the changes to your
+                            deck?
+                          </div>
+                        ),
+                        buttons: MODAL_BUTTONS.YES_NO,
+                        onYes: () => {
+                          closeModal();
+                          navigate("/campaign");
+                        },
+                        onNo: () => closeModal(),
+                      });
+                    }}
+                    disabled={(gameState?.campaign?.deck ?? []).length !== 16}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant={BUTTON_VARIANT.PRIMARY}
+                    onClick={() => {
+                      if (!activeDeckFull) return;
+                      openModal({
+                        modalTitle: "Save Deck",
+                        modalContent: <div>Save your new campaign deck?</div>,
+                        buttons: MODAL_BUTTONS.YES_NO,
+                        onYes: () => {
+                          closeModal();
+                          setGameState((prev) => ({
+                            ...prev,
+                            campaign: {
+                              ...prev.campaign,
+                              deck: activeDeck,
+                            },
+                          }));
+                          navigate("/campaign");
+                        },
+                        onNo: () => closeModal(),
+                      });
+                    }}
+                    disabled={!activeDeckFull}
+                  >
+                    Save
                   </Button>
                 </div>
               )}
@@ -560,7 +776,8 @@ const DeckSelection = () => {
             <div className="deck-selection__currencyList">
               <div className="deck-selection__currencyBar" aria-label="Coins">
                 {["Red", "Blue", "Green", "Yellow", "Orange"].flatMap((cls) => {
-                  const remaining = 5 - (activeSpend[cls] ?? 0);
+                  const limit = isCampaignMode ? (campaignLimits?.[cls] ?? 0) : 5;
+                  const remaining = limit - (activeSpend[cls] ?? 0);
                   return Array.from({ length: remaining }, (_, idx) => (
                     <span
                       key={`${cls}-coin-${idx}`}
@@ -578,19 +795,47 @@ const DeckSelection = () => {
           </div>
 
           <div className="deck-selection__filters">
+            {isCampaignMode && (
+              <div className="deck-selection__filterGroup">
+                <div className="deck-selection__filterHeader">
+                  <span>Availability</span>
+                  <div className="deck-selection__filterActions">
+                    <button
+                      type="button"
+                      className="deck-selection__filterBtn"
+                      onClick={() => setShowOnlyAvailable(false)}
+                    >
+                      Show All
+                    </button>
+                    <button
+                      type="button"
+                      className="deck-selection__filterBtn"
+                      onClick={() => setShowOnlyAvailable(true)}
+                    >
+                      Available Only
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="deck-selection__filterGroup">
               <div className="deck-selection__filterHeader">
                 <span>Class</span>
                 <div className="deck-selection__filterActions">
-                  <Button
-                    variant={BUTTON_VARIANT.TERTIARY}
+                  <button
+                    type="button"
+                    className="deck-selection__filterBtn"
                     onClick={() => setSelectedClasses(["Red", "Blue", "Green", "Yellow", "Orange"])}
                   >
                     Select All
-                  </Button>
-                  <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => setSelectedClasses([])}>
+                  </button>
+                  <button
+                    type="button"
+                    className="deck-selection__filterBtn"
+                    onClick={() => setSelectedClasses([])}
+                  >
                     Clear
-                  </Button>
+                  </button>
                 </div>
               </div>
               <div className="deck-selection__filterList">
@@ -615,12 +860,20 @@ const DeckSelection = () => {
               <div className="deck-selection__filterHeader">
                 <span>Cost</span>
                 <div className="deck-selection__filterActions">
-                  <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => setSelectedCosts([1, 2, 3])}>
+                  <button
+                    type="button"
+                    className="deck-selection__filterBtn"
+                    onClick={() => setSelectedCosts([1, 2, 3])}
+                  >
                     Select All
-                  </Button>
-                  <Button variant={BUTTON_VARIANT.TERTIARY} onClick={() => setSelectedCosts([])}>
+                  </button>
+                  <button
+                    type="button"
+                    className="deck-selection__filterBtn"
+                    onClick={() => setSelectedCosts([])}
+                  >
                     Clear
-                  </Button>
+                  </button>
                 </div>
               </div>
               <div className="deck-selection__filterList">
@@ -646,6 +899,9 @@ const DeckSelection = () => {
             {filteredCards.map((card) => {
               const isFull = activeDeck.length >= 16;
               const affordable = canAffordCard(activeDeck, card);
+              const available = !isCampaignMode || campaignLibrary.includes(card.id);
+              const buyCost = card.cost === 2 ? 250 : card.cost === 3 ? 1000 : 0;
+              const canBuy = isCampaignMode && !available && campaignGold >= buyCost;
               return (
                 <div key={card.id} className="deck-selection__card">
                   <div
@@ -656,14 +912,28 @@ const DeckSelection = () => {
                   <h3>{card.name}</h3>
                   <p>{card.text}</p>
                   <div className="deck-selection__cardCost">Cost: {card.cost}</div>
-                  <Button
-                    variant={BUTTON_VARIANT.PRIMARY}
-                    className="deck-selection__addBtn"
-                    disabled={isFull || activeConfirmed || !affordable}
-                    onClick={() => addCard(card.id)}
-                  >
-                    {isFull ? "Deck Full" : !affordable ? "No Coins" : "Add"}
-                  </Button>
+                  {!available && isCampaignMode ? (
+                    <Button
+                      variant={BUTTON_VARIANT.TERTIARY}
+                      className="deck-selection__addBtn"
+                      disabled={!canBuy}
+                      onClick={() => purchaseCard(card)}
+                    >
+                      <span className="deck-selection__buyIcon">
+                        <FontAwesomeIcon icon={faCoins} />
+                      </span>
+                      Buy Card ({buyCost})
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={BUTTON_VARIANT.PRIMARY}
+                      className="deck-selection__addBtn"
+                      disabled={isFull || activeConfirmed || !affordable}
+                      onClick={() => addCard(card.id)}
+                    >
+                      {isFull ? "Deck Full" : !affordable ? "No Coins" : "Add"}
+                    </Button>
+                  )}
                 </div>
               );
             })}
