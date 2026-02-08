@@ -235,53 +235,6 @@
   margin-bottom: 10px;
 }
 
-.deck-selection__currencyBar {
-  display: inline-flex;
-  gap: 0;
-  width: auto;
-  max-width: 100%;
-  border: 1px solid rgba(245, 247, 250, 0.15);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.deck-selection__currencySeg {
-  height: 20px;
-  min-width: 38px;
-  background: rgba(255, 255, 255, 0.3);
-  border-right: 3px solid rgba(15, 17, 23, 0.9);
-  display: block;
-  box-sizing: border-box;
-  line-height: 0;
-  margin: 0;
-  padding: 0;
-}
-
-.deck-selection__currencySeg:last-child {
-  border-right: none;
-}
-
-.deck-selection__currencySeg--red {
-  background: $class-red;
-}
-
-.deck-selection__currencySeg--blue {
-  background: $class-blue;
-}
-
-.deck-selection__currencySeg--green {
-  background: $class-green;
-}
-
-.deck-selection__currencySeg--yellow {
-  background: $class-yellow;
-}
-
-.deck-selection__currencySeg--orange {
-  background: $class-orange;
-}
-
-
 .deck-selection__cardsHeader {
   display: flex;
   justify-content: space-between;

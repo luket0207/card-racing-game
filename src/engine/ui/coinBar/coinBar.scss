@@ -1,0 +1,45 @@
+@use "../../../assets/scss/ui/import" as *;
+
+.coin-bar {
+  display: inline-flex;
+  gap: 0;
+  width: auto;
+  max-width: 100%;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(245, 247, 250, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.coin-bar__seg {
+  display: block;
+  box-sizing: border-box;
+  border-right-style: solid;
+  border-right-color: rgba(15, 17, 23, 0.9);
+}
+
+.coin-bar__seg:last-child {
+  border-right: none;
+}
+
+.coin-bar__seg--red {
+  background: $class-red;
+}
+
+.coin-bar__seg--blue {
+  background: $class-blue;
+}
+
+.coin-bar__seg--green {
+  background: $class-green;
+}
+
+.coin-bar__seg--yellow {
+  background: $class-yellow;
+}
+
+.coin-bar__seg--orange {
+  background: $class-orange;
+}

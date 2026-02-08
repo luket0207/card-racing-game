@@ -8,6 +8,7 @@ import { DEFAULT_GAME_STATE, useGame } from "../../engine/gameContext/gameContex
 import themes from "../../assets/gameContent/themes";
 import cards from "../../assets/gameContent/cards";
 import events from "../../assets/gameContent/events";
+import CoinBar from "../../engine/ui/coinBar/coinBar";
 import Calendar from "./components/calendar/calendar";
 import EndCampaignModal from "./components/endCampaignModal/endCampaignModal";
 import Piece from "../race/components/piece/piece";
@@ -42,6 +43,18 @@ const buildStartingCoinArray = () => {
   const keys = Object.keys(base);
   const boosted = keys[Math.floor(Math.random() * keys.length)];
   return { ...base, [boosted]: 4 };
+};
+
+const CLASS_KEYS = ["Red", "Blue", "Green", "Yellow", "Orange"];
+
+const parseRaceReward = (rewardText) => {
+  if (!rewardText || rewardText === "N/A") return { gold: 0, classCoins: 0 };
+  const classMatch = rewardText.match(/(\d+)\s*Class Coin/i);
+  const goldMatch = rewardText.match(/(\d+)\s*coins?/i);
+  return {
+    classCoins: classMatch ? Number(classMatch[1] ?? 0) : 0,
+    gold: goldMatch ? Number(goldMatch[1] ?? 0) : 0,
+  };
 };
 
 const CampaignHome = () => {
@@ -148,6 +161,10 @@ const CampaignHome = () => {
       coinArray: buildStartingCoinArray(),
       goldCoins: 2000,
       points: 0,
+      racePhase: null,
+      activeRaceDayIndex: null,
+      activeRace: null,
+      lastRaceResult: null,
     };
 
     sessionStorage.setItem("campaignActive", "1");
@@ -169,6 +186,9 @@ const CampaignHome = () => {
   const currentRaceIndex = campaign.calendar?.[campaign.day]?.raceDayIndex ?? null;
   const currentRace =
     currentRaceIndex != null ? campaign.races?.[currentRaceIndex - 1] : null;
+  const isTournamentDay = !!campaign.calendar?.[campaign.day]?.tournament;
+  const racePhase = campaign.racePhase ?? (currentDayType === "race" ? "start" : null);
+  const lastRaceResult = campaign.lastRaceResult;
   const currentEventId = campaign.calendar?.[campaign.day]?.eventId ?? null;
   const currentEventPiece = campaign.calendar?.[campaign.day]?.eventPieceName ?? "";
   const currentEvent = useMemo(
@@ -260,6 +280,87 @@ const CampaignHome = () => {
       navigate("/campaign-event");
     }
   }, [campaign.calendar, campaign.day, isActive, navigate]);
+
+  const handleStartRace = useCallback(() => {
+    if (!currentRace || !currentRace.decksGenerated) return;
+    const playerPiece =
+      activeTheme?.pieces?.find((piece) => piece.id === campaign.pieceId) ?? activeTheme?.pieces?.[0];
+    const playerRacer = {
+      id: "player1",
+      name: campaign.playerName || "Player",
+      short: "P1",
+      color: playerPiece?.color ?? "#ffffff",
+      image: playerPiece?.image ?? null,
+      icon: playerPiece?.icon ?? null,
+    };
+    const opponents = (currentRace.opponents ?? []).map((opponent, idx) => ({
+      id: `player${idx + 2}`,
+      name: opponent.name,
+      short: `P${idx + 2}`,
+      color: opponent.color,
+      image: opponent.image ?? null,
+      icon: opponent.icon ?? null,
+    }));
+
+    setGameState((prev) => ({
+      ...prev,
+      themeId: campaign.themeId,
+      raceLaps: currentRace.laps ?? 1,
+      racers: [playerRacer, ...opponents],
+      player1: { ...prev.player1, deck: campaign.deck ?? [], position: 0 },
+      player2: { ...prev.player2, deck: currentRace.opponents?.[0]?.deck ?? [], position: 0 },
+      player3: { ...prev.player3, deck: currentRace.opponents?.[1]?.deck ?? [], position: 0 },
+      player4: { ...prev.player4, deck: currentRace.opponents?.[2]?.deck ?? [], position: 0 },
+      campaign: {
+        ...prev.campaign,
+        racePhase: "running",
+        activeRaceDayIndex: currentRaceIndex,
+        activeRace: currentRace,
+      },
+    }));
+    navigate("/race");
+  }, [
+    activeTheme?.pieces,
+    campaign.deck,
+    campaign.pieceId,
+    campaign.playerName,
+    campaign.themeId,
+    currentRace,
+    currentRaceIndex,
+    navigate,
+    setGameState,
+  ]);
+
+
+
+  const handleShowResults = useCallback(() => {
+    openModal({
+      modalTitle: "Campaign Results",
+      modalContent: (
+        <div className="campaign-home__resultsModal">
+          {(campaign.results ?? []).length === 0 ? (
+            <p>No results yet.</p>
+          ) : (
+            campaign.results.map((result, idx) => (
+              <div key={`result-${idx}`} className="campaign-home__resultsRow">
+                <strong>{result.raceName}</strong>
+                <span>Reward: {result.reward}</span>
+                <div className="campaign-home__resultsStandings">
+                  {(result.standings ?? []).map((entry) => (
+                    <div key={`result-${idx}-${entry.id}`} className="campaign-home__resultsItem">
+                      <span>#{entry.place}</span>
+                      <span>{entry.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ),
+      buttons: MODAL_BUTTONS.OK,
+    });
+  }, [campaign.results, openModal]);
 
   if (!isActive) {
     return (
@@ -354,7 +455,19 @@ const CampaignHome = () => {
           <h1>Campaign Calendar</h1>
           <p>Current day: {currentDayType}</p>
         </div>
-        <div className="campaign-home__stats">
+      </header>
+
+      <div className="campaign-home__stats">
+        <div className="campaign-home__statsMain">
+          <div className="campaign-home__coinBar">
+            <span className="campaign-home__coinBarLabel">Class Coins</span>
+            <CoinBar
+              coinArray={campaign.coinArray}
+              segmentWidth={12}
+              height={14}
+              borderWidth={2}
+            />
+          </div>
           <div className="campaign-home__statRow">
             <div>
               <span>Gold</span>
@@ -365,25 +478,13 @@ const CampaignHome = () => {
               <strong>{campaign.points ?? 0}</strong>
             </div>
           </div>
-          <div className="campaign-home__coinBar">
-            <span className="campaign-home__coinBarLabel">Class Coins</span>
-            <div className="campaign-home__coinBarTrack" aria-label="Class Coins">
-              {["Red", "Blue", "Green", "Yellow", "Orange"].flatMap((cls) => {
-                const count = campaign.coinArray?.[cls] ?? 0;
-                return Array.from({ length: count }, (_, idx) => (
-                  <span
-                    key={`${cls}-coin-${idx}`}
-                    className={`campaign-home__coinSeg campaign-home__coinSeg--${cls.toLowerCase()}`}
-                  />
-                ));
-              })}
-            </div>
-          </div>
         </div>
-        <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
-          Back Home
-        </Button>
-      </header>
+        <div className="campaign-home__statsActions">
+          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleShowResults}>
+            View Results
+          </Button>
+        </div>
+      </div>
 
       <div className="campaign-home__info">
         <div className="campaign-home__infoHeader">
@@ -402,6 +503,7 @@ const CampaignHome = () => {
             <div className="campaign-home__infoSection">
               <h3>Race Details</h3>
               <p>Laps: {currentRace.laps}</p>
+              {isTournamentDay && <p>Tournament Week</p>}
               <div className="campaign-home__rewards">
                 <strong>Rewards</strong>
                 <ul>
@@ -444,31 +546,51 @@ const CampaignHome = () => {
         )}
       </div>
 
-      <Calendar
-        calendar={campaign.calendar}
-        dayIndex={campaign.day}
-        monthNames={campaign.monthNames}
-        races={campaign.races}
-      />
-
-      <div className="campaign-home__controls">
-        <Button
-          variant={BUTTON_VARIANT.PRIMARY}
-          onClick={handleNextDay}
-          disabled={isGeneratingRace || (campaign.day === 0 && (campaign.deck?.length ?? 0) !== 16)}
-        >
-          {campaign.day >= (campaign.calendar?.length ?? 1) - 1 ? "End Campaign" : "Next Day"}
-        </Button>
-        <Button
-          variant={BUTTON_VARIANT.SECONDARY}
-          onClick={() => navigate("/deck-selection?mode=campaign")}
-          disabled={isGeneratingRace}
-        >
-          Edit Deck
-        </Button>
-        <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleQuit} disabled={isGeneratingRace}>
-          Quit
-        </Button>
+      <div className="campaign-home__calendarPanel">
+        <div className="campaign-home__calendar">
+          <Calendar
+            calendar={campaign.calendar}
+            dayIndex={campaign.day}
+            monthNames={campaign.monthNames}
+            races={campaign.races}
+          />
+        </div>
+        <div className="campaign-home__controls">
+          {currentDayType === "race" ? (
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={handleStartRace}
+              disabled={
+                isGeneratingRace ||
+                !currentRace ||
+                !currentRace.decksGenerated ||
+                (campaign.deck?.length ?? 0) !== 16
+              }
+            >
+              Start Race
+            </Button>
+          ) : (
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={handleNextDay}
+              disabled={
+                isGeneratingRace || (campaign.day === 0 && (campaign.deck?.length ?? 0) !== 16)
+              }
+            >
+              {campaign.day >= (campaign.calendar?.length ?? 1) - 1 ? "End Campaign" : "Next Day"}
+            </Button>
+          )}
+          <Button
+            variant={BUTTON_VARIANT.SECONDARY}
+            onClick={() => navigate("/deck-selection?mode=campaign")}
+            disabled={isGeneratingRace}
+          >
+            Edit Deck
+          </Button>
+          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleQuit} disabled={isGeneratingRace}>
+            Quit
+          </Button>
+        </div>
       </div>
       {isGeneratingRace ? (
         <div className="campaign-home__loadingOverlay" aria-live="polite">

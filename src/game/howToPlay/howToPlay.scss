@@ -55,6 +55,14 @@
   }
 }
 
+.how-to-play__section--campaign {
+  gap: 0.9rem;
+
+  p {
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 720px) {
   .how-to-play__header {
     flex-direction: column;

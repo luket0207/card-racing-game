@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCoins } from "@fortawesome/free-solid-svg-icons";
 import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
+import CoinBar from "../../engine/ui/coinBar/coinBar";
 import "./deckSelection.scss";
 
 const PLAYER_LIST = [
@@ -774,18 +775,18 @@ const DeckSelection = () => {
           <div className="deck-selection__currency">
             <div className="deck-selection__currencyTitle">Coins</div>
             <div className="deck-selection__currencyList">
-              <div className="deck-selection__currencyBar" aria-label="Coins">
-                {["Red", "Blue", "Green", "Yellow", "Orange"].flatMap((cls) => {
-                  const limit = isCampaignMode ? (campaignLimits?.[cls] ?? 0) : 5;
-                  const remaining = limit - (activeSpend[cls] ?? 0);
-                  return Array.from({ length: remaining }, (_, idx) => (
-                    <span
-                      key={`${cls}-coin-${idx}`}
-                      className={`deck-selection__currencySeg deck-selection__currencySeg--${cls.toLowerCase()}`}
-                    />
-                  ));
-                })}
-              </div>
+              <CoinBar
+                coinArray={Object.fromEntries(
+                  ["Red", "Blue", "Green", "Yellow", "Orange"].map((cls) => {
+                    const limit = isCampaignMode ? (campaignLimits?.[cls] ?? 0) : 5;
+                    const remaining = limit - (activeSpend[cls] ?? 0);
+                    return [cls, Math.max(0, remaining)];
+                  })
+                )}
+                segmentWidth={38}
+                height={20}
+                borderWidth={3}
+              />
             </div>
           </div>
 

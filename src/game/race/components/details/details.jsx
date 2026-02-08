@@ -20,6 +20,7 @@ const Details = ({
     : "No cards drawn yet.";
   const [autoDelay, setAutoDelay] = useState(() => autoDelayDefault);
   const [manualCooldown, setManualCooldown] = useState(false);
+  const showAutoStart = turnCount === 0 && autoDelay === 0;
 
   const autoDelayLabel = useMemo(() => {
     if (!autoDelay) return "Off";
@@ -97,6 +98,14 @@ const Details = ({
       </div>
 
       <div className="details__actions">
+        {showAutoStart && (
+          <Button
+            variant={BUTTON_VARIANT.SECONDARY}
+            onClick={() => setAutoDelay(0.3)}
+          >
+            Start Race in Auto
+          </Button>
+        )}
         <Button
           variant={BUTTON_VARIANT.PRIMARY}
           onClick={() => {

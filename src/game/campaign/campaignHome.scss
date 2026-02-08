@@ -9,11 +9,18 @@
     linear-gradient(135deg, $siteBackground, $secondaryBackground);
   color: $secondaryForeground;
   display: grid;
-  gap: 2rem;
+  gap: 1rem;
   align-items: flex-start;
+  grid-template-columns: 65% 35%;
+  grid-template-rows: 80px 155px auto;
+  grid-template-areas:
+    "header header"
+    "calendar stats"
+    "calendar info";
 }
 
 .campaign-home__header {
+  grid-area: header;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -25,24 +32,22 @@
 }
 
 .campaign-home__stats {
+  grid-area: stats;
   display: grid;
+  grid-template-columns: 60% 40%;
   gap: 0.75rem;
   background: rgba(15, 17, 23, 0.7);
   border-radius: 12px;
-  padding: 0.75rem 1rem;
+  padding: 1.5rem;
   border: 1px solid rgba(245, 247, 250, 0.08);
+  align-items: flex-start;
+  justify-items: start;
+}
 
-  span {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(245, 247, 250, 0.6);
-  }
-
-  strong {
-    font-size: 1.05rem;
-    color: $secondaryForeground;
-  }
+.campaign-home__statsMain {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .campaign-home__statRow {
@@ -54,13 +59,51 @@
 .campaign-home__statRow > div {
   display: grid;
   gap: 0.2rem;
-  text-align: right;
+  text-align: left;
 }
 
 .campaign-home__coinBar {
   display: grid;
   gap: 0.35rem;
   text-align: left;
+  justify-items: start;
+  width: auto;
+}
+
+.campaign-home__stats .btn {
+  justify-self: start;
+}
+
+.campaign-home__statsActions {
+  display: flex;
+  justify-content: flex-end;
+  width: 94%;
+  align-self: start;
+}
+
+.campaign-home__resultsModal {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.campaign-home__resultsRow {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(245, 247, 250, 0.08);
+}
+
+.campaign-home__resultsStandings {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.campaign-home__resultsItem {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.8);
 }
 
 .campaign-home__coinBarLabel {
@@ -70,45 +113,6 @@
   color: rgba(245, 247, 250, 0.6);
 }
 
-.campaign-home__coinBarTrack {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  border: 1px solid rgba(245, 247, 250, 0.15);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.campaign-home__coinSeg {
-  height: 14px;
-  min-width: 12px;
-  border-right: 2px solid rgba(15, 17, 23, 0.9);
-  display: block;
-}
-
-.campaign-home__coinSeg:last-child {
-  border-right: none;
-}
-
-.campaign-home__coinSeg--red {
-  background: $class-red;
-}
-
-.campaign-home__coinSeg--blue {
-  background: $class-blue;
-}
-
-.campaign-home__coinSeg--green {
-  background: $class-green;
-}
-
-.campaign-home__coinSeg--yellow {
-  background: $class-yellow;
-}
-
-.campaign-home__coinSeg--orange {
-  background: $class-orange;
-}
 
 .campaign-home__setup {
   display: grid;
@@ -170,12 +174,13 @@
 
 .campaign-home__controls {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
   align-items: center;
 }
 
 .campaign-home__info {
+  grid-area: info;
   display: grid;
   gap: 1rem;
   background: rgba(18, 22, 28, 0.78);
@@ -199,6 +204,16 @@
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(260px, 2fr);
   gap: 1.5rem;
+}
+
+.campaign-home__calendarPanel {
+  grid-area: calendar;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.campaign-home__calendar {
+  width: 100%;
 }
 
 .campaign-home__infoSection {
@@ -270,7 +285,38 @@
   text-transform: uppercase;
 }
 
+.campaign-home__endRaceModal {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.campaign-home__endRaceSummary {
+  font-weight: 600;
+}
+
+.campaign-home__endRaceStandings {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.campaign-home__endRaceRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 900px) {
+  .campaign-home {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "stats"
+      "info"
+      "calendar";
+  }
+
   .campaign-home__panel--piece {
     grid-column: span 1;
   }

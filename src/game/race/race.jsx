@@ -6,7 +6,8 @@ import useRaceEngine from "./components/raceEngine";
 import { useToast } from "../../engine/ui/toast/toast";
 import { useModal, MODAL_BUTTONS } from "../../engine/ui/modal/modalContext";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
-import { useGame } from "../../engine/gameContext/gameContext";
+import { DEFAULT_GAME_STATE, useGame } from "../../engine/gameContext/gameContext";
+import EndCampaignModal from "../campaign/components/endCampaignModal/endCampaignModal";
 import Piece from "./components/piece/piece";
 import themes from "../../assets/gameContent/themes";
 import "./race.scss";
@@ -14,6 +15,18 @@ import "./race.scss";
 const PAST_POST_BETS = {
   fast: { label: "Past The Post Fast (<=200)", threshold: 200 },
   slow: { label: "Past The Post Slow (>200)", threshold: 200 },
+};
+
+const CLASS_KEYS = ["Red", "Blue", "Green", "Yellow", "Orange"];
+
+const parseRaceReward = (rewardText) => {
+  if (!rewardText || rewardText === "N/A") return { gold: 0, classCoins: 0 };
+  const classMatch = rewardText.match(/(\d+)\s*Class Coin/i);
+  const goldMatch = rewardText.match(/(\d+)\s*coins?/i);
+  return {
+    classCoins: classMatch ? Number(classMatch[1] ?? 0) : 0,
+    gold: goldMatch ? Number(goldMatch[1] ?? 0) : 0,
+  };
 };
 
 const calcPayout = (stake, odds) => {
@@ -55,9 +68,12 @@ const Race = () => {
   const navigate = useNavigate();
   const { gameState, setGameState } = useGame();
   const betting = gameState?.betting ?? {};
+  const campaign = gameState?.campaign ?? {};
   const isBetting = betting.active === true;
+  const isCampaignRace = campaign.active && !!campaign.activeRace;
   const modalKeyRef = useRef(null);
   const bettingFinishRef = useRef(null);
+  const campaignFinishRef = useRef(null);
   const bettingRace = betting.currentRace;
   const bettingBets = betting.bets ?? [];
   const activeTheme = useMemo(
@@ -81,6 +97,7 @@ const Race = () => {
     if (!winner) {
       modalKeyRef.current = null;
       bettingFinishRef.current = null;
+      campaignFinishRef.current = null;
     }
   }, [winner]);
 
@@ -141,6 +158,124 @@ const Race = () => {
 
   useEffect(() => {
     if (!winner) return;
+    if (campaignFinishRef.current) return;
+    if (isCampaignRace) {
+      if (campaignFinishRef.current) return;
+      const activeRace = campaign.activeRace;
+      const playerPlace = standings.findIndex((p) => p.id === "player1") + 1;
+      const rewardMap = {
+        1: activeRace?.rewards?.first ?? "N/A",
+        2: activeRace?.rewards?.second ?? "N/A",
+        3: activeRace?.rewards?.third ?? "N/A",
+        4: activeRace?.rewards?.fourth ?? "N/A",
+      };
+      const reward = rewardMap[playerPlace] ?? "N/A";
+      let outcome = "normal";
+      if (reward === "Lose") outcome = "lose";
+      if (reward === "Win") outcome = "win";
+      if (reward === "Qualify") outcome = "qualify";
+
+      const result = {
+        raceId: activeRace?.id,
+        raceName: activeRace?.name ?? "Race",
+        place: playerPlace,
+        reward,
+        outcome,
+        standings: standings.map((player, index) => ({
+          id: player.id,
+          name: player.name,
+          place: index + 1,
+          position: player.position,
+        })),
+      };
+
+      setGameState((prev) => ({
+        ...prev,
+        campaign: {
+          ...prev.campaign,
+          racePhase: "end",
+          lastRaceResult: result,
+        },
+      }));
+
+      campaignFinishRef.current = "done";
+
+      openModal({
+        modalTitle:
+          outcome === "win"
+            ? "Campaign Complete"
+            : outcome === "lose"
+              ? "Campaign Over"
+              : "Race Results",
+        modalContent: (
+          <div className="race__winnerModal">
+            <p className="race__winnerModalText">{winner.name} wins the race!</p>
+            <div className="race__winnerModalStandings">
+              {result.standings.map((player) => (
+                <div key={`winner-stand-${player.id}`} className="race__winnerModalRow">
+                  <span>#{player.place}</span>
+                  <span>{player.name}</span>
+                  <span>Tile {player.position}</span>
+                </div>
+              ))}
+            </div>
+            <div className="race__bettingSummary">
+              <div className="race__bettingRow">
+                <span>Result</span>
+                <span>
+                  {result.place} - {result.reward}
+                </span>
+              </div>
+            </div>
+          </div>
+        ),
+        buttons: MODAL_BUTTONS.OK,
+        onClick: () => {
+          closeModal();
+          if (outcome === "lose" || outcome === "win") {
+            openModal({
+              modalTitle: outcome === "win" ? "Campaign Complete" : "Campaign Over",
+              modalContent: <EndCampaignModal />,
+              buttons: MODAL_BUTTONS.OK,
+              onClick: () => {
+                closeModal();
+                setGameState(DEFAULT_GAME_STATE);
+                navigate("/");
+              },
+            });
+            return;
+          }
+
+          const rewardGrant = parseRaceReward(reward);
+          setGameState((prev) => {
+            const current = prev.campaign?.coinArray ?? {};
+            let remaining = rewardGrant.classCoins ?? 0;
+            const nextCoins = { ...current };
+            while (remaining > 0) {
+              const cls = CLASS_KEYS[Math.floor(Math.random() * CLASS_KEYS.length)];
+              nextCoins[cls] = (nextCoins[cls] ?? 0) + 1;
+              remaining -= 1;
+            }
+            return {
+              ...prev,
+              campaign: {
+                ...prev.campaign,
+                results: [...(prev.campaign?.results ?? []), result],
+                racePhase: null,
+                activeRaceDayIndex: null,
+                activeRace: null,
+                lastRaceResult: null,
+                day: (prev.campaign?.day ?? 0) + 1,
+                goldCoins: (prev.campaign?.goldCoins ?? 0) + (rewardGrant.gold ?? 0),
+                coinArray: nextCoins,
+              },
+            };
+          });
+          navigate("/campaign");
+        },
+      });
+      return;
+    }
     if (bettingFinishRef.current === null) {
       bettingFinishRef.current =
         isBetting || (bettingRace && bettingBets.length >= 0) ? "bet" : "standard";
@@ -372,8 +507,12 @@ const Race = () => {
     betting.gold,
     betting.raceIndex,
     bettingRace,
+    campaign.active,
+    campaign.activeRace,
+    campaign.racePhase,
     closeModal,
     isBetting,
+    isCampaignRace,
     navigate,
     openModal,
     resetRace,

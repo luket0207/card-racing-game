@@ -422,6 +422,19 @@ const BettingMode = () => {
     navigate("/");
   }, [navigate, setGameState]);
 
+  const handleQuitBetting = useCallback(() => {
+    openModal({
+      modalTitle: "Quit Betting Run",
+      modalContent: <div>Are you sure you want to quit? Your current run will be lost.</div>,
+      buttons: MODAL_BUTTONS.YES_NO,
+      onYes: () => {
+        closeModal();
+        handleResetBetting();
+      },
+      onNo: () => closeModal(),
+    });
+  }, [closeModal, handleResetBetting, openModal]);
+
   const startRun = useCallback(
     (selectedThemeId) => {
       suppressPromptRef.current = true;
@@ -481,10 +494,10 @@ const BettingMode = () => {
               variant={BUTTON_VARIANT.TERTIARY}
               onClick={() => {
                 closeModal();
-                navigate("/");
+                handleQuitBetting();
               }}
             >
-              Back Home
+              Quit
             </Button>
           </div>
         </div>
@@ -529,8 +542,8 @@ const BettingMode = () => {
           </div>
         </div>
         <div className="betting-mode__headerActions">
-          <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
-            Back Home
+          <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuitBetting}>
+            Quit
           </Button>
         </div>
       </header>

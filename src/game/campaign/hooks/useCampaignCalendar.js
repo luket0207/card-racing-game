@@ -195,6 +195,15 @@ export const buildCampaignCalendar = ({ themeId, playerPieceId }) => {
     }
   }
 
+  // Mark tournament days (last two weeks).
+  const tournamentStart = totalDays - 14;
+  for (let day = tournamentStart; day < totalDays; day += 1) {
+    calendar[day] = {
+      ...calendar[day],
+      tournament: true,
+    };
+  }
+
   // Ensure days 1-2 remain normal even if races were assigned.
   calendar[0].type = DAY_TYPES.NORMAL;
   calendar[1].type = DAY_TYPES.NORMAL;

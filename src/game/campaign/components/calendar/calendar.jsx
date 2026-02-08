@@ -33,8 +33,8 @@ const Calendar = ({ calendar, dayIndex, monthNames, races }) => {
             <div
               key={`day-${absoluteDay}`}
               className={`campaign-calendar__day campaign-calendar__day--${type}${
-                absoluteDay === safeDay ? " campaign-calendar__day--active" : ""
-              }`}
+                day?.tournament ? " campaign-calendar__day--tournament" : ""
+              }${absoluteDay === safeDay ? " campaign-calendar__day--active" : ""}`}
             >
               <div className="campaign-calendar__dayNumber">{idx + 1}</div>
               {raceName ? (

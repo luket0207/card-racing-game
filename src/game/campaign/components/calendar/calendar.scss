@@ -33,10 +33,10 @@
 .campaign-calendar__day {
   background: rgba(0, 0, 0, 0.25);
   border-radius: 10px;
-  padding: 0.5rem 0.6rem;
+  padding: 0.2rem 0.6rem;
   display: grid;
   gap: 0.35rem;
-  min-height: 72px;
+  min-height: 90px;
   color: rgba(245, 247, 250, 0.8);
   border: 1px solid rgba(245, 247, 250, 0.06);
 }
@@ -62,8 +62,9 @@
   background: rgba($class-red, 0.2);
 }
 
-.campaign-calendar__day--event {
-  background: rgba($class-blue, 0.2);
+.campaign-calendar__day--tournament {
+  border-color: rgba($class-yellow, 0.6);
+  box-shadow: 0 0 0 1px rgba($class-yellow, 0.25);
 }
 
 
