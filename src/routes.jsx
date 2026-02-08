@@ -8,6 +8,7 @@ import RaceSetup from "./game/raceSetup/raceSetup";
 import BettingMode from "./game/bettingMode/bettingMode";
 import HowToPlay from "./game/howToPlay/howToPlay";
 import CampaignHome from "./game/campaign/campaignHome";
+import CampaignEvent from "./game/campaign/campaignEvent/campaignEvent";
 
 const NotFound = () => <div>404</div>;
 
@@ -20,6 +21,7 @@ export default function AppRoutes() {
       <Route path="/betting-mode" element={<BettingMode />} />
       <Route path="/how-to-play" element={<HowToPlay />} />
       <Route path="/campaign" element={<CampaignHome />} />
+      <Route path="/campaign-event" element={<CampaignEvent />} />
       <Route path="/deck-selection" element={<DeckSelection />} />
       <Route path="/race" element={<Race />} />
 

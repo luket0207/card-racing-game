@@ -1,0 +1,106 @@
+@use "../../../assets/scss/ui/import" as *;
+
+.campaign-event {
+  min-height: 100vh;
+  width: 100vw;
+  padding: 2.5rem clamp(1.5rem, 4vw, 4rem);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at top, rgba(155, 193, 231, 0.18), transparent 55%),
+    linear-gradient(135deg, $siteBackground, $secondaryBackground);
+  color: $secondaryForeground;
+}
+
+.campaign-event__card {
+  min-width: 720px;
+  background: rgba(15, 17, 23, 0.8);
+  border-radius: 16px;
+  padding: 2rem;
+  display: grid;
+  gap: 0.6rem;
+  border: 1px solid rgba(245, 247, 250, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  min-height: 470px;
+  align-items: flex-start;
+}
+
+.campaign-event__choices {
+  display: grid;
+  gap: 1rem;
+  height: 200px;
+
+  .btn {
+    min-height: 50px;
+  }
+}
+
+.campaign-event__preview {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.campaign-event__preview .btn {
+  justify-self: start;
+  width: auto;
+  align-self: start;
+  padding: 0.5rem 1.2rem;
+  height: 60px;
+}
+
+.campaign-event__preview .btn + .btn {
+  margin-top: 0.5rem;
+}
+
+.campaign-event__pickGrid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(180px, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  min-height: 140px;
+  margin-bottom: 1rem;
+}
+
+.campaign-event__choice {
+  background: rgba(31, 38, 45, 0.8);
+  border-radius: 10px;
+  padding: 1.3rem;
+  text-align: center;
+  border: 1px solid rgba(245, 247, 250, 0.08);
+  color: $secondaryForeground;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  min-height: 110px;
+}
+
+.campaign-event__choice--preview {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.campaign-event__choice:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 247, 250, 0.35);
+  background: rgba(45, 54, 66, 0.85);
+}
+
+.campaign-event__choice:disabled {
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+.campaign-event__result {
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  min-height: 52px;
+}
+
+.campaign-event__coinChoice {
+  display: grid;
+  gap: 0.6rem;
+}

@@ -62,6 +62,10 @@
   background: rgba($class-red, 0.2);
 }
 
+.campaign-calendar__day--event {
+  background: rgba($class-blue, 0.2);
+}
+
 
 @media (max-width: 900px) {
   .campaign-calendar__grid {

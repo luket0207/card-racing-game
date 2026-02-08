@@ -1,35 +1,43 @@
 const events = [
   {
     id: "EV1",
-    text: "{piece} offered you a chance to win 50 coins.",
+    text: "{piece} gave you 50 coins.",
     chance: "1",
     rarity: "Common",
     reward: "50 coins",
+    rewardCode: "GOLD:50",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV2",
-    text: "{piece} offered you a chance to win 100 coins.",
+    text: "{piece} gave you 100 coins.",
     chance: "1",
     rarity: "Uncommon",
     reward: "100 coins",
+    rewardCode: "GOLD:100",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV3",
-    text: "{piece} offered you a chance to win 200 coins.",
+    text: "{piece} gave you 200 coins.",
     chance: "1",
     rarity: "Rare",
     reward: "200 coins",
+    rewardCode: "GOLD:200",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV4",
-    text: "{piece} offered you a chance to win 500 coins.",
+    text: "{piece} gave you 500 coins.",
     chance: "1",
     rarity: "Very Rare",
     reward: "500 coins",
+    rewardCode: "GOLD:500",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV5",
@@ -37,7 +45,9 @@ const events = [
     chance: "1/2",
     rarity: "Common",
     reward: "100 coins",
+    rewardCode: "GOLD:100",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV6",
@@ -45,7 +55,9 @@ const events = [
     chance: "1/2",
     rarity: "Uncommon",
     reward: "200 coins",
+    rewardCode: "GOLD:200",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV7",
@@ -53,7 +65,9 @@ const events = [
     chance: "1/2",
     rarity: "Rare",
     reward: "500 coins",
+    rewardCode: "GOLD:500",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV8",
@@ -61,7 +75,9 @@ const events = [
     chance: "1/2",
     rarity: "Very Rare",
     reward: "1000 coins",
+    rewardCode: "GOLD:1000",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV9",
@@ -69,7 +85,9 @@ const events = [
     chance: "1/3",
     rarity: "Common",
     reward: "200 coins",
+    rewardCode: "GOLD:200",
     secondaryReward: "None",
+    secondaryRewardCode: null,
   },
   {
     id: "EV10",
@@ -78,6 +96,8 @@ const events = [
     rarity: "Uncommon",
     reward: "500 coins",
     secondaryReward: "50 coins",
+    rewardCode: "GOLD:500",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV11",
@@ -86,6 +106,8 @@ const events = [
     rarity: "Rare",
     reward: "1000 coins",
     secondaryReward: "50 coins",
+    rewardCode: "GOLD:1000",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV12",
@@ -94,6 +116,8 @@ const events = [
     rarity: "Very Rare",
     reward: "1500 coins",
     secondaryReward: "50 coins",
+    rewardCode: "GOLD:1500",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV13",
@@ -102,6 +126,8 @@ const events = [
     rarity: "Uncommon",
     reward: "1 Random Class Coin",
     secondaryReward: "50 coins",
+    rewardCode: "CLASS_COIN:RANDOM",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV14",
@@ -110,6 +136,8 @@ const events = [
     rarity: "Rare",
     reward: "1 Random Class Coin",
     secondaryReward: "50 coins",
+    rewardCode: "CLASS_COIN:RANDOM",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV15",
@@ -118,6 +146,8 @@ const events = [
     rarity: "Very Rare",
     reward: "1 Random Class Coin",
     secondaryReward: "50 coins",
+    rewardCode: "CLASS_COIN:RANDOM",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV16",
@@ -126,6 +156,8 @@ const events = [
     rarity: "Uncommon",
     reward: "1 Class Coin of your Choice",
     secondaryReward: "50 coins",
+    rewardCode: "CLASS_COIN:CHOICE",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV17",
@@ -134,6 +166,8 @@ const events = [
     rarity: "Rare",
     reward: "1 Class Coin of your Choice",
     secondaryReward: "50 coins",
+    rewardCode: "CLASS_COIN:CHOICE",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV18",
@@ -142,6 +176,8 @@ const events = [
     rarity: "Very Rare",
     reward: "1 Class Coin of your Choice",
     secondaryReward: "50 coins",
+    rewardCode: "CLASS_COIN:CHOICE",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV19",
@@ -150,6 +186,8 @@ const events = [
     rarity: "Common",
     reward: "Unlock a random Tier 2 card",
     secondaryReward: "50 coins",
+    rewardCode: "UNLOCK:TIER2",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV20",
@@ -158,6 +196,8 @@ const events = [
     rarity: "Uncommon",
     reward: "Unlock a random Tier 2 card",
     secondaryReward: "50 coins",
+    rewardCode: "UNLOCK:TIER2",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV21",
@@ -166,6 +206,8 @@ const events = [
     rarity: "Rare",
     reward: "Unlock a random Tier 2 card",
     secondaryReward: "50 coins",
+    rewardCode: "UNLOCK:TIER2",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV22",
@@ -174,6 +216,8 @@ const events = [
     rarity: "Very Rare",
     reward: "Unlock a random Tier 2 card",
     secondaryReward: "50 coins",
+    rewardCode: "UNLOCK:TIER2",
+    secondaryRewardCode: "GOLD:50",
   },
   {
     id: "EV23",
@@ -182,6 +226,8 @@ const events = [
     rarity: "Uncommon",
     reward: "Unlock a random Tier 3 card",
     secondaryReward: "100 coins",
+    rewardCode: "UNLOCK:TIER3",
+    secondaryRewardCode: "GOLD:100",
   },
   {
     id: "EV24",
@@ -190,6 +236,8 @@ const events = [
     rarity: "Rare",
     reward: "Unlock a random Tier 3 card",
     secondaryReward: "100 coins",
+    rewardCode: "UNLOCK:TIER3",
+    secondaryRewardCode: "GOLD:100",
   },
   {
     id: "EV25",
@@ -198,6 +246,8 @@ const events = [
     rarity: "Very Rare",
     reward: "Unlock a random Tier 3 card",
     secondaryReward: "100 coins",
+    rewardCode: "UNLOCK:TIER3",
+    secondaryRewardCode: "GOLD:100",
   },
 ];
 

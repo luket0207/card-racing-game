@@ -25,18 +25,12 @@
 }
 
 .campaign-home__stats {
-  display: inline-flex;
-  gap: 1rem;
+  display: grid;
+  gap: 0.75rem;
   background: rgba(15, 17, 23, 0.7);
   border-radius: 12px;
   padding: 0.75rem 1rem;
   border: 1px solid rgba(245, 247, 250, 0.08);
-
-  div {
-    display: grid;
-    gap: 0.2rem;
-    text-align: right;
-  }
 
   span {
     font-size: 0.7rem;
@@ -49,6 +43,71 @@
     font-size: 1.05rem;
     color: $secondaryForeground;
   }
+}
+
+.campaign-home__statRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(80px, 1fr));
+  gap: 1rem;
+}
+
+.campaign-home__statRow > div {
+  display: grid;
+  gap: 0.2rem;
+  text-align: right;
+}
+
+.campaign-home__coinBar {
+  display: grid;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.campaign-home__coinBarLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.campaign-home__coinBarTrack {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  border: 1px solid rgba(245, 247, 250, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.campaign-home__coinSeg {
+  height: 14px;
+  min-width: 12px;
+  border-right: 2px solid rgba(15, 17, 23, 0.9);
+  display: block;
+}
+
+.campaign-home__coinSeg:last-child {
+  border-right: none;
+}
+
+.campaign-home__coinSeg--red {
+  background: $class-red;
+}
+
+.campaign-home__coinSeg--blue {
+  background: $class-blue;
+}
+
+.campaign-home__coinSeg--green {
+  background: $class-green;
+}
+
+.campaign-home__coinSeg--yellow {
+  background: $class-yellow;
+}
+
+.campaign-home__coinSeg--orange {
+  background: $class-orange;
 }
 
 .campaign-home__setup {

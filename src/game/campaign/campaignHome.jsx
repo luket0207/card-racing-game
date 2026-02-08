@@ -52,27 +52,48 @@ const CampaignHome = () => {
   const campaign = gameState.campaign ?? DEFAULT_CAMPAIGN;
   const isActive = campaign.active === true;
 
-  const [playerName, setPlayerName] = useState(campaign.playerName || "");
+  const [playerName, setPlayerName] = useState(
+    campaign.playerName || "My Racing Campaign"
+  );
   const [themeId, setThemeId] = useState(campaign.themeId || themes[0]?.id);
   const [pieceId, setPieceId] = useState(campaign.pieceId || "");
   const [difficulty, setDifficulty] = useState(campaign.difficulty || "normal");
   const [isGeneratingRace, setIsGeneratingRace] = useState(false);
+  const [pieceNameMap, setPieceNameMap] = useState({});
 
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
     [themeId]
   );
 
+  useEffect(() => {
+    const pool = activeTheme?.namePool ?? [];
+    const pieces = activeTheme?.pieces ?? [];
+    if (activeTheme?.nameStyle !== "pooled" || pool.length === 0) {
+      setPieceNameMap({});
+      return;
+    }
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    const nextMap = pieces.reduce((acc, piece, idx) => {
+      acc[piece.id] = shuffled[idx] ?? piece.name;
+      return acc;
+    }, {});
+    setPieceNameMap(nextMap);
+  }, [activeTheme]);
+
   const pieceOptions = useMemo(
     () =>
       (activeTheme?.pieces ?? []).map((piece) => ({
-        label: piece.name,
+        label:
+          activeTheme?.nameStyle === "pooled"
+            ? pieceNameMap[piece.id] ?? piece.name
+            : piece.name,
         value: piece.id,
         color: piece.color,
         image: piece.image ?? null,
         icon: piece.icon ?? null,
       })),
-    [activeTheme]
+    [activeTheme, pieceNameMap]
   );
 
   const selectedPiece = useMemo(
@@ -233,6 +254,13 @@ const CampaignHome = () => {
     }
   }, [isActive, navigate, setGameState]);
 
+  useEffect(() => {
+    if (!isActive) return;
+    if (campaign.calendar?.[campaign.day]?.type === "event") {
+      navigate("/campaign-event");
+    }
+  }, [campaign.calendar, campaign.day, isActive, navigate]);
+
   if (!isActive) {
     return (
       <div className="campaign-home">
@@ -240,16 +268,6 @@ const CampaignHome = () => {
           <div>
             <h1>Campaign Mode</h1>
             <p>Choose your racer and prepare for a 12-week calendar.</p>
-          </div>
-          <div className="campaign-home__stats">
-            <div>
-              <span>Gold</span>
-              <strong>{campaign.goldCoins ?? 0}</strong>
-            </div>
-            <div>
-              <span>Points</span>
-              <strong>{campaign.points ?? 0}</strong>
-            </div>
           </div>
           <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
             Back Home
@@ -337,13 +355,29 @@ const CampaignHome = () => {
           <p>Current day: {currentDayType}</p>
         </div>
         <div className="campaign-home__stats">
-          <div>
-            <span>Gold</span>
-            <strong>{campaign.goldCoins ?? 0}</strong>
+          <div className="campaign-home__statRow">
+            <div>
+              <span>Gold</span>
+              <strong>{campaign.goldCoins ?? 0}</strong>
+            </div>
+            <div>
+              <span>Points</span>
+              <strong>{campaign.points ?? 0}</strong>
+            </div>
           </div>
-          <div>
-            <span>Points</span>
-            <strong>{campaign.points ?? 0}</strong>
+          <div className="campaign-home__coinBar">
+            <span className="campaign-home__coinBarLabel">Class Coins</span>
+            <div className="campaign-home__coinBarTrack" aria-label="Class Coins">
+              {["Red", "Blue", "Green", "Yellow", "Orange"].flatMap((cls) => {
+                const count = campaign.coinArray?.[cls] ?? 0;
+                return Array.from({ length: count }, (_, idx) => (
+                  <span
+                    key={`${cls}-coin-${idx}`}
+                    className={`campaign-home__coinSeg campaign-home__coinSeg--${cls.toLowerCase()}`}
+                  />
+                ));
+              })}
+            </div>
           </div>
         </div>
         <Button variant={BUTTON_VARIANT.TERTIARY} to="/">

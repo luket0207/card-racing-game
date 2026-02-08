@@ -1,4 +1,4 @@
-import { useGame } from "../../../engine/gameContext/gameContext";
+import { useGame } from "../../../../engine/gameContext/gameContext";
 import "./endCampaignModal.scss";
 
 const EndCampaignModal = () => {
