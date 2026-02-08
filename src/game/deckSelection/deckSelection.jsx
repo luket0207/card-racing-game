@@ -367,13 +367,12 @@ const DeckSelection = () => {
     [confirmed]
   );
 
-  const isReady = useMemo(
-    () => racers.every((player) => confirmed[player.id]),
-    [confirmed, racers]
-  );
-
   const activeDeckFull = activeDeck.length === 16;
   const activeConfirmed = confirmed[activePlayerId];
+  const allHumanDecksFull = useMemo(
+    () => humanRacers.every((player) => (decks[player.id] ?? []).length === 16),
+    [decks, humanRacers]
+  );
 
   const filteredCards = useMemo(() => {
     return cards.filter((card) => {
@@ -416,12 +415,7 @@ const DeckSelection = () => {
 
   const startRace = useCallback(() => {
     if (isCampaignMode) return;
-    const isLastHuman = activePlayerIndex === humanRacers.length - 1;
-    if (isLastHuman) {
-      if (!activeDeckFull) return;
-    } else if (!isReady) {
-      return;
-    }
+    if (!allHumanDecksFull) return;
     if (isExportMode) return;
     const withAiDecks = { ...decks };
     racers.forEach((r) => {
@@ -441,15 +435,14 @@ const DeckSelection = () => {
     navigate("/race");
   }, [
     activeDeckFull,
-    activePlayerIndex,
     activeTheme?.id,
     buildRandomDeck,
     clearLog,
     decks,
     humanRacers.length,
+    allHumanDecksFull,
     isCampaignMode,
     isExportMode,
-    isReady,
     navigate,
     racers,
     setGameState,
@@ -584,19 +577,38 @@ const DeckSelection = () => {
         <section className="deck-selection__players">
           <div className="deck-selection__leftGrid">
             <div className="deck-selection__leftControls">
-              <div className="deck-selection__playersHeader">
-                <h2>Players</h2>
-                <div className="deck-selection__playersHint">Current: {activePlayerName}</div>
-              </div>
-
               <div className="deck-selection__playerStatus">
                 {activePlayerId && (
                   <div className="deck-selection__playerRow deck-selection__playerRow--active">
-                    <span>{activePlayerName}</span>
-                    <span>
+                    <h2>{activePlayerName}</h2>
+                    <h4>
                       {(decks[activePlayerId] ?? []).length}/16
                       {confirmed[activePlayerId] ? " (OK)" : ""}
-                    </span>
+                    </h4>
+                  </div>
+                )}
+                {!isExportMode && !isCampaignMode && (
+                  <div className="deck-selection__playerPips" aria-label="Deck status">
+                    {humanRacers.map((player) => {
+                      const deckCount = (decks[player.id] ?? []).length;
+                      const isComplete = deckCount === 16;
+                      const isActive = player.id === activePlayerId;
+                      const pipClass = [
+                        "deck-selection__playerPip",
+                        isActive
+                          ? "deck-selection__playerPip--primary"
+                          : "deck-selection__playerPip--secondary",
+                        isComplete ? "deck-selection__playerPip--solid" : "deck-selection__playerPip--hollow",
+                      ].join(" ");
+
+                      return (
+                        <span
+                          key={`pip-${player.id}`}
+                          className={pipClass}
+                          title={`${player.name}: ${deckCount}/16`}
+                        />
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -628,14 +640,6 @@ const DeckSelection = () => {
                     disabled={!activeDeckFull || activeConfirmed}
                   >
                     Download Deck (.txt)
-                  </Button>
-                ) : !isCampaignMode && activePlayerIndex < humanRacers.length - 1 ? (
-                  <Button
-                    variant={BUTTON_VARIANT.PRIMARY}
-                    onClick={confirmDeck}
-                    disabled={!activeDeckFull || activeConfirmed}
-                  >
-                    Confirm & Next
                   </Button>
                 ) : null}
               </div>
@@ -680,13 +684,17 @@ const DeckSelection = () => {
                 )}
               </div>
 
-              {!isExportMode && !isCampaignMode && activePlayerIndex === humanRacers.length - 1 && (
+              {!isExportMode && !isCampaignMode && (
                 <div className="deck-selection__start">
-                  <div>{activeDeckFull ? "Deck ready to start." : "Select 16 cards to start."}</div>
+                  <div>
+                    {allHumanDecksFull
+                      ? "All decks are ready to start."
+                      : "All players must have 16 cards to start."}
+                  </div>
                   <Button
                     variant={BUTTON_VARIANT.PRIMARY}
                     onClick={startRace}
-                    disabled={!activeDeckFull}
+                    disabled={!allHumanDecksFull}
                   >
                     Start Race
                   </Button>

@@ -18,6 +18,13 @@ export default function App() {
   }, [activeThemeId]);
 
   useEffect(() => {
+    const navigation = performance.getEntriesByType("navigation")[0];
+    if (navigation?.type === "reload" && window.location.pathname !== "/") {
+      window.location.replace("/");
+    }
+  }, []);
+
+  useEffect(() => {
     const fallback =
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
     document.documentElement.style.setProperty(

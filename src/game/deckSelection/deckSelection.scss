@@ -93,15 +93,43 @@
   gap: 0.5rem;
 }
 
+.deck-selection__playerPips {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0 0.2rem;
+}
+
+.deck-selection__playerPip {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+}
+
+.deck-selection__playerPip--primary {
+  border-color: var(--button-primary);
+}
+
+.deck-selection__playerPip--secondary {
+  border-color: var(--button-secondary);
+}
+
+.deck-selection__playerPip--solid.deck-selection__playerPip--primary {
+  background: var(--button-primary);
+}
+
+.deck-selection__playerPip--solid.deck-selection__playerPip--secondary {
+  background: var(--button-secondary);
+}
+
 .deck-selection__playerNav {
   display: grid;
   gap: 0.6rem;
 }
 
 .deck-selection__playerRow {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.45rem 0.6rem;
+  padding: 1rem 0.6rem;
   border-radius: 8px;
   background: $secondaryBackground;
   font-weight: 600;
@@ -477,6 +505,5 @@
     grid-template-columns: 1fr;
   }
 }
-
 
 

@@ -167,7 +167,6 @@ const CampaignHome = () => {
       lastRaceResult: null,
     };
 
-    sessionStorage.setItem("campaignActive", "1");
     setGameState({
       ...DEFAULT_GAME_STATE,
       campaign: nextCampaign,
@@ -258,7 +257,6 @@ const CampaignHome = () => {
       buttons: MODAL_BUTTONS.YES_NO,
       onYes: () => {
         closeModal();
-        sessionStorage.removeItem("campaignActive");
         setGameState(DEFAULT_GAME_STATE);
         navigate("/");
       },
@@ -266,13 +264,6 @@ const CampaignHome = () => {
     });
   }, [closeModal, navigate, openModal, setGameState]);
 
-  useEffect(() => {
-    if (!isActive) return;
-    if (!sessionStorage.getItem("campaignActive")) {
-      setGameState(DEFAULT_GAME_STATE);
-      navigate("/");
-    }
-  }, [isActive, navigate, setGameState]);
 
   useEffect(() => {
     if (!isActive) return;
