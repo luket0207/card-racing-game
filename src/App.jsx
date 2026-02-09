@@ -107,17 +107,17 @@ export default function App() {
 
     const resolvedButtons = {
       primary: buttonColors.primary?.background ?? buttonDefaults.primary,
-      primaryText:
+      "primary-text":
         colors.primaryButtonTextColour ??
         buttonColors.primary?.text ??
         buttonDefaults.primaryText,
       secondary: buttonColors.secondary?.background ?? buttonDefaults.secondary,
-      secondaryText:
+      "secondary-text":
         colors.secondaryButtonTextColour ??
         buttonColors.secondary?.text ??
         buttonDefaults.secondaryText,
       tertiary: buttonColors.tertiary?.background ?? buttonDefaults.tertiary,
-      tertiaryText:
+      "tertiary-text":
         colors.tertiaryButtonTextColour ??
         buttonColors.tertiary?.text ??
         buttonDefaults.tertiaryText,

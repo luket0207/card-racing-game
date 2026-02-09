@@ -59,18 +59,18 @@ const Home = () => {
         </div>
         <div className="home__pod secondary-background-colour secondary-text-colour">
           <div className="home__podTitle">Game Modes</div>
-          <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuickRace}>
-            Quick Race
-          </Button>
-          <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
-            Single Race
-          </Button>
-          <Button variant={BUTTON_VARIANT.PRIMARY} to="/campaign">
-            Campaign Mode
-          </Button>
-          <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
-            Betting Mode
-          </Button>
+            <Button variant={BUTTON_VARIANT.PRIMARY} to="/campaign">
+              Campaign Mode
+            </Button>
+            <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
+              Betting Mode
+            </Button>
+            <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
+              Single Race
+            </Button>
+            <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuickRace}>
+              Quick Race
+            </Button>
         </div>
         <div className="home__pod home__pod--secondary secondary-background-colour secondary-text-colour">
           <div className="home__podTitle">Tools</div>

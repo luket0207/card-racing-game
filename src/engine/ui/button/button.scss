@@ -99,13 +99,13 @@
     filter: brightness(1.02);
   }
 
-  &--primary {
+  &.btn--primary {
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--button-primary) 94%, white),
       color-mix(in srgb, var(--button-primary) 92%, black)
     );
-    color: var(--button-primary-text);
+    color: var(--button-primary-text) !important;
     border: none;
 
     /* Keep text colour stable across link pseudo-states */
@@ -121,13 +121,13 @@
     }
   }
 
-  &--secondary {
+  &.btn--secondary {
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--button-secondary) 94%, white),
       color-mix(in srgb, var(--button-secondary) 94%, black)
     );
-    color: var(--button-secondary-text);
+    color: var(--button-secondary-text)!important;
     border: none;
 
     &::before {
@@ -143,13 +143,13 @@
     }
   }
 
-  &--tertiary {
+  &.btn--tertiary {
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--button-tertiary) 98%, white),
       color-mix(in srgb, var(--button-tertiary) 94%, black)
     );
-    color: var(--button-tertiary-text);
+    color: var(--button-tertiary-text) !important;
 
     /* Optional: a subtle border so it still reads as a button */
     border: none;

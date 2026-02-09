@@ -61,6 +61,25 @@ const Track = ({
   const tileRefs = useRef({});
 
   useEffect(() => {
+    const boardNode = boardRef.current;
+    if (!boardNode) return undefined;
+
+    boardNode.style.setProperty("--track-bg-y", "50%");
+
+    const handleMove = (event) => {
+      const ratio = Math.min(Math.max(event.clientY / window.innerHeight, 0), 1);
+      const yPos = 100 - (ratio * 100);
+      boardNode.style.setProperty("--track-bg-y", `${yPos}%`);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!onMeasure) return undefined;
 
     const measure = () => {

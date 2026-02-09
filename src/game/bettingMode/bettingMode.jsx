@@ -466,7 +466,7 @@ const BettingMode = () => {
     openModal({
       modalTitle: betting.active === true ? "Betting Mode" : "Start Betting Run",
       modalContent: (
-        <div className="betting-mode__themeModal">
+        <div className="betting-mode__themeModal ">
           <p>
             {betting.active === true
               ? "Pick a theme and choose whether to continue or start a new run."
@@ -531,10 +531,14 @@ const BettingMode = () => {
   const hideBehindModal = isModalOpen && betting.active !== true;
 
   return (
-    <div className={`betting-mode${hideBehindModal ? " betting-mode--masked" : ""}`}>
+    <div
+      className={`betting-mode site-background-colour secondary-text-colour${
+        hideBehindModal ? " betting-mode--masked" : ""
+      }`}
+    >
       <header className="betting-mode__header">
         <div className="betting-mode__summary">
-          <div className="betting-mode__gold">
+          <div className="betting-mode__gold secondary-background-colour secondary-text-colour">
             <span className="betting-mode__goldLabel">
               <FontAwesomeIcon icon={faCoins} />
               Gold
@@ -550,7 +554,7 @@ const BettingMode = () => {
       </header>
       
       {isOutOfGold && !hasBets ? (
-        <div className="betting-mode__racers">
+        <div className="betting-mode__racers primary-background-colour primary-text-colour">
           <h2>Game Over</h2>
           <p>You are out of gold coins.</p>
           <Button variant={BUTTON_VARIANT.PRIMARY} onClick={handleResetBetting}>
@@ -560,16 +564,19 @@ const BettingMode = () => {
       ) : (
         currentRace && (
         <div className="betting-mode__layout">
-          <section className="betting-mode__racers">
+          <section className="betting-mode__racers primary-background-colour primary-text-colour">
             <h1>Race {raceIndex} / 10</h1>
             <div className="betting-mode__favouriteHint">
               <span className="betting-mode__favouriteIcon" aria-hidden="true">
                 <FontAwesomeIcon icon={faStar} />
               </span>
-              <span>- Race Favourite</span>
+              <span className="secondary-text-colour">- Race Favourite</span>
             </div>
               {currentRace.racers.map((r) => (
-                <div key={r.id} className="betting-mode__racer">
+                <div
+                  key={r.id}
+                  className="betting-mode__racer secondary-background-colour secondary-text-colour"
+                >
                   <div className="betting-mode__racerRow">
                     <div className="betting-mode__racerIcon">
                       <Piece
@@ -591,7 +598,7 @@ const BettingMode = () => {
                           </span>
                         )}
                       </div>
-                      <div className="betting-mode__racerMeta">
+                      <div className="betting-mode__racerMeta secondary-text-colour">
                         Odds {r.odds[0]}/{r.odds[1]} ({coinTotalsToTier(r.coinTotal)})
                       </div>
                     </div>
@@ -600,7 +607,7 @@ const BettingMode = () => {
               ))}
           </section>
 
-          <section className="betting-mode__bets">
+          <section className="betting-mode__bets primary-background-colour primary-text-colour">
             <h2>Place Bets</h2>
             <div className="betting-mode__betRow">
               <div className="betting-mode__field">
@@ -649,7 +656,7 @@ const BettingMode = () => {
                   )}
                 </div>
               </div>
-              <div className="betting-mode__field betting-mode__betActionPod">
+              <div className="betting-mode__field betting-mode__betActionPod tertiary-background-colour tertiary-text-colour">
                 <div className="betting-mode__field">
                   <span className="betting-mode__fieldLabel">Stake</span>
                   <InputNumber
@@ -698,10 +705,13 @@ const BettingMode = () => {
 
             <div className="betting-mode__betsList">
               {bets.length === 0 ? (
-                <div className="betting-mode__empty">No bets placed yet.</div>
+                <div className="betting-mode__empty secondary-text-colour">No bets placed yet.</div>
               ) : (
                 bets.map((b) => (
-                  <div key={b.id} className="betting-mode__betItem">
+                  <div
+                    key={b.id}
+                    className="betting-mode__betItem secondary-background-colour secondary-text-colour"
+                  >
                     <span className="betting-mode__betType">
                       {betTypeLabels[b.type] ?? b.type}
                     </span>

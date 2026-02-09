@@ -21,14 +21,16 @@
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: 20px;
+    border-radius: 0 0 20px 20px;
     pointer-events: none;
   }
 
   &__board::before {
     background-image: var(--track-bg-image, none);
     background-size: cover;
-    background-position: 50% center;
+    background-position: 50% var(--track-bg-y, 50%);
+    transition: background-position 160ms ease-out;
+    will-change: background-position;
     z-index: 0;
   }
 

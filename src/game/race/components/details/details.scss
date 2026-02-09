@@ -9,6 +9,7 @@
       260px,
       1.2fr
     );
+  grid-template-rows: repeat(4, 72px);
   grid-template-areas:
     "counts counts log class"
     "leader leader auto cardSlot"
@@ -54,22 +55,72 @@
     grid-area: actions;
     display: grid;
     gap: 0.75rem;
+    grid-row: span 2;
+    align-items: flex-start;
   }
 
   &__activeBets {
     grid-area: activeBets;
-    display: grid;
-    gap: 0.5rem;
+    position: relative;
     border-radius: 12px;
-    padding: 0.6rem;
+    padding: 0.35rem 0.6rem;
+    overflow: visible;
   }
 
   &__betsHeader {
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0 0.2rem;
+  }
+
+  &__betsTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  &__betsCount {
+    font-weight: 700;
+  }
+
+  &__betsToggle {
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+    font-size: 2rem;
+  }
+
+  &__betsToggle--open {
+    transform: rotate(180deg);
+  }
+
+  &__betsPanel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.6rem);
+    padding: 0.8rem;
+    border-radius: 12px;
+    background: inherit;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    display: none;
+    max-height: 320px;
+    overflow: auto;
+    z-index: 5;
+  }
+
+  &__activeBets--open &__betsPanel {
+    display: block;
   }
 
   &__betsList {
@@ -114,6 +165,7 @@
     grid-area: auto;
     display: grid;
     gap: 0.4rem;
+    grid-row: 2;
 
     .p-slider {
       background: rgba(255, 255, 255, 0.2);
@@ -239,4 +291,3 @@
     }
   }
 }
-

@@ -7,7 +7,6 @@
   background:
     radial-gradient(circle at top, rgba(90, 60, 120, 0.25), transparent 55%),
     linear-gradient(135deg, #12121f, #1f2238);
-  color: \$textOnSecondaryBackground;
 }
 
 .betting-mode--masked {
@@ -43,9 +42,10 @@
   border-radius: 12px;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, $primaryBackground 90%, white),
-    color-mix(in srgb, $primaryBackground 80%, black)
+    color-mix(in srgb, $class-yellow 90%, white),
+    color-mix(in srgb, $class-yellow 80%, black)
   );
+  color: #1b1b1b;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
   text-align: center;
   justify-items: center;
@@ -55,7 +55,7 @@
   font-size: 1.05rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(27, 27, 27, 0.6);
+  color: #1b1b1b;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -71,7 +71,6 @@
 .betting-mode__raceInfo {
   font-size: 0.95rem;
   font-weight: 600;
-  color: color-mix(in srgb, $textOnTertiaryBackground 25%, transparent);
 }
 
 .betting-mode__headerActions {
@@ -94,7 +93,6 @@
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
   }
 
   select {
@@ -108,7 +106,6 @@
 
 .betting-mode__hint {
   font-size: 0.75rem;
-  color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
 }
 
 .betting-mode__themeDisplay {
@@ -200,7 +197,6 @@
 
 .betting-mode__racerMeta {
   font-size: 0.85rem;
-  color: color-mix(in srgb, $textOnTertiaryBackground 30%, transparent);
 }
 
 .betting-mode__racerStar {
@@ -210,7 +206,6 @@
 
 .betting-mode__favouriteHint {
   font-size: 0.8rem;
-  color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
   margin-top: -0.5rem;
   display: inline-flex;
   align-items: center;
@@ -236,7 +231,7 @@
   .p-inputnumber input {
     background: $tertiaryBackground;
     color: $tertiaryForeground;
-    border: none;
+    border: 1px solid color-mix(in srgb, $textOnTertiaryBackground 20%, transparent);
     border-radius: 8px;
     padding: 0.45rem 0.6rem;
     width: 100%;
@@ -286,7 +281,6 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: color-mix(in srgb, $textOnSecondaryBackground 65%, transparent);
 }
 
 .betting-mode__betActionPod {
@@ -302,7 +296,6 @@
 
 .betting-mode__betSummaryText {
   font-size: 0.85rem;
-  color: color-mix(in srgb, $textOnSecondaryBackground 80%, transparent);
   line-height: 1.3;
 }
 
@@ -327,18 +320,15 @@
 
 .betting-mode__odds {
   font-size: 0.85rem;
-  color: color-mix(in srgb, $textOnTertiaryBackground 30%, transparent);
 }
 
 .betting-mode__returns {
   font-size: 0.85rem;
-  color: color-mix(in srgb, $textOnTertiaryBackground 15%, transparent);
   font-weight: 600;
 }
 
 .betting-mode__betHint {
   font-size: 0.8rem;
-  color: color-mix(in srgb, $textOnSecondaryBackground 65%, transparent);
 }
 
 .betting-mode__betError {
@@ -430,11 +420,9 @@
 
 .betting-mode__betReturn {
   font-weight: 600;
-  color: color-mix(in srgb, $textOnTertiaryBackground 15%, transparent);
 }
 
 .betting-mode__empty {
-  color: color-mix(in srgb, $textOnTertiaryBackground 40%, transparent);
   font-size: 0.9rem;
 }
 
