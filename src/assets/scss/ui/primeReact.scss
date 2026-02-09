@@ -33,3 +33,23 @@
 .p-checkbox .p-checkbox-box .p-checkbox-icon {
   color: var(--button-primary-text);
 }
+
+/* Slider theming */
+.p-slider {
+  background: color-mix(in srgb, var(--button-secondary) 45%, transparent);
+  border-radius: 999px;
+}
+
+.p-slider .p-slider-range {
+  background: var(--button-primary);
+}
+
+.p-slider .p-slider-handle {
+  border: 2px solid var(--button-primary);
+  background: var(--button-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--button-primary) 25%, transparent);
+}
+
+.p-slider .p-slider-handle:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--button-primary) 50%, transparent);
+}

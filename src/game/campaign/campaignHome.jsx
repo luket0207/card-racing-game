@@ -5,6 +5,8 @@ import { InputText } from "primereact/inputtext";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
 import { DEFAULT_GAME_STATE, useGame } from "../../engine/gameContext/gameContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import themes from "../../assets/gameContent/themes";
 import cards from "../../assets/gameContent/cards";
 import events from "../../assets/gameContent/events";
@@ -384,6 +386,7 @@ const CampaignHome = () => {
       id: "player1",
       name: campaign.playerName || "Player",
       short: "P1",
+      type: "human",
       color: playerPiece?.color ?? "#ffffff",
       image: playerPiece?.image ?? null,
       icon: playerPiece?.icon ?? null,
@@ -392,6 +395,7 @@ const CampaignHome = () => {
       id: `player${idx + 2}`,
       name: opponent.name,
       short: `P${idx + 2}`,
+      type: "ai",
       color: opponent.color,
       image: opponent.image ?? null,
       icon: opponent.icon ?? null,
@@ -437,16 +441,32 @@ const CampaignHome = () => {
             <p>No results yet.</p>
           ) : (
             campaign.results.map((result, idx) => (
-              <div key={`result-${idx}`} className="campaign-home__resultsRow">
-                <strong>{result.raceName}</strong>
+              <div key={`result-${idx}`} className="campaign-home__resultsRow primary-background-colour primary-text-colour">
+                <h2>Race Day {idx + 1}</h2>
+                <strong>{result.raceName} </strong>
                 <span>Reward: {result.reward}</span>
                 <div className="campaign-home__resultsStandings">
-                  {(result.standings ?? []).map((entry) => (
-                    <div key={`result-${idx}-${entry.id}`} className="campaign-home__resultsItem">
-                      <span>#{entry.place}</span>
-                      <span>{entry.name}</span>
-                    </div>
-                  ))}
+                  {(result.standings ?? []).map((entry) => {
+                    const isHuman = entry.id === "player1";
+                    return (
+                      <div
+                        key={`result-${idx}-${entry.id}`}
+                        className={`campaign-home__resultsItem${
+                          isHuman ? " campaign-home__resultsItem--human" : ""
+                        }`}
+                      >
+                        <span>#{entry.place}</span>
+                        <span className="campaign-home__resultsName">
+                          {entry.name}
+                          {isHuman && (
+                            <span className="campaign-home__resultsHuman primary-text-colour" aria-label="Player">
+                              <FontAwesomeIcon icon={faUser} />
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))
@@ -551,7 +571,6 @@ const CampaignHome = () => {
       <header className="campaign-home__header">
         <div>
           <h1>Campaign Calendar</h1>
-          <p>Current day: {currentDayType}</p>
         </div>
       </header>
 
@@ -587,7 +606,7 @@ const CampaignHome = () => {
       <div className="campaign-home__info">
         <div className="campaign-home__infoHeader">
           <h2>{currentRace?.name ?? (currentDayType === "event" ? "Event" : "Today")}</h2>
-          <span>{currentRace ? `Race Day ${currentRaceIndex}` : currentDayType}</span>
+          <span>{currentRace ? `Race Day ${currentRaceIndex}` : ""}</span>
         </div>
         {currentDayType === "event" && currentEvent ? (
           <div className="campaign-home__infoBody">

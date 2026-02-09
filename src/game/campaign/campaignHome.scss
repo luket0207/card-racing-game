@@ -97,6 +97,8 @@
 .campaign-home__resultsModal {
   display: grid;
   gap: 0.6rem;
+  max-height: 400px;
+  overflow: auto;
 }
 
 .campaign-home__firstDayModal {
@@ -145,8 +147,14 @@
 .campaign-home__resultsRow {
   display: grid;
   gap: 0.2rem;
-  padding: 0.5rem 0;
+  padding: 1.2rem 1rem;
   border-bottom: 1px solid color-mix(in srgb, $textOnSecondaryBackground 8%, transparent);
+  border-radius: 14px;
+  margin-bottom: .6rem;
+
+  h2 {
+    margin-bottom: 1rem;
+  }
 }
 
 .campaign-home__resultsStandings {
@@ -159,7 +167,21 @@
   display: flex;
   gap: 0.75rem;
   font-size: 0.85rem;
-  color: color-mix(in srgb, $textOnSecondaryBackground 80%, transparent);
+}
+
+.campaign-home__resultsItem--human {
+  font-weight: 600;
+}
+
+.campaign-home__resultsName {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.campaign-home__resultsHuman {
+  font-size: 0.85em;
+  color: var(--button-primary-text);
 }
 
 .campaign-home__coinBarLabel {

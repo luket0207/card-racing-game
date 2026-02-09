@@ -68,7 +68,8 @@ const Track = ({
 
     const handleMove = (event) => {
       const ratio = Math.min(Math.max(event.clientY / window.innerHeight, 0), 1);
-      const yPos = 100 - (ratio * 100);
+      const maxShift = 10;
+      const yPos = 50 + (0.5 - ratio) * (maxShift * 2);
       boardNode.style.setProperty("--track-bg-y", `${yPos}%`);
     };
 
