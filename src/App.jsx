@@ -51,17 +51,14 @@ export default function App() {
       darkText: "#141a20",
       lightText: "#f5f7fb",
       links: "#6ec2ff",
-      primaryButtonTextColour: "#0b1117",
-      secondaryButtonTextColour: "#f5f7fb",
-      tertiaryButtonTextColour: "#f5f7fb",
     };
     const buttonDefaults = {
       primary: defaults.primaryBackground,
-      primaryText: defaults.primaryButtonTextColour ?? defaults.textOnPrimaryBackground,
+      primaryText: defaults.textOnPrimaryBackground,
       secondary: defaults.secondaryBackground,
-      secondaryText: defaults.secondaryButtonTextColour ?? defaults.textOnSecondaryBackground,
+      secondaryText: defaults.textOnSecondaryBackground,
       tertiary: defaults.tertiaryBackground,
-      tertiaryText: defaults.tertiaryButtonTextColour ?? defaults.textOnTertiaryBackground,
+      tertiaryText: defaults.textOnTertiaryBackground,
     };
 
     const resolved = {
@@ -107,20 +104,11 @@ export default function App() {
 
     const resolvedButtons = {
       primary: buttonColors.primary?.background ?? buttonDefaults.primary,
-      "primary-text":
-        colors.primaryButtonTextColour ??
-        buttonColors.primary?.text ??
-        buttonDefaults.primaryText,
+      "primary-text": buttonColors.primary?.text ?? buttonDefaults.primaryText,
       secondary: buttonColors.secondary?.background ?? buttonDefaults.secondary,
-      "secondary-text":
-        colors.secondaryButtonTextColour ??
-        buttonColors.secondary?.text ??
-        buttonDefaults.secondaryText,
+      "secondary-text": buttonColors.secondary?.text ?? buttonDefaults.secondaryText,
       tertiary: buttonColors.tertiary?.background ?? buttonDefaults.tertiary,
-      "tertiary-text":
-        colors.tertiaryButtonTextColour ??
-        buttonColors.tertiary?.text ??
-        buttonDefaults.tertiaryText,
+      "tertiary-text": buttonColors.tertiary?.text ?? buttonDefaults.tertiaryText,
     };
 
     Object.entries(resolved).forEach(([key, value]) => {

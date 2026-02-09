@@ -42,11 +42,7 @@ const themes = [
       tertiaryForeground: "#141a20",
       darkText: "#141a20",
       lightText: "#f5f7fb",
-      links: "#6ec2ff",
-      primaryButtonTextColour: "#0b1117",
-      secondaryButtonTextColour: "#f5f7fb",
-      tertiaryButtonTextColour: "#f5f7fb",
-    },
+      links: "#6ec2ff",    },
     buttonColors: {
       primary: { background: "#4fb3ff", text: "#0b1117" },
       secondary: { background: "#1f6fb8", text: "#f5f7fb" },
@@ -66,6 +62,10 @@ const themes = [
       "Viper",
       "Clutch",
       "Drift",
+      "Skid",
+      "Torque",
+      "Boost",
+      "Horizon",
     ],
     trackColor: "#dbe4ed",
     iconSize: "medium",
@@ -159,11 +159,7 @@ const themes = [
       tertiaryForeground: "#1a1324",
       darkText: "#1a1324",
       lightText: "#f2ecff",
-      links: "#b58cff",
-      primaryButtonTextColour: "#1a0f05",
-      secondaryButtonTextColour: "#f2ecff",
-      tertiaryButtonTextColour: "#16200f",
-    },
+      links: "#b58cff",    },
     buttonColors: {
       primary: { background: "#ff8a3d", text: "#1a0f05" },
       secondary: { background: "#7a4df2", text: "#f2ecff" },
@@ -274,11 +270,7 @@ const themes = [
       tertiaryForeground: "#121826",
       darkText: "#121826",
       lightText: "#f2f6ff",
-      links: "#7ad0ff",
-      primaryButtonTextColour: "#f7f7f7",
-      secondaryButtonTextColour: "#1a1a1a",
-      tertiaryButtonTextColour: "#f7f7f7",
-    },
+      links: "#7ad0ff",    },
     buttonColors: {
       primary: { background: "#e3363b", text: "#f7f7f7" },
       secondary: { background: "#f2b705", text: "#1a1a1a" },
@@ -425,11 +417,7 @@ const themes = [
       tertiaryForeground: "#2b1a0f",
       darkText: "#2b1a0f",
       lightText: "#f8f1e5",
-      links: "#ffd166",
-      primaryButtonTextColour: "#2b1a0f",
-      secondaryButtonTextColour: "#ffffff",
-      tertiaryButtonTextColour: "#f8f1e5",
-    },
+      links: "#ffd166",    },
     buttonColors: {
       primary: { background: "#d2b38a", text: "#2b1a0f" },
       secondary: { background: "#d9534f", text: "#ffffff" },
@@ -514,7 +502,7 @@ const themes = [
   {
     id: "horses",
     name: "Horses",
-    fontFamily: "Playwrite NZ",
+    fontFamily: "Playfair Display SC",
     uiColors: {
       siteBackground: "#0f1512",
       primaryBackground: "#203125",
@@ -528,15 +516,11 @@ const themes = [
       tertiaryForeground: "#152014",
       darkText: "#152014",
       lightText: "#edf3ea",
-      links: "#bfe28a",
-      primaryButtonTextColour: "#1b130a",
-      secondaryButtonTextColour: "#f4f6ef",
-      tertiaryButtonTextColour: "#1b1b1b",
-    },
+      links: "#bfe28a",    },
     buttonColors: {
-      primary: { background: "#c89b64", text: "#1b130a" },
-      secondary: { background: "#7f9b4a", text: "#f4f6ef" },
-      tertiary: { background: "#b8c45a", text: "#1b1b1b" },
+      primary: { background: "#c59a6c", text: "#1b130a" },
+      secondary: { background: "#8a6b4a", text: "#fffaf0" },
+      tertiary: { background: "#6b4b33", text: "#f4f6ef" },
     },
     trackBackground: horsesTrack,
     trackOverlay: 5,
@@ -643,3 +627,4 @@ const themes = [
 ];
 
 export default themes;
+

@@ -23,6 +23,15 @@
     "calendar info";
 }
 
+.campaign-home--setup {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "header"
+    "setup"
+    "actions";
+}
+
 .campaign-home__header {
   grid-area: header;
   display: flex;
@@ -119,6 +128,7 @@
 
 
 .campaign-home__setup {
+  grid-area: setup;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
@@ -171,6 +181,7 @@
 }
 
 .campaign-home__actions {
+  grid-area: actions;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;

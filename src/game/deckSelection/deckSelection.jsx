@@ -901,15 +901,14 @@ const DeckSelection = () => {
               const buyCost = card.cost === 2 ? 250 : card.cost === 3 ? 1000 : 0;
               const canBuy = isCampaignMode && !available && campaignGold >= buyCost;
               return (
-                <div key={card.id} className="deck-selection__card">
+                <div key={card.id} className="deck-selection__card tertiary-background-colour tertiary-text-colour">
                   <div
                     className={`deck-selection__cardHeader deck-selection__cardHeader--${card.class.toLowerCase()}`}
                   >
-                    {card.class}
+                    {card.class} ({card.cost})
                   </div>
                   <h3>{card.name}</h3>
                   <p>{card.text}</p>
-                  <div className="deck-selection__cardCost">Cost: {card.cost}</div>
                   {!available && isCampaignMode ? (
                     <Button
                       variant={BUTTON_VARIANT.TERTIARY}

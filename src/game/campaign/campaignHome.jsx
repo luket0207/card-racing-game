@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
@@ -65,14 +65,14 @@ const CampaignHome = () => {
   const campaign = gameState.campaign ?? DEFAULT_CAMPAIGN;
   const isActive = campaign.active === true;
 
-  const [playerName, setPlayerName] = useState(
-    campaign.playerName || "My Racing Campaign"
-  );
+  const [playerName, setPlayerName] = useState(campaign.playerName || "");
   const [themeId, setThemeId] = useState(campaign.themeId || themes[0]?.id);
   const [pieceId, setPieceId] = useState(campaign.pieceId || "");
   const [difficulty, setDifficulty] = useState(campaign.difficulty || "normal");
   const [isGeneratingRace, setIsGeneratingRace] = useState(false);
   const [pieceNameMap, setPieceNameMap] = useState({});
+  const [hasCustomName, setHasCustomName] = useState(Boolean(campaign.playerName));
+  const autoNameRef = useRef("");
 
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
@@ -113,6 +113,25 @@ const CampaignHome = () => {
     () => pieceOptions.find((p) => p.value === pieceId) ?? pieceOptions[0],
     [pieceId, pieceOptions]
   );
+
+  const getDefaultCampaignName = useCallback(() => {
+    const pool = activeTheme?.namePool ?? [];
+    const pieceLabel =
+      selectedPiece?.label ?? selectedPiece?.name ?? pieceOptions[0]?.label ?? "";
+
+    return pieceLabel || "Campaign";
+  }, [activeTheme, pieceNameMap, selectedPiece, pieceOptions]);
+
+  useEffect(() => {
+    if (campaign.playerName) return;
+    const shouldAuto = !hasCustomName || playerName === autoNameRef.current;
+    if (!shouldAuto) return;
+    const nextName = getDefaultCampaignName();
+    if (nextName && playerName !== nextName) {
+      autoNameRef.current = nextName;
+      setPlayerName(nextName);
+    }
+  }, [campaign.playerName, getDefaultCampaignName, hasCustomName, playerName]);
 
   const handleThemeChange = (value) => {
     setThemeId(value);
@@ -355,15 +374,12 @@ const CampaignHome = () => {
 
   if (!isActive) {
     return (
-      <div className="campaign-home">
+      <div className="campaign-home campaign-home--setup">
         <header className="campaign-home__header">
           <div>
             <h1>Campaign Mode</h1>
             <p>Choose your racer and prepare for a 12-week calendar.</p>
           </div>
-          <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
-            Back Home
-          </Button>
         </header>
 
         <div className="campaign-home__setup">
@@ -371,7 +387,10 @@ const CampaignHome = () => {
             <label>Name</label>
             <InputText
               value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
+              onChange={(e) => {
+                setPlayerName(e.target.value);
+                setHasCustomName(true);
+              }}
               disabled={isGeneratingRace}
             />
           </div>
@@ -427,6 +446,9 @@ const CampaignHome = () => {
         </div>
 
         <div className="campaign-home__actions">
+          <Button variant={BUTTON_VARIANT.TERTIARY} to="/">
+            Back Home
+          </Button>
           <Button
             variant={BUTTON_VARIANT.PRIMARY}
             onClick={startCampaign}

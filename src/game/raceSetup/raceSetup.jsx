@@ -155,7 +155,7 @@ const RaceSetup = () => {
         </Button>
       </header>
 
-      <div className="race-setup__controls primary-background-colour primary-text-colour">
+      <div className="race-setup__controls">
         <div className="race-setup__control secondary-background-colour secondary-text-colour">
           <label htmlFor="theme-select">Theme</label>
           <Dropdown

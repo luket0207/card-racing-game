@@ -18,3 +18,18 @@
 .p-dropdown-items {
     padding: 0;
 }
+
+/* Checkbox theming */
+.p-checkbox .p-checkbox-box {
+  background: var(--button-primary);
+  border-color: var(--button-primary);
+}
+
+.p-checkbox .p-checkbox-box.p-highlight {
+  background: var(--button-primary);
+  border-color: var(--button-primary);
+}
+
+.p-checkbox .p-checkbox-box .p-checkbox-icon {
+  color: var(--button-primary-text);
+}
