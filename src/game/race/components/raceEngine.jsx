@@ -467,6 +467,7 @@ const createInitialState = (deckOverrides = {}, racers = PLAYER_CONFIG) => {
     winner: null,
     turnCount: 0,
     raceClass: null,
+    lastCardClass: null,
     arrivalCounter: 0,
   };
 };
@@ -556,7 +557,7 @@ const useRaceEngine = () => {
       const activePlayer = tickedPlayers.find((player) => player.id === card.playerId);
       const cardData = cardLookup.get(card.cardId);
       const cardCode = cardData?.cardCode;
-      const raceClass = prev.raceClass;
+      const activeRaceClass = prev.lastCardClass ?? null;
 
       const result =
         activePlayer && cardCode
@@ -564,7 +565,7 @@ const useRaceEngine = () => {
               cardCode,
               activePlayer,
               tickedPlayers,
-              raceClass,
+              activeRaceClass,
               prev.arrivalCounter,
               totalLaps
             )
@@ -596,7 +597,8 @@ const useRaceEngine = () => {
         },
         winner,
         turnCount: prev.turnCount + 1,
-        raceClass: nextRaceClass,
+        raceClass: activeRaceClass,
+        lastCardClass: nextRaceClass,
         arrivalCounter: result.arrivalCounter ?? prev.arrivalCounter,
       };
     });
