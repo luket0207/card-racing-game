@@ -11,6 +11,7 @@ import { faCoins } from "@fortawesome/free-solid-svg-icons";
 import cards from "../../assets/gameContent/cards";
 import themes from "../../assets/gameContent/themes";
 import CoinBar from "../../engine/ui/coinBar/coinBar";
+import Piece from "../race/components/piece/piece";
 import "./deckSelection.scss";
 
 const PLAYER_LIST = [
@@ -36,15 +37,23 @@ const DeckSelection = () => {
   const { clearLog } = useToast();
   const { openModal, closeModal } = useModal();
   const racers = useMemo(() => {
+    const campaignTheme =
+      themes.find((t) => t.id === gameState?.campaign?.themeId) ?? themes[0];
+    const campaignPiece =
+      campaignTheme?.pieces?.find((p) => p.id === gameState?.campaign?.pieceId) ??
+      campaignTheme?.pieces?.[0];
+    const exportPiece = themes[0]?.pieces?.[0];
+    const fallbackPieces = themes[0]?.pieces ?? [];
     if (isCampaignMode) {
       return [
         {
           id: "player1",
           name: gameState?.campaign?.playerName || "Player",
           type: "human",
-          color:
-            themes.find((t) => t.id === gameState?.campaign?.themeId)?.pieces?.[0]?.color ??
-            "#ffffff",
+          pieceId: campaignPiece?.id ?? "piece-1",
+          color: campaignPiece?.color ?? "#ffffff",
+          image: campaignPiece?.image ?? null,
+          icon: campaignPiece?.icon ?? null,
         },
       ];
     }
@@ -54,22 +63,32 @@ const DeckSelection = () => {
           id: "player1",
           name: "Player 1",
           type: "human",
-          color: themes[0]?.pieces?.[0]?.color ?? "#ffffff",
+          pieceId: exportPiece?.id ?? "piece-1",
+          color: exportPiece?.color ?? "#ffffff",
+          image: exportPiece?.image ?? null,
+          icon: exportPiece?.icon ?? null,
         },
       ];
     }
     const list =
       Array.isArray(gameState?.racers) && gameState.racers.length > 0
         ? gameState.racers
-        : PLAYER_LIST.map((p, idx) => ({
-            id: p.id,
-            name: p.name,
-            type: idx < 2 ? "human" : "ai",
-            color: themes[0]?.pieces?.[idx % (themes[0]?.pieces?.length ?? 1)]?.color ?? "#ffffff",
-          }));
+        : PLAYER_LIST.map((p, idx) => {
+            const piece = fallbackPieces[idx % (fallbackPieces.length || 1)];
+            return {
+              id: p.id,
+              name: p.name,
+              type: idx < 2 ? "human" : "ai",
+              pieceId: piece?.id ?? `piece-${idx + 1}`,
+              color: piece?.color ?? "#ffffff",
+              image: piece?.image ?? null,
+              icon: piece?.icon ?? null,
+            };
+          });
     return list;
   }, [
     gameState?.campaign?.playerName,
+    gameState?.campaign?.pieceId,
     gameState?.campaign?.themeId,
     gameState?.racers,
     isCampaignMode,
@@ -98,8 +117,9 @@ const DeckSelection = () => {
 
   const humanRacers = useMemo(() => racers.filter((r) => r.type === "human"), [racers]);
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
-  const activePlayerId = humanRacers[activePlayerIndex]?.id ?? "player1";
-  const activePlayerName = humanRacers[activePlayerIndex]?.name ?? "Player 1";
+  const activePlayer = humanRacers[activePlayerIndex];
+  const activePlayerId = activePlayer?.id ?? "player1";
+  const activePlayerName = activePlayer?.name ?? "Player 1";
   const [decks, setDecks] = useState(() =>
     racers.reduce((acc, player) => {
       acc[player.id] = [];
@@ -580,6 +600,19 @@ const DeckSelection = () => {
               <div className="deck-selection__playerStatus">
                 {activePlayerId && (
                   <div className="deck-selection__playerRow deck-selection__playerRow--active">
+                    {activePlayer && (
+                      <div className="deck-selection__playerPiece">
+                        <Piece
+                          label={activePlayerName}
+                          color={activePlayer.color}
+                          playerId={activePlayer.id}
+                          status={[]}
+                          image={activePlayer.image}
+                          icon={activePlayer.icon}
+                          size="large"
+                        />
+                      </div>
+                    )}
                     <h2>{activePlayerName}</h2>
                     <h4>
                       {(decks[activePlayerId] ?? []).length}/16
@@ -704,11 +737,15 @@ const DeckSelection = () => {
                 <div className="deck-selection__campaignActions">
                   <Button
                     variant={BUTTON_VARIANT.TERTIARY}
+                    className="deck-selection__campaignCancel"
                     onClick={handleCampaignCancel}
                     disabled={(gameState?.campaign?.deck ?? []).length !== 16}
                   >
                     Cancel
                   </Button>
+                  <div className="deck-selection__campaignHint">
+                    You need to have 16 cards in your deck to continue.
+                  </div>
                   <Button
                     variant={BUTTON_VARIANT.PRIMARY}
                     onClick={() => {

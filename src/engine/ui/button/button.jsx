@@ -58,10 +58,11 @@ export const BUTTON_VARIANT = Object.freeze({
   IMAGE: "image",
 });
 
-const buildClassName = (base, variant, customClass, disabled) => {
+const buildClassName = (base, variant, customClass, disabled, isChoice) => {
   const parts = [base, `${base}--${variant}`];
 
   if (customClass) parts.push(customClass);
+  if (isChoice) parts.push(`${base}--choice`);
   if (disabled) parts.push(`${base}--disabled`);
 
   return parts.join(" ");
@@ -97,6 +98,7 @@ const Button = ({
   variant = BUTTON_VARIANT.PRIMARY,
   className = "",
   disabled = false,
+  choiceButton = false,
   replace = false,
   state,
 
@@ -124,7 +126,7 @@ const Button = ({
     throw new Error("[Button] variant=IMAGE requires the 'image' prop (string URL or React element).");
   }
 
-  const btnClassName = buildClassName("btn", variant, className, disabled);
+  const btnClassName = buildClassName("btn", variant, className, disabled, choiceButton);
 
   const wrapperStyle = useMemo(() => {
     if (!isImageVariant) return undefined;
@@ -142,9 +144,11 @@ const Button = ({
       return (
         <>
           <span className="btn__label">{children || "Button"}</span>
-          <span className="btn__chevron" aria-hidden="true">
-            <FontAwesomeIcon icon={faAnglesRight} />
-          </span>
+          {!choiceButton && (
+            <span className="btn__chevron" aria-hidden="true">
+              <FontAwesomeIcon icon={faAnglesRight} />
+            </span>
+          )}
         </>
       );
     }

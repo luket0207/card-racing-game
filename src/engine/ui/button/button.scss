@@ -99,6 +99,32 @@
     filter: brightness(1.02);
   }
 
+  &--choice {
+    border-radius: 18px;
+    padding: 1.1rem 4rem;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+    transition:
+      box-shadow 0.16s ease,
+      transform 0.16s ease,
+      filter 0.16s ease;
+  }
+
+  &--choice::before,
+  &--choice::after {
+    display: none;
+  }
+
+  &--choice:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 16px 28px rgba(0, 0, 0, 0.32),
+      0 6px 14px rgba(0, 0, 0, 0.24);
+  }
+
+  &--choice:active {
+    transform: translateY(-1px);
+  }
+
   &.btn--primary {
     background: linear-gradient(
       135deg,

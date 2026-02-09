@@ -133,6 +133,26 @@
   border-radius: 8px;
   background: $secondaryBackground;
   font-weight: 600;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
+  align-items: center;
+}
+
+.deck-selection__playerRow h2,
+.deck-selection__playerRow h4 {
+  margin: 0;
+}
+
+.deck-selection__playerPiece {
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
 }
 
 .deck-selection__playerRow--active {
@@ -459,6 +479,15 @@
   gap: 0.6rem;
 }
 
+.deck-selection__campaignHint {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, $textOnSecondaryBackground 75%, transparent);
+}
+
+.deck-selection__campaignCancel {
+  margin-bottom: 4rem;
+}
+
 .deck-selection__leftControls .deck-selection__playerNav,
 .deck-selection__leftControls .deck-selection__deckActions,
 .deck-selection__leftControls .deck-selection__confirm,
@@ -502,5 +531,3 @@
     grid-template-columns: 1fr;
   }
 }
-
-

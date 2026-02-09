@@ -25,6 +25,7 @@ const DEFAULT_CAMPAIGN = {
   pieceId: "",
   difficulty: "normal",
   coinArray: { Red: 3, Blue: 3, Green: 3, Yellow: 3, Orange: 3 },
+  firstDayBonusChosen: false,
   deck: [],
   library: [],
   goldCoins: 0,
@@ -39,10 +40,7 @@ const DEFAULT_CAMPAIGN = {
 const COST1_LIBRARY = cards.filter((card) => card.cost === 1).map((card) => card.id);
 
 const buildStartingCoinArray = () => {
-  const base = { Red: 3, Blue: 3, Green: 3, Yellow: 3, Orange: 3 };
-  const keys = Object.keys(base);
-  const boosted = keys[Math.floor(Math.random() * keys.length)];
-  return { ...base, [boosted]: 4 };
+  return { Red: 3, Blue: 3, Green: 3, Yellow: 3, Orange: 3 };
 };
 
 const CLASS_KEYS = ["Red", "Blue", "Green", "Yellow", "Orange"];
@@ -73,11 +71,56 @@ const CampaignHome = () => {
   const [pieceNameMap, setPieceNameMap] = useState({});
   const [hasCustomName, setHasCustomName] = useState(Boolean(campaign.playerName));
   const autoNameRef = useRef("");
+  const firstDayPromptedRef = useRef(false);
 
   const activeTheme = useMemo(
     () => themes.find((t) => t.id === themeId) ?? themes[0],
     [themeId]
   );
+
+  const FirstDayBonusModal = ({ onConfirm }) => {
+    const [choices, setChoices] = useState([]);
+
+    const toggleChoice = (cls) => {
+      setChoices((prev) => {
+        if (prev.includes(cls)) {
+          return prev.filter((item) => item !== cls);
+        }
+        if (prev.length >= 2) return prev;
+        return [...prev, cls];
+      });
+    };
+
+    return (
+      <div className="campaign-home__firstDayModal">
+        <p>Pick two different classes to gain +1 Class Coin for the rest of the campaign.</p>
+        <div className="campaign-home__firstDayChoices">
+          {CLASS_KEYS.map((cls) => {
+            const isSelected = choices.includes(cls);
+            return (
+              <Button
+                key={`class-${cls}`}
+                variant={isSelected ? BUTTON_VARIANT.PRIMARY : BUTTON_VARIANT.SECONDARY}
+                choiceButton
+                onClick={() => toggleChoice(cls)}
+              >
+                {cls}
+              </Button>
+            );
+          })}
+        </div>
+        <div className="campaign-home__firstDayActions">
+          <Button
+            variant={BUTTON_VARIANT.PRIMARY}
+            disabled={choices.length !== 2}
+            onClick={() => onConfirm(choices)}
+          >
+            Confirm & Build Deck
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const pool = activeTheme?.namePool ?? [];
@@ -142,6 +185,30 @@ const CampaignHome = () => {
     }
   };
 
+  const handleFirstDayBonusConfirm = useCallback(
+    (choices) => {
+      if (!Array.isArray(choices) || choices.length !== 2) return;
+      setGameState((prev) => {
+        const current = prev.campaign?.coinArray ?? buildStartingCoinArray();
+        const nextArray = { ...current };
+        choices.forEach((cls) => {
+          nextArray[cls] = (nextArray[cls] ?? 0) + 1;
+        });
+        return {
+          ...prev,
+          campaign: {
+            ...prev.campaign,
+            coinArray: nextArray,
+            firstDayBonusChosen: true,
+          },
+        };
+      });
+      closeModal();
+      navigate("/deck-selection?mode=campaign");
+    },
+    [closeModal, navigate, setGameState]
+  );
+
   const startCampaign = useCallback(() => {
     if (!playerName.trim()) {
       openModal({
@@ -178,7 +245,8 @@ const CampaignHome = () => {
       library: COST1_LIBRARY,
       deck: [],
       coinArray: buildStartingCoinArray(),
-      goldCoins: 2000,
+      goldCoins: 0,
+      firstDayBonusChosen: false,
       points: 0,
       racePhase: null,
       activeRaceDayIndex: null,
@@ -216,6 +284,23 @@ const CampaignHome = () => {
   const currentEventText = currentEvent
     ? currentEvent.text.replace("{piece}", currentEventPiece || "A rival")
     : null;
+
+  useEffect(() => {
+    if (!isActive) {
+      firstDayPromptedRef.current = false;
+      return;
+    }
+    if (campaign.day !== 0) return;
+    if (campaign.firstDayBonusChosen) return;
+    if (firstDayPromptedRef.current) return;
+    firstDayPromptedRef.current = true;
+    openModal({
+      modalTitle: "Choose Your Class Coins",
+      modalContent: <FirstDayBonusModal onConfirm={handleFirstDayBonusConfirm} />,
+      buttons: MODAL_BUTTONS.NONE,
+      onClose: () => {},
+    });
+  }, [campaign.day, campaign.firstDayBonusChosen, handleFirstDayBonusConfirm, isActive, openModal]);
 
   useEffect(() => {
     if (!currentRace || currentRace.decksGenerated) return;
@@ -513,44 +598,34 @@ const CampaignHome = () => {
           </div>
         ) : currentRace ? (
           <div className="campaign-home__infoBody">
-            <div className="campaign-home__infoSection">
-              <h3>Race Details</h3>
-              <p>Laps: {currentRace.laps}</p>
-              {isTournamentDay && <p>Tournament Week</p>}
-              <div className="campaign-home__rewards">
-                <strong>Rewards</strong>
-                <ul>
-                  <li>1st: {currentRace.rewards?.first ?? "N/A"}</li>
-                  <li>2nd: {currentRace.rewards?.second ?? "N/A"}</li>
-                  <li>3rd: {currentRace.rewards?.third ?? "N/A"}</li>
-                  <li>4th: {currentRace.rewards?.fourth ?? "N/A"}</li>
-                </ul>
+              <div className="campaign-home__infoSection">
+                <h3>Race Details</h3>
+                <p>Laps: {currentRace.laps}</p>
+                {isTournamentDay && <p>Tournament Week</p>}
+                <div className="campaign-home__rewards">
+                  <strong>Rewards</strong>
+                  <ul>
+                    <li>1st: {currentRace.rewards?.first ?? "N/A"}</li>
+                    <li>2nd: {currentRace.rewards?.second ?? "N/A"}</li>
+                    <li>3rd: {currentRace.rewards?.third ?? "N/A"}</li>
+                    <li>4th: {currentRace.rewards?.fourth ?? "N/A"}</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-            <div className="campaign-home__infoSection">
-              <h3>Opponents</h3>
-              <div className="campaign-home__opponents">
-                {currentRace.opponents?.map((opponent) => (
-                  <div key={opponent.id} className="campaign-home__opponent">
-                    <div className="campaign-home__opponentHeader">
-                      <span>{opponent.name}</span>
-                      <span className="campaign-home__opponentTier">Tier {opponent.tier}</span>
-                    </div>
-                    <div className="campaign-home__opponentDeck">
-                      {opponent.deckCards?.length ? (
-                        opponent.deckCards.map((card, idx) => (
-                          <span key={`${opponent.id}-${card.id}-${idx}`}>
-                            {card.id} ({card.cost})
-                          </span>
-                        ))
-                      ) : (
-                        <span>Deck pending...</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+              <div className="campaign-home__infoSection">
+                <h3>Opponents</h3>
+                <div className="campaign-home__opponents">
+                  {(currentRace.opponents ?? [])
+                    .slice()
+                    .sort((a, b) => (b.tier ?? 0) - (a.tier ?? 0))
+                    .map((opponent) => (
+                      <div key={opponent.id} className="campaign-home__opponent">
+                        <span>{opponent.name}</span>
+                        <span className="campaign-home__opponentTier">Tier {opponent.tier}</span>
+                      </div>
+                    ))}
+                </div>
               </div>
-            </div>
           </div>
         ) : (
           <div className="campaign-home__infoBody">
@@ -587,7 +662,9 @@ const CampaignHome = () => {
               variant={BUTTON_VARIANT.PRIMARY}
               onClick={handleNextDay}
               disabled={
-                isGeneratingRace || (campaign.day === 0 && (campaign.deck?.length ?? 0) !== 16)
+                isGeneratingRace ||
+                (campaign.day === 0 &&
+                  (!campaign.firstDayBonusChosen || (campaign.deck?.length ?? 0) !== 16))
               }
             >
               {campaign.day >= (campaign.calendar?.length ?? 1) - 1 ? "End Campaign" : "Next Day"}
