@@ -31,6 +31,10 @@ export default function App() {
       "--font-primary",
       `"${activeFont}", ${fallback}`
     );
+    document.documentElement.style.setProperty(
+      "--font-size-bump",
+      activeFont === "Creepster" ? "4px" : "0px"
+    );
   }, [activeFont]);
 
   useEffect(() => {
