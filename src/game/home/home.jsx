@@ -1,16 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import themes from "../../assets/gameContent/themes";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
+import { useModal, MODAL_BUTTONS } from "../../engine/ui/modal/modalContext";
+import { FileUpload } from "primereact/fileupload";
+import { loadGameFromTxtFile } from "../../engine/utils/saveGame/saveGame";
 import { buildFixedLimits, buildRandomDeck, buildRacersForTheme } from "../utils/raceSetupUtils";
 import "./home.scss";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { setGameState } = useGame();
+  const { setGameState, loadGameState } = useGame();
   const { clearLog } = useToast();
+  const { openModal, closeModal } = useModal();
+  const fileUploadRef = useRef(null);
 
   useEffect(() => {
     setGameState((prev) => ({ ...prev, themeId: "cars" }));
@@ -51,6 +56,58 @@ const Home = () => {
     navigate("/race");
   };
 
+  const handleCampaignStart = () => {
+    openModal({
+      modalTitle: "Campaign Mode",
+      buttons: MODAL_BUTTONS.NONE,
+      modalContent: (
+        <div className="home__campaignModal">
+          <p>Start a new campaign or load a previous save.</p>
+          <div className="home__campaignActions">
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={() => {
+                closeModal();
+                navigate("/campaign");
+              }}
+            >
+              Start New Campaign
+            </Button>
+            <FileUpload
+              ref={fileUploadRef}
+              mode="basic"
+              chooseLabel="Load Save (.txt)"
+              accept=".txt"
+              customUpload
+              onSelect={async (e) => {
+                try {
+                  const file = e.files?.[0];
+                  if (!file) return;
+                  const loaded = await loadGameFromTxtFile(file);
+                  loadGameState(loaded);
+                  closeModal();
+                  navigate("/campaign");
+                } catch (err) {
+                  openModal({
+                    modalTitle: "Load Failed",
+                    modalContent: <div>Could not load that save file.</div>,
+                    buttons: MODAL_BUTTONS.OK,
+                  });
+                } finally {
+                  fileUploadRef.current?.clear();
+                }
+              }}
+              uploadHandler={() => {}}
+            />
+            <Button variant={BUTTON_VARIANT.TERTIARY} onClick={closeModal}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ),
+    });
+  };
+
   return (
     <div className="home site-background-colour secondary-text-colour">
       <div className="home_content primary-background-colour primary-text-colour">
@@ -59,7 +116,7 @@ const Home = () => {
         </div>
         <div className="home__pod secondary-background-colour secondary-text-colour">
           <div className="home__podTitle">Game Modes</div>
-            <Button variant={BUTTON_VARIANT.PRIMARY} to="/campaign">
+            <Button variant={BUTTON_VARIANT.PRIMARY} onClick={handleCampaignStart}>
               Campaign Mode
             </Button>
             <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>

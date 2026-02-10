@@ -484,6 +484,10 @@
   color: color-mix(in srgb, $textOnSecondaryBackground 75%, transparent);
 }
 
+.deck-selection__campaignHint--hidden {
+  visibility: hidden;
+}
+
 .deck-selection__campaignCancel {
   margin-bottom: 4rem;
 }

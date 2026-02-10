@@ -747,7 +747,11 @@ const DeckSelection = () => {
                   >
                     Cancel
                   </Button>
-                  <div className="deck-selection__campaignHint">
+                  <div
+                    className={`deck-selection__campaignHint${
+                      activeDeckFull ? " deck-selection__campaignHint--hidden" : ""
+                    }`}
+                  >
                     You need to have 16 cards in your deck to continue.
                   </div>
                   <Button

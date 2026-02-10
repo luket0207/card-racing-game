@@ -387,6 +387,16 @@
   font-size: 0.9rem;
 }
 
+.campaign-home__quitActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.campaign-home__quitActions > * {
+  margin-top: 20px;
+}
+
 @media (max-width: 900px) {
   .campaign-home {
     grid-template-columns: 1fr;

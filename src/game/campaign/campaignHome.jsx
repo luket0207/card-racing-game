@@ -5,6 +5,7 @@ import { InputText } from "primereact/inputtext";
 import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
 import { DEFAULT_GAME_STATE, useGame } from "../../engine/gameContext/gameContext";
+import { saveGameToTxt } from "../../engine/utils/saveGame/saveGame";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import themes from "../../assets/gameContent/themes";
@@ -357,19 +358,39 @@ const CampaignHome = () => {
     }));
   }, [campaign.calendar?.length, campaign.day, closeModal, navigate, openModal, setGameState]);
 
+  const handleSaveCampaign = useCallback(() => {
+    saveGameToTxt(gameState, { filename: "campaign-save.txt" });
+  }, [gameState]);
+
   const handleQuit = useCallback(() => {
     openModal({
       modalTitle: "Quit Campaign",
-      modalContent: <div>Are you sure you want to quit? Your campaign will be lost.</div>,
-      buttons: MODAL_BUTTONS.YES_NO,
-      onYes: () => {
-        closeModal();
-        setGameState(DEFAULT_GAME_STATE);
-        navigate("/");
-      },
-      onNo: () => closeModal(),
+      buttons: MODAL_BUTTONS.NONE,
+      modalContent: (
+        <div>
+          <p>Do you want to save before quitting? Your campaign will be lost if you quit.</p>
+          <div className="campaign-home__quitActions">
+            <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleSaveCampaign}>
+              Save Game
+            </Button>
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={() => {
+                closeModal();
+                setGameState(DEFAULT_GAME_STATE);
+                navigate("/");
+              }}
+            >
+              Quit Campaign
+            </Button>
+            <Button variant={BUTTON_VARIANT.TERTIARY} onClick={closeModal}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ),
     });
-  }, [closeModal, navigate, openModal, setGameState]);
+  }, [closeModal, handleSaveCampaign, navigate, openModal, setGameState]);
 
 
   useEffect(() => {
@@ -699,6 +720,13 @@ const CampaignHome = () => {
             disabled={isGeneratingRace}
           >
             Edit Deck
+          </Button>
+          <Button
+            variant={BUTTON_VARIANT.SECONDARY}
+            onClick={handleSaveCampaign}
+            disabled={isGeneratingRace}
+          >
+            Save Game
           </Button>
           <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleQuit} disabled={isGeneratingRace}>
             Quit
