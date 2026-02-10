@@ -70,12 +70,26 @@ const getPlaceRank = (players, playerId) => {
   return higherCount + 1;
 };
 
-const evaluateCondition = (condition, player, players, raceClass) => {
+const evaluateCondition = (condition, player, players, raceClass, totalLaps, turnCount) => {
   const stage = getStage(player.position);
   const rank = getPlaceRank(players, player.id);
   const { surplus } = getStatusCounts(player);
+  const isMultiLap = totalLaps > 1;
+  const isFirstTurn = turnCount === 0;
+
+  if (/^L[1-5]M$/.test(condition)) {
+    const lapNumber = Number(condition[1]);
+    return isMultiLap && player.lap === lapNumber;
+  }
 
   switch (condition) {
+    case "L1":
+      return isMultiLap && player.lap === 1;
+    case "LL":
+    case "LLM":
+      return isMultiLap && player.lap === totalLaps;
+    case "SLR":
+      return totalLaps === 1;
     case "HAF":
       return player.position <= HALF;
     case "HAS":
@@ -106,13 +120,13 @@ const evaluateCondition = (condition, player, players, raceClass) => {
     case "CLO":
       return raceClass === "Orange";
     case "FIRP":
-      return rank === 1;
+      return !isFirstTurn && rank === 1;
     case "SECP":
-      return rank === 2;
+      return !isFirstTurn && rank === 2;
     case "THRP":
-      return rank === 3;
+      return !isFirstTurn && rank === 3;
     case "FORP":
-      return rank === 4;
+      return !isFirstTurn && rank === 4;
     default:
       return false;
   }
@@ -391,11 +405,21 @@ const applyStatusEffect = (effectToken, activePlayerId, players) => {
   return { players, events: [] };
 };
 
-const applyCardEffects = (cardCode, activePlayer, players, raceClass, arrivalCounter, totalLaps) => {
+const applyCardEffects = (
+  cardCode,
+  activePlayer,
+  players,
+  raceClass,
+  arrivalCounter,
+  totalLaps,
+  turnCount
+) => {
   const { conditions, effectsIfTrue, effectsIfFalse } = parseCardCode(cardCode);
   const allConditionsMet =
     conditions.length === 0 ||
-    conditions.every((condition) => evaluateCondition(condition, activePlayer, players, raceClass));
+    conditions.every((condition) =>
+      evaluateCondition(condition, activePlayer, players, raceClass, totalLaps, turnCount)
+    );
 
   const effectsToApply =
     conditions.length === 0 ? effectsIfTrue : allConditionsMet ? effectsIfTrue : effectsIfFalse;
@@ -567,7 +591,8 @@ const useRaceEngine = () => {
               tickedPlayers,
               activeRaceClass,
               prev.arrivalCounter,
-              totalLaps
+              totalLaps,
+              prev.turnCount
             )
           : { players: tickedPlayers, events: [], arrivalCounter: prev.arrivalCounter };
       const players = result.players;

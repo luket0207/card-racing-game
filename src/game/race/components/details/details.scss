@@ -5,16 +5,13 @@
   border-top-right-radius: 24px;
   padding: 1.5rem;
   display: grid;
-  grid-template-columns: minmax(220px, 1.2fr) minmax(220px, 1.2fr) minmax(220px, 1fr) minmax(
-      260px,
-      1.2fr
-    );
-  grid-template-rows: repeat(4, 72px);
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 60px);
   grid-template-areas:
-    "counts counts log class"
-    "leader leader auto cardSlot"
-    "leader leader actions cardSlot"
-    "activeBets activeBets BLANK cardSlot";
+    "counts counts log class class"
+    "leader leader auto cardSlot cardSlot"
+    "leader leader actions cardSlot cardSlot"
+    "activeBets activeBets BLANK cardSlot cardSlot";
   gap: 1rem;
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.35),
@@ -195,11 +192,11 @@
 
   &__cardSlot {
     grid-area: cardSlot;
-    min-height: 260px;
+    min-height: 100%;
   }
 
   &__cardPlaceholder {
-    min-height: 260px;
+    min-height: 100%;
   }
 
   &__log {
