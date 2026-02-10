@@ -148,6 +148,7 @@ const CampaignHome = () => {
             : piece.name,
         value: piece.id,
         color: piece.color,
+        gradient: piece.gradient ?? null,
         image: piece.image ?? null,
         icon: piece.icon ?? null,
       })),
@@ -388,6 +389,7 @@ const CampaignHome = () => {
       short: "P1",
       type: "human",
       color: playerPiece?.color ?? "#ffffff",
+      gradient: playerPiece?.gradient ?? null,
       image: playerPiece?.image ?? null,
       icon: playerPiece?.icon ?? null,
     };
@@ -397,6 +399,7 @@ const CampaignHome = () => {
       short: `P${idx + 2}`,
       type: "ai",
       color: opponent.color,
+      gradient: opponent.gradient ?? null,
       image: opponent.image ?? null,
       icon: opponent.icon ?? null,
     }));
@@ -518,6 +521,7 @@ const CampaignHome = () => {
                   <Piece
                     label={selectedPiece.label}
                     color={selectedPiece.color}
+                    gradient={selectedPiece.gradient}
                     playerId="campaign-player"
                     status={[]}
                     image={selectedPiece.image}

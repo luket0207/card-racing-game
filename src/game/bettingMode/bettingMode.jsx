@@ -47,6 +47,14 @@ const buildCoinLimits = () => {
   return { limits, total };
 };
 
+const shuffle = (items) => {
+  const array = [...items];
+  for (let i = array.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
 
@@ -114,6 +122,24 @@ const buildPastPostOdds = (racers) => {
   };
 };
 
+const assignRandomPieces = (racers, theme) => {
+  const pieces = shuffle(theme?.pieces ?? []);
+  const fixed = theme?.nameStyle === "fixed";
+  if (pieces.length === 0) return racers;
+  return racers.map((r, idx) => {
+    const piece = pieces[idx % pieces.length];
+    if (!piece) return r;
+    return {
+      ...r,
+      pieceId: piece.id,
+      color: piece.color ?? r.color,
+      gradient: piece.gradient ?? r.gradient,
+      image: piece.image ?? r.image,
+      icon: piece.icon ?? r.icon,
+      name: fixed ? piece.name : r.name,
+    };
+  });
+};
 
 const BettingMode = () => {
   const navigate = useNavigate();
@@ -188,7 +214,7 @@ const BettingMode = () => {
   }, [maxStake, minBet]);
 
   const generateRaceForTheme = useCallback((theme) => {
-    const racers = buildRacersForTheme(theme, 4).map((r) => {
+    const racers = assignRandomPieces(buildRacersForTheme(theme, 4), theme).map((r) => {
       let { limits, total } = buildCoinLimits();
       let deck = buildRandomDeck(limits);
       let safety = 0;
@@ -582,6 +608,7 @@ const BettingMode = () => {
                       <Piece
                         label={r.name}
                         color={r.color}
+                        gradient={r.gradient}
                         playerId={r.id}
                         status={[]}
                         image={r.image}
@@ -720,6 +747,7 @@ const BettingMode = () => {
                         <Piece
                           label={currentRace.racers.find((r) => r.id === b.racerId)?.name}
                           color={currentRace.racers.find((r) => r.id === b.racerId)?.color}
+                          gradient={currentRace.racers.find((r) => r.id === b.racerId)?.gradient}
                           playerId={b.racerId}
                           status={[]}
                           image={currentRace.racers.find((r) => r.id === b.racerId)?.image}
@@ -731,6 +759,7 @@ const BettingMode = () => {
                           <Piece
                             label={currentRace.racers.find((r) => r.id === b.firstId)?.name}
                             color={currentRace.racers.find((r) => r.id === b.firstId)?.color}
+                            gradient={currentRace.racers.find((r) => r.id === b.firstId)?.gradient}
                             playerId={b.firstId}
                             status={[]}
                             image={currentRace.racers.find((r) => r.id === b.firstId)?.image}
@@ -740,6 +769,7 @@ const BettingMode = () => {
                           <Piece
                             label={currentRace.racers.find((r) => r.id === b.secondId)?.name}
                             color={currentRace.racers.find((r) => r.id === b.secondId)?.color}
+                            gradient={currentRace.racers.find((r) => r.id === b.secondId)?.gradient}
                             playerId={b.secondId}
                             status={[]}
                             image={currentRace.racers.find((r) => r.id === b.secondId)?.image}

@@ -61,6 +61,7 @@ export const buildRacersForTheme = (theme, count = 4) => {
       type: "ai",
       pieceId: piece?.id ?? `piece-${idx + 1}`,
       color: piece?.color ?? "#ffffff",
+      gradient: piece?.gradient ?? null,
       image: piece?.image ?? null,
       icon: piece?.icon ?? null,
     };

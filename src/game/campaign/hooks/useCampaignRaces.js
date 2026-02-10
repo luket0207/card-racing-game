@@ -180,6 +180,7 @@ export const buildCampaignRaces = ({ calendar, themeId, difficulty, playerPieceI
       tier,
       pieceId: pieces[idx]?.id ?? `piece-${idx + 1}`,
       color: pieces[idx]?.color ?? "#ffffff",
+      gradient: pieces[idx]?.gradient ?? null,
       image: pieces[idx]?.image ?? null,
       icon: pieces[idx]?.icon ?? null,
       coinArray: null,

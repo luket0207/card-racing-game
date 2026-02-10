@@ -149,6 +149,7 @@ const Race = () => {
               <Piece
                 label={player.short}
                 color={player.color}
+                gradient={player.gradient}
                 playerId={player.id}
                 status={player.status}
                 image={player.image}
@@ -563,7 +564,7 @@ const Race = () => {
             lastDraw={lastDraw}
             winner={winner}
             onDraw={handleDraw}
-            autoDelayDefault={isBetting ? 0.6 : 0}
+            autoDelayDefault={isBetting ? 0.3 : 0}
             turnCount={turnCount}
             totalLaps={totalLaps}
             standings={standings}

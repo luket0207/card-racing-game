@@ -520,6 +520,7 @@ const useRaceEngine = () => {
         name: r.name,
         short: r.short ?? `P${idx + 1}`,
         color: r.color ?? PLAYER_CONFIG[idx]?.color ?? "#ffffff",
+        gradient: r.gradient ?? null,
         image: r.image ?? null,
         icon: r.icon ?? null,
       }));

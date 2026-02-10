@@ -38,6 +38,7 @@ const buildDefaultRacers = (count, humanCount, theme) => {
       type: isHuman ? "human" : "ai",
       pieceId: piece?.id ?? `piece-${i + 1}`,
       color: piece?.color ?? "#ffffff",
+      gradient: piece?.gradient ?? null,
       image: piece?.image ?? null,
       icon: piece?.icon ?? null,
     });
@@ -75,6 +76,7 @@ const RaceSetup = () => {
         ...r,
         pieceId: piece?.id ?? r.pieceId,
         color: piece?.color ?? r.color,
+        gradient: piece?.gradient ?? r.gradient,
         image: piece?.image ?? r.image,
         icon: piece?.icon ?? r.icon,
         name: fixed && piece ? piece.name : r.name,
@@ -129,6 +131,7 @@ const RaceSetup = () => {
       name: r.name.trim() || r.id,
       type: r.type,
       color: r.color,
+      gradient: r.gradient ?? null,
       pieceId: r.pieceId,
       image: r.image ?? null,
       icon: r.icon ?? null,
@@ -228,6 +231,7 @@ const RaceSetup = () => {
                   <Piece
                     label={racer.name}
                     color={racer.color}
+                    gradient={racer.gradient}
                     playerId={racer.id}
                     status={[]}
                     image={racer.image}
@@ -248,6 +252,7 @@ const RaceSetup = () => {
                     updateRacer(index, {
                       pieceId: piece.id,
                       color: piece.color,
+                      gradient: piece.gradient ?? null,
                       image: piece.image ?? null,
                       icon: piece.icon ?? null,
                       name,

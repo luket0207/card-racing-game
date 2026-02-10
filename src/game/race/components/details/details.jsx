@@ -114,6 +114,7 @@ const Details = ({
             <Piece
               label={first?.short}
               color={first?.color}
+              gradient={first?.gradient}
               playerId={bet.firstId}
               status={first?.status}
               image={first?.image}
@@ -125,6 +126,7 @@ const Details = ({
             <Piece
               label={second?.short}
               color={second?.color}
+              gradient={second?.gradient}
               playerId={bet.secondId}
               status={second?.status}
               image={second?.image}
@@ -144,6 +146,7 @@ const Details = ({
           <Piece
             label={target.short}
             color={target.color}
+            gradient={target.gradient}
             playerId={target.id}
             status={target.status}
             image={target.image}

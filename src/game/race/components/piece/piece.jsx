@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./piece.scss";
 
@@ -8,19 +9,50 @@ const getSurplus = (status = []) => {
   return { stamina, fatigue, surplus };
 };
 
-const Piece = ({ label, color, playerId, status, image, icon, size = "small" }) => {
+const Piece = ({ label, color, gradient, playerId, status, image, icon, size = "small" }) => {
   const { surplus } = getSurplus(status);
   const showBuff = surplus !== 0;
   const isStamina = surplus > 0;
   const badgeCount = Math.abs(surplus);
   const variant = image ? "image" : "icon";
   const iconPx = size === "large" ? 50 : size === "medium" ? 35 : 20;
+  const gradientId = useId().replace(/:/g, "");
+  const hasGradient = Array.isArray(gradient) && gradient.length >= 2;
 
   const content = (() => {
     if (image) {
       return <img className="race-piece__image" src={image} alt={label || "piece"} />;
     }
     if (icon) {
+      if (hasGradient && icon.icon) {
+        const [width, height, , , svgPathData] = icon.icon;
+        const paths = Array.isArray(svgPathData) ? svgPathData : [svgPathData];
+        return (
+          <svg
+            className="race-piece__icon-svg"
+            viewBox={`0 0 ${width} ${height}`}
+            width={iconPx}
+            height={iconPx}
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <linearGradient id={`piece-gradient-${gradientId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                {gradient.map((stop, idx) => (
+                  <stop
+                    key={`${gradientId}-stop-${idx}`}
+                    offset={`${(idx / (gradient.length - 1)) * 100}%`}
+                    stopColor={stop}
+                  />
+                ))}
+              </linearGradient>
+            </defs>
+            {paths.map((path, idx) => (
+              <path key={`${gradientId}-path-${idx}`} d={path} fill={`url(#piece-gradient-${gradientId})`} />
+            ))}
+          </svg>
+        );
+      }
       return (
         <FontAwesomeIcon
           icon={icon}

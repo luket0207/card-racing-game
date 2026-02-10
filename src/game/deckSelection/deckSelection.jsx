@@ -52,6 +52,7 @@ const DeckSelection = () => {
           type: "human",
           pieceId: campaignPiece?.id ?? "piece-1",
           color: campaignPiece?.color ?? "#ffffff",
+          gradient: campaignPiece?.gradient ?? null,
           image: campaignPiece?.image ?? null,
           icon: campaignPiece?.icon ?? null,
         },
@@ -65,6 +66,7 @@ const DeckSelection = () => {
           type: "human",
           pieceId: exportPiece?.id ?? "piece-1",
           color: exportPiece?.color ?? "#ffffff",
+          gradient: exportPiece?.gradient ?? null,
           image: exportPiece?.image ?? null,
           icon: exportPiece?.icon ?? null,
         },
@@ -81,6 +83,7 @@ const DeckSelection = () => {
               type: idx < 2 ? "human" : "ai",
               pieceId: piece?.id ?? `piece-${idx + 1}`,
               color: piece?.color ?? "#ffffff",
+              gradient: piece?.gradient ?? null,
               image: piece?.image ?? null,
               icon: piece?.icon ?? null,
             };
@@ -605,6 +608,7 @@ const DeckSelection = () => {
                         <Piece
                           label={activePlayerName}
                           color={activePlayer.color}
+                          gradient={activePlayer.gradient}
                           playerId={activePlayer.id}
                           status={[]}
                           image={activePlayer.image}
