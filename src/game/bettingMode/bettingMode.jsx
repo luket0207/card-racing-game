@@ -8,6 +8,7 @@ import Button, { BUTTON_VARIANT } from "../../engine/ui/button/button";
 import { useGame } from "../../engine/gameContext/gameContext";
 import { useToast } from "../../engine/ui/toast/toast";
 import { MODAL_BUTTONS, useModal } from "../../engine/ui/modal/modalContext";
+import { saveGameToTxt } from "../../engine/utils/saveGame/saveGame";
 import themes from "../../assets/gameContent/themes";
 import { buildRandomDeck, buildRacersForTheme } from "../utils/raceSetupUtils";
 import Piece from "../race/components/piece/piece";
@@ -449,18 +450,38 @@ const BettingMode = () => {
     navigate("/");
   }, [navigate, setGameState]);
 
+  const handleSaveBetting = useCallback(() => {
+    saveGameToTxt(gameState, { filename: "betting-save.txt" });
+  }, [gameState]);
+
   const handleQuitBetting = useCallback(() => {
     openModal({
       modalTitle: "Quit Betting Run",
-      modalContent: <div>Are you sure you want to quit? Your current run will be lost.</div>,
-      buttons: MODAL_BUTTONS.YES_NO,
-      onYes: () => {
-        closeModal();
-        handleResetBetting();
-      },
-      onNo: () => closeModal(),
+      buttons: MODAL_BUTTONS.NONE,
+      modalContent: (
+          <div>
+            <p>Do you want to save before quitting? Your betting run will be lost if you quit.</p>
+            <div className="betting-mode__quitActions">
+              <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleSaveBetting}>
+                Save Game
+              </Button>
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={() => {
+                closeModal();
+                handleResetBetting();
+              }}
+            >
+              Quit Betting Run
+            </Button>
+            <Button variant={BUTTON_VARIANT.TERTIARY} onClick={closeModal}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ),
     });
-  }, [closeModal, handleResetBetting, openModal]);
+  }, [closeModal, handleResetBetting, handleSaveBetting, openModal]);
 
   const startRun = useCallback(
     (selectedThemeId) => {
@@ -573,6 +594,9 @@ const BettingMode = () => {
           </div>
         </div>
         <div className="betting-mode__headerActions">
+          <Button variant={BUTTON_VARIANT.SECONDARY} onClick={handleSaveBetting}>
+            Save Game
+          </Button>
           <Button variant={BUTTON_VARIANT.TERTIARY} onClick={handleQuitBetting}>
             Quit
           </Button>

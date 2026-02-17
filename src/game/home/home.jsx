@@ -108,6 +108,58 @@ const Home = () => {
     });
   };
 
+  const handleBettingStart = () => {
+    openModal({
+      modalTitle: "Betting Mode",
+      buttons: MODAL_BUTTONS.NONE,
+      modalContent: (
+        <div className="home__campaignModal">
+          <p>Start a new betting run or load a previous save.</p>
+          <div className="home__campaignActions">
+            <Button
+              variant={BUTTON_VARIANT.PRIMARY}
+              onClick={() => {
+                closeModal();
+                navigate("/betting-mode", { state: { fromHome: true } });
+              }}
+            >
+              Start New Betting Run
+            </Button>
+            <FileUpload
+              ref={fileUploadRef}
+              mode="basic"
+              chooseLabel="Load Save (.txt)"
+              accept=".txt"
+              customUpload
+              onSelect={async (e) => {
+                try {
+                  const file = e.files?.[0];
+                  if (!file) return;
+                  const loaded = await loadGameFromTxtFile(file);
+                  loadGameState(loaded);
+                  closeModal();
+                  navigate("/betting-mode");
+                } catch (err) {
+                  openModal({
+                    modalTitle: "Load Failed",
+                    modalContent: <div>Could not load that save file.</div>,
+                    buttons: MODAL_BUTTONS.OK,
+                  });
+                } finally {
+                  fileUploadRef.current?.clear();
+                }
+              }}
+              uploadHandler={() => {}}
+            />
+            <Button variant={BUTTON_VARIANT.TERTIARY} onClick={closeModal}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ),
+    });
+  };
+
   return (
     <div className="home site-background-colour secondary-text-colour">
       <div className="home_content primary-background-colour primary-text-colour">
@@ -119,7 +171,7 @@ const Home = () => {
             <Button variant={BUTTON_VARIANT.PRIMARY} onClick={handleCampaignStart}>
               Campaign Mode
             </Button>
-            <Button variant={BUTTON_VARIANT.PRIMARY} to="/betting-mode" state={{ fromHome: true }}>
+            <Button variant={BUTTON_VARIANT.PRIMARY} onClick={handleBettingStart}>
               Betting Mode
             </Button>
             <Button variant={BUTTON_VARIANT.SECONDARY} to="/race-setup">
